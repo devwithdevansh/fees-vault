@@ -408,49 +408,33 @@ class _StudentCard extends StatelessWidget {
                       if (student.batch != null && student.batch!.isNotEmpty)
                         _BatchTag(label: student.batch!),
                       if (student.phone != null && student.phone!.isNotEmpty)
-                        GestureDetector(
-                          onTap: () {
-                            HapticFeedback.selectionClick();
-                            Clipboard.setData(
-                              ClipboardData(text: student.phone!),
-                            );
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text(
-                                  'Copied phone "${student.phone!}" to clipboard',
-                                ),
-                                duration: const Duration(seconds: 2),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.surfaceSubtle,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(
+                                Icons.phone_outlined,
+                                size: 10,
+                                color: AppColors.textSecondary,
                               ),
-                            );
-                          },
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.surfaceSubtle,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                const Icon(
-                                  Icons.copy_rounded,
-                                  size: 10,
+                              const SizedBox(width: 4),
+                              Text(
+                                student.phone!,
+                                style: const TextStyle(
+                                  fontSize: 11,
                                   color: AppColors.textSecondary,
+                                  fontWeight: FontWeight.w600,
                                 ),
-                                const SizedBox(width: 4),
-                                Text(
-                                  student.phone!,
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    color: AppColors.textSecondary,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ],
-                            ),
+                              ),
+                            ],
                           ),
                         ),
                       Text(

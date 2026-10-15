@@ -200,37 +200,6 @@ class _PaymentDetailReceiptScreenState
         ),
         backgroundColor: AppColors.surface,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(
-              Icons.copy_outlined,
-              color: AppColors.textSecondary,
-            ),
-            tooltip: 'Copy Receipt Summary',
-            onPressed: () {
-              final text =
-                  '''
-RECEIPT #${pm.receiptNumber}
-${widget.controller.businessName.toUpperCase()}
-Student: ${pm.payerName ?? 'N/A'}
-Fee: ${pm.chargeTitle ?? 'N/A'}
-Amount Paid: ${CurrencyFormatter.formatPaise(pm.amountPaise)}
-Date: ${CurrencyFormatter.formatDisplayDate(pm.paidDate)}
-Method: ${pm.method}
-${pm.reference != null && pm.reference!.isNotEmpty ? 'Ref: ${pm.reference}\n' : ''}Status: Verified Payment
-'''
-                      .trim();
-              Clipboard.setData(ClipboardData(text: text));
-              HapticFeedback.lightImpact();
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('Receipt summary copied to clipboard'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-            },
-          ),
-        ],
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
           child: Divider(height: 1, color: AppColors.divider),

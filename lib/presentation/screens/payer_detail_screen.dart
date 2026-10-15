@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/formatters/currency_formatter.dart';
 import '../../data/models/batch.dart';
@@ -373,43 +372,23 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                   ],
                   if (p.phone != null && p.phone!.isNotEmpty) ...[
                     const SizedBox(height: 6),
-                    GestureDetector(
-                      onTap: () {
-                        HapticFeedback.selectionClick();
-                        Clipboard.setData(ClipboardData(text: p.phone!));
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(
-                            content: Text(
-                              'Copied phone "${p.phone!}" to clipboard',
-                            ),
-                            duration: const Duration(seconds: 2),
-                          ),
-                        );
-                      },
-                      child: Row(
-                        children: [
-                          const Icon(
-                            Icons.phone_outlined,
-                            size: 16,
+                    Row(
+                      children: [
+                        const Icon(
+                          Icons.phone_outlined,
+                          size: 16,
+                          color: AppColors.textSecondary,
+                        ),
+                        const SizedBox(width: 8),
+                        Text(
+                          'Parent: ${p.phone!}',
+                          style: const TextStyle(
+                            fontSize: 13.5,
                             color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w600,
                           ),
-                          const SizedBox(width: 8),
-                          Text(
-                            'Parent: ${p.phone!}',
-                            style: const TextStyle(
-                              fontSize: 13.5,
-                              color: AppColors.textSecondary,
-                              fontWeight: FontWeight.w600,
-                            ),
-                          ),
-                          const SizedBox(width: 6),
-                          const Icon(
-                            Icons.copy_rounded,
-                            size: 12,
-                            color: AppColors.textTertiary,
-                          ),
-                        ],
-                      ),
+                        ),
+                      ],
                     ),
                   ],
                   if (p.notes != null && p.notes!.isNotEmpty) ...[
