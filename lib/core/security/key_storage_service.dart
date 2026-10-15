@@ -13,14 +13,15 @@ class KeyStorageService {
   final FlutterSecureStorage _storage;
 
   KeyStorageService({FlutterSecureStorage? storage})
-      : _storage = storage ??
-            const FlutterSecureStorage(
-              iOptions: IOSOptions(
-                accessibility: KeychainAccessibility.unlocked_this_device,
-                synchronizable: false,
-              ),
-              aOptions: AndroidOptions(),
-            );
+    : _storage =
+          storage ??
+          const FlutterSecureStorage(
+            iOptions: IOSOptions(
+              accessibility: KeychainAccessibility.unlocked_this_device,
+              synchronizable: false,
+            ),
+            aOptions: AndroidOptions(),
+          );
 
   /// Retrieves the existing database key from Keychain / Keystore.
   /// Returns null if no key has been provisioned yet.

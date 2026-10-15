@@ -9,7 +9,7 @@ class AuthService {
   final LocalAuthentication _localAuth;
 
   AuthService({LocalAuthentication? localAuth})
-      : _localAuth = localAuth ?? LocalAuthentication();
+    : _localAuth = localAuth ?? LocalAuthentication();
 
   /// Checks if the device has passcode or biometrics set up.
   Future<bool> isDeviceSecure() async {
@@ -28,7 +28,9 @@ class AuthService {
     String reason = 'Unlock FeesVault to access fee records',
   }) async {
     try {
-      debugPrint('[FeesVault] Requesting system authentication (biometric + passcode fallback)...');
+      debugPrint(
+        '[FeesVault] Requesting system authentication (biometric + passcode fallback)...',
+      );
       final result = await _localAuth.authenticate(
         localizedReason: reason,
         biometricOnly: false, // Allows device passcode fallback!
@@ -36,7 +38,9 @@ class AuthService {
       debugPrint('[FeesVault] System authentication result: $result');
       return result;
     } on PlatformException catch (e) {
-      debugPrint('[FeesVault] PlatformException during auth: code=${e.code}, message=${e.message}, details=${e.details}');
+      debugPrint(
+        '[FeesVault] PlatformException during auth: code=${e.code}, message=${e.message}, details=${e.details}',
+      );
       if (e.code == 'NotAvailable' || e.code == 'PasscodeNotSet') {
         throw BiometricAuthException(
           'Device passcode or biometrics not configured on this device. A device passcode is required to secure FeesVault.',

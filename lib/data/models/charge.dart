@@ -1,11 +1,6 @@
 import '../../core/formatters/currency_formatter.dart';
 
-enum ChargeStatus {
-  settled,
-  overdue,
-  partial,
-  unpaid,
-}
+enum ChargeStatus { settled, overdue, partial, unpaid }
 
 /// Charge domain model representing a fee obligation.
 class Charge {
@@ -52,7 +47,8 @@ class Charge {
   int get netFeePaise => netChargePaise;
 
   bool get isSettled => outstandingPaise == 0;
-  bool get isOverdue => outstandingPaise > 0 && CurrencyFormatter.isDateOverdue(dueDate);
+  bool get isOverdue =>
+      outstandingPaise > 0 && CurrencyFormatter.isDateOverdue(dueDate);
   bool get isPartial => paidPaise > 0 && outstandingPaise > 0;
   bool get isUnpaid => paidPaise == 0 && outstandingPaise > 0;
 
@@ -92,7 +88,8 @@ class Charge {
     };
   }
 
-  factory Charge.fromMap(Map<String, dynamic> map, {
+  factory Charge.fromMap(
+    Map<String, dynamic> map, {
     String? payerName,
     int paidPaise = 0,
   }) {

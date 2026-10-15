@@ -19,7 +19,8 @@ class PayersScreen extends StatefulWidget {
   State<PayersScreen> createState() => _PayersScreenState();
 }
 
-class _PayersScreenState extends State<PayersScreen> with SingleTickerProviderStateMixin {
+class _PayersScreenState extends State<PayersScreen>
+    with SingleTickerProviderStateMixin {
   final TextEditingController _searchController = TextEditingController();
   late TabController _tabController;
 
@@ -51,8 +52,12 @@ class _PayersScreenState extends State<PayersScreen> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
-    final activeStudents = widget.controller.payers.where((p) => !p.archived).toList();
-    final archivedStudents = widget.controller.payers.where((p) => p.archived).toList();
+    final activeStudents = widget.controller.payers
+        .where((p) => !p.archived)
+        .toList();
+    final archivedStudents = widget.controller.payers
+        .where((p) => p.archived)
+        .toList();
     final topPadding = MediaQuery.of(context).padding.top;
 
     return Scaffold(
@@ -81,7 +86,10 @@ class _PayersScreenState extends State<PayersScreen> with SingleTickerProviderSt
                     ),
                     // Student count badge
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 4,
+                      ),
                       decoration: BoxDecoration(
                         color: AppColors.brandLight,
                         borderRadius: BorderRadius.circular(20),
@@ -95,26 +103,6 @@ class _PayersScreenState extends State<PayersScreen> with SingleTickerProviderSt
                         ),
                       ),
                     ),
-                    const SizedBox(width: 8),
-                    GestureDetector(
-                      onTap: () async {
-                        HapticFeedback.lightImpact();
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => PayerFormScreen(controller: widget.controller),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        padding: const EdgeInsets.all(9),
-                        decoration: BoxDecoration(
-                          color: AppColors.brand,
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        child: const Icon(Icons.person_add_rounded, color: Colors.white, size: 18),
-                      ),
-                    ),
                   ],
                 ),
                 const SizedBox(height: 14),
@@ -125,7 +113,11 @@ class _PayersScreenState extends State<PayersScreen> with SingleTickerProviderSt
                   onChanged: (_) => setState(() {}),
                   decoration: InputDecoration(
                     hintText: 'Search by name, phone, or batch…',
-                    prefixIcon: const Icon(Icons.search_rounded, size: 20, color: AppColors.textTertiary),
+                    prefixIcon: const Icon(
+                      Icons.search_rounded,
+                      size: 20,
+                      color: AppColors.textTertiary,
+                    ),
                     suffixIcon: _searchController.text.isNotEmpty
                         ? IconButton(
                             icon: const Icon(Icons.close_rounded, size: 18),
@@ -136,7 +128,10 @@ class _PayersScreenState extends State<PayersScreen> with SingleTickerProviderSt
                           )
                         : null,
                     fillColor: AppColors.surfaceSubtle,
-                    contentPadding: const EdgeInsets.symmetric(vertical: 0, horizontal: 16),
+                    contentPadding: const EdgeInsets.symmetric(
+                      vertical: 0,
+                      horizontal: 16,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -148,8 +143,14 @@ class _PayersScreenState extends State<PayersScreen> with SingleTickerProviderSt
                   unselectedLabelColor: AppColors.textTertiary,
                   indicatorColor: AppColors.brand,
                   indicatorWeight: 2,
-                  labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w700),
-                  unselectedLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                  labelStyle: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  unselectedLabelStyle: const TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w500,
+                  ),
                   tabs: [
                     Tab(text: 'Active (${activeStudents.length})'),
                     Tab(text: 'Archived (${archivedStudents.length})'),
@@ -188,11 +189,16 @@ class _PayersScreenState extends State<PayersScreen> with SingleTickerProviderSt
           HapticFeedback.lightImpact();
           await Navigator.push(
             context,
-            MaterialPageRoute(builder: (_) => PayerFormScreen(controller: widget.controller)),
+            MaterialPageRoute(
+              builder: (_) => PayerFormScreen(controller: widget.controller),
+            ),
           );
         },
         icon: const Icon(Icons.person_add_rounded),
-        label: const Text('Add Student', style: TextStyle(fontWeight: FontWeight.w700)),
+        label: const Text(
+          'Add Student',
+          style: TextStyle(fontWeight: FontWeight.w700),
+        ),
       ),
     );
   }
@@ -290,10 +296,8 @@ class _StudentList extends StatelessWidget {
         padding: const EdgeInsets.fromLTRB(16, 16, 16, 100),
         itemCount: students.length,
         separatorBuilder: (_, _) => const SizedBox(height: 10),
-        itemBuilder: (context, index) => _StudentCard(
-          student: students[index],
-          controller: controller,
-        ),
+        itemBuilder: (context, index) =>
+            _StudentCard(student: students[index], controller: controller),
       ),
     );
   }
@@ -309,7 +313,13 @@ class _StudentCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final hasOutstanding = student.totalOutstandingPaise > 0;
     final initials = student.name.isNotEmpty
-        ? student.name.trim().split(' ').map((w) => w[0]).take(2).join().toUpperCase()
+        ? student.name
+              .trim()
+              .split(' ')
+              .map((w) => w[0])
+              .take(2)
+              .join()
+              .toUpperCase()
         : '?';
 
     return GestureDetector(
@@ -318,10 +328,8 @@ class _StudentCard extends StatelessWidget {
         await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => PayerDetailScreen(
-              payerId: student.id,
-              controller: controller,
-            ),
+            builder: (_) =>
+                PayerDetailScreen(payerId: student.id, controller: controller),
           ),
         );
       },
@@ -331,7 +339,9 @@ class _StudentCard extends StatelessWidget {
           color: AppColors.surface,
           borderRadius: BorderRadius.circular(16),
           border: Border.all(
-            color: hasOutstanding && !student.archived ? AppColors.unpaidAmberBg : AppColors.divider,
+            color: hasOutstanding && !student.archived
+                ? AppColors.unpaidAmberBg
+                : AppColors.divider,
           ),
         ),
         child: Row(
@@ -357,7 +367,9 @@ class _StudentCard extends StatelessWidget {
                 style: TextStyle(
                   fontWeight: FontWeight.w800,
                   fontSize: 16,
-                  color: student.archived ? AppColors.archivedGray : Colors.white,
+                  color: student.archived
+                      ? AppColors.archivedGray
+                      : Colors.white,
                 ),
               ),
             ),
@@ -396,13 +408,57 @@ class _StudentCard extends StatelessWidget {
                       if (student.batch != null && student.batch!.isNotEmpty)
                         _BatchTag(label: student.batch!),
                       if (student.phone != null && student.phone!.isNotEmpty)
-                        Text(
-                          'Parent: ${student.phone!}',
-                          style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+                        GestureDetector(
+                          onTap: () {
+                            HapticFeedback.selectionClick();
+                            Clipboard.setData(
+                              ClipboardData(text: student.phone!),
+                            );
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text(
+                                  'Copied phone "${student.phone!}" to clipboard',
+                                ),
+                                duration: const Duration(seconds: 2),
+                              ),
+                            );
+                          },
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.surfaceSubtle,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                const Icon(
+                                  Icons.copy_rounded,
+                                  size: 10,
+                                  color: AppColors.textSecondary,
+                                ),
+                                const SizedBox(width: 4),
+                                Text(
+                                  student.phone!,
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    color: AppColors.textSecondary,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
                       Text(
                         '${student.chargeCount} fee installments',
-                        style: const TextStyle(fontSize: 11.5, color: AppColors.textTertiary),
+                        style: const TextStyle(
+                          fontSize: 11.5,
+                          color: AppColors.textTertiary,
+                        ),
                       ),
                     ],
                   ),
@@ -420,15 +476,22 @@ class _StudentCard extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.w800,
-                    color: hasOutstanding ? AppColors.unpaidAmber : AppColors.settledGreen,
+                    color: hasOutstanding
+                        ? AppColors.unpaidAmber
+                        : AppColors.settledGreen,
                     letterSpacing: -0.2,
                   ),
                 ),
                 const SizedBox(height: 3),
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 7,
+                    vertical: 2,
+                  ),
                   decoration: BoxDecoration(
-                    color: hasOutstanding ? AppColors.unpaidAmberBg : AppColors.settledGreenBg,
+                    color: hasOutstanding
+                        ? AppColors.unpaidAmberBg
+                        : AppColors.settledGreenBg,
                     borderRadius: BorderRadius.circular(6),
                   ),
                   child: Text(
@@ -436,7 +499,9 @@ class _StudentCard extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 10.5,
                       fontWeight: FontWeight.w700,
-                      color: hasOutstanding ? AppColors.unpaidAmber : AppColors.settledGreen,
+                      color: hasOutstanding
+                          ? AppColors.unpaidAmber
+                          : AppColors.settledGreen,
                     ),
                   ),
                 ),

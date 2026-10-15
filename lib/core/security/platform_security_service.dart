@@ -5,23 +5,25 @@ import '../constants/app_constants.dart';
 /// Platform security service interfacing with native Swift code on iOS
 /// to apply and verify NSFileProtectionComplete and isExcludedFromBackup.
 class PlatformSecurityService {
-  static const MethodChannel _channel = MethodChannel(AppConstants.securityChannelName);
+  static const MethodChannel _channel = MethodChannel(
+    AppConstants.securityChannelName,
+  );
 
   /// Applies complete file protection and backup exclusion to the target directory / file.
-  Future<Map<String, dynamic>> applyProtectionAndBackupExclusion(String path) async {
+  Future<Map<String, dynamic>> applyProtectionAndBackupExclusion(
+    String path,
+  ) async {
     if (Platform.isIOS) {
       try {
         final result = await _channel.invokeMethod<Map<dynamic, dynamic>>(
           'applyFileProtectionAndBackupExclusion',
           {'path': path},
         );
-        return result != null ? Map<String, dynamic>.from(result) : {'success': false};
+        return result != null
+            ? Map<String, dynamic>.from(result)
+            : {'success': false};
       } on PlatformException catch (e) {
-        return {
-          'success': false,
-          'error': e.message,
-          'code': e.code,
-        };
+        return {'success': false, 'error': e.message, 'code': e.code};
       }
     } else if (Platform.isAndroid) {
       // On Android, the private application support directory is sandboxed
@@ -52,16 +54,15 @@ class PlatformSecurityService {
           'verifyFileProtection',
           {'path': path},
         );
-        return result != null ? Map<String, dynamic>.from(result) : {'verified': false};
+        return result != null
+            ? Map<String, dynamic>.from(result)
+            : {'verified': false};
       } on PlatformException catch (e) {
-        return {
-          'verified': false,
-          'error': e.message,
-          'code': e.code,
-        };
+        return {'verified': false, 'error': e.message, 'code': e.code};
       }
     } else if (Platform.isAndroid) {
-      final exists = await File(path).exists() || await Directory(path).exists();
+      final exists =
+          await File(path).exists() || await Directory(path).exists();
       return {
         'verified': exists,
         'path': path,

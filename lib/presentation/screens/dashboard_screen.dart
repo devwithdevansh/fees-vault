@@ -47,7 +47,10 @@ class DashboardScreen extends StatelessWidget {
             SliverToBoxAdapter(
               child: Padding(
                 padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
-                child: _QuickActions(controller: controller, hasStudents: hasStudents),
+                child: _QuickActions(
+                  controller: controller,
+                  hasStudents: hasStudents,
+                ),
               ),
             ),
 
@@ -133,7 +136,10 @@ class DashboardScreen extends StatelessWidget {
                     const Spacer(),
                     Text(
                       '${controller.recentPayments.length} logged',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textTertiary),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textTertiary,
+                      ),
                     ),
                   ],
                 ),
@@ -227,7 +233,9 @@ class _DashboardHeader extends StatelessWidget {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const AcademyWalkthroughScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => const AcademyWalkthroughScreen(),
+                    ),
                   );
                 },
                 child: Container(
@@ -236,7 +244,11 @@ class _DashboardHeader extends StatelessWidget {
                     color: Colors.white.withValues(alpha: 0.15),
                     borderRadius: BorderRadius.circular(12),
                   ),
-                  child: const Icon(Icons.help_outline_rounded, color: Colors.white, size: 20),
+                  child: const Icon(
+                    Icons.help_outline_rounded,
+                    color: Colors.white,
+                    size: 20,
+                  ),
                 ),
               ),
             ],
@@ -251,7 +263,11 @@ class _DashboardHeader extends StatelessWidget {
                 children: [
                   const Text(
                     'Total Outstanding',
-                    style: TextStyle(color: Color(0xFFB0B8FF), fontSize: 12, fontWeight: FontWeight.w500),
+                    style: TextStyle(
+                      color: Color(0xFFB0B8FF),
+                      fontSize: 12,
+                      fontWeight: FontWeight.w500,
+                    ),
                   ),
                   const SizedBox(height: 4),
                   TweenAnimationBuilder<double>(
@@ -276,7 +292,10 @@ class _DashboardHeader extends StatelessWidget {
               const Spacer(),
               if (overdueCount > 0)
                 Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 6,
+                  ),
                   decoration: BoxDecoration(
                     color: AppColors.overdueRed.withValues(alpha: 0.9),
                     borderRadius: BorderRadius.circular(20),
@@ -284,7 +303,11 @@ class _DashboardHeader extends StatelessWidget {
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 14),
+                      const Icon(
+                        Icons.warning_amber_rounded,
+                        color: Colors.white,
+                        size: 14,
+                      ),
                       const SizedBox(width: 4),
                       Text(
                         '$overdueCount overdue',
@@ -324,7 +347,9 @@ class _QuickActions extends StatelessWidget {
           onTap: () async {
             await Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => BatchFormScreen(controller: controller)),
+              MaterialPageRoute(
+                builder: (_) => BatchFormScreen(controller: controller),
+              ),
             );
           },
         ),
@@ -335,7 +360,9 @@ class _QuickActions extends StatelessWidget {
           onTap: () async {
             await Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => PayerFormScreen(controller: controller)),
+              MaterialPageRoute(
+                builder: (_) => PayerFormScreen(controller: controller),
+              ),
             );
           },
         ),
@@ -350,7 +377,9 @@ class _QuickActions extends StatelessWidget {
             }
             await Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => ChargeFormScreen(controller: controller)),
+              MaterialPageRoute(
+                builder: (_) => ChargeFormScreen(controller: controller),
+              ),
             );
           },
         ),
@@ -366,7 +395,9 @@ class _QuickActions extends StatelessWidget {
             }
             await Navigator.push(
               context,
-              MaterialPageRoute(builder: (_) => PaymentFormScreen(controller: controller)),
+              MaterialPageRoute(
+                builder: (_) => PaymentFormScreen(controller: controller),
+              ),
             );
           },
         ),
@@ -420,7 +451,7 @@ class _ActionChip extends StatelessWidget {
                       color: AppColors.brand.withValues(alpha: 0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 4),
-                    )
+                    ),
                   ]
                 : null,
           ),
@@ -476,7 +507,11 @@ class _OnboardingCard extends StatelessWidget {
                   color: AppColors.brand,
                   borderRadius: BorderRadius.circular(12),
                 ),
-                child: const Icon(Icons.school_rounded, color: Colors.white, size: 20),
+                child: const Icon(
+                  Icons.school_rounded,
+                  color: Colors.white,
+                  size: 20,
+                ),
               ),
               const SizedBox(width: 12),
               const Expanded(
@@ -494,7 +529,10 @@ class _OnboardingCard extends StatelessWidget {
                     SizedBox(height: 2),
                     Text(
                       'Get started in 3 steps',
-                      style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ],
                 ),
@@ -502,7 +540,10 @@ class _OnboardingCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 16),
-          _StepRow(number: '1', text: 'Create a Batch (e.g. Class 10) with fee structure'),
+          _StepRow(
+            number: '1',
+            text: 'Create a Batch (e.g. Class 10) with fee structure',
+          ),
           const SizedBox(height: 8),
           _StepRow(number: '2', text: 'Enroll students with parent contact'),
           const SizedBox(height: 8),
@@ -515,7 +556,9 @@ class _OnboardingCard extends StatelessWidget {
                   onPressed: () async {
                     await Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (_) => PayerFormScreen(controller: controller)),
+                      MaterialPageRoute(
+                        builder: (_) => PayerFormScreen(controller: controller),
+                      ),
                     );
                   },
                   icon: const Icon(Icons.person_add_rounded, size: 16),
@@ -527,7 +570,9 @@ class _OnboardingCard extends StatelessWidget {
                 onPressed: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (_) => const AcademyWalkthroughScreen()),
+                    MaterialPageRoute(
+                      builder: (_) => const AcademyWalkthroughScreen(),
+                    ),
                   );
                 },
                 child: const Text('View Guide'),
@@ -560,14 +605,22 @@ class _StepRow extends StatelessWidget {
           ),
           child: Text(
             number,
-            style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+            style: const TextStyle(
+              color: Colors.white,
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+            ),
           ),
         ),
         const SizedBox(width: 10),
         Expanded(
           child: Text(
             text,
-            style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+            style: const TextStyle(
+              fontSize: 13,
+              color: AppColors.textSecondary,
+              height: 1.4,
+            ),
           ),
         ),
       ],
@@ -619,11 +672,15 @@ class _MetricsGrid extends StatelessWidget {
               child: _MetricCard(
                 title: 'Outstanding',
                 amountPaise: s.totalOutstandingPaise,
-                color: s.totalOutstandingPaise > 0 ? AppColors.unpaidAmber : AppColors.textTertiary,
+                color: s.totalOutstandingPaise > 0
+                    ? AppColors.unpaidAmber
+                    : AppColors.textTertiary,
                 iconColor: AppColors.unpaidAmber,
                 icon: Icons.pending_actions_rounded,
                 subtitle: 'Pending collection',
-                bgColor: s.totalOutstandingPaise > 0 ? AppColors.unpaidAmberBg : null,
+                bgColor: s.totalOutstandingPaise > 0
+                    ? AppColors.unpaidAmberBg
+                    : null,
               ),
             ),
             const SizedBox(width: 12),
@@ -631,11 +688,15 @@ class _MetricsGrid extends StatelessWidget {
               child: _MetricCard(
                 title: 'Overdue',
                 amountPaise: s.totalOverduePaise,
-                color: s.totalOverduePaise > 0 ? AppColors.overdueRed : AppColors.textTertiary,
+                color: s.totalOverduePaise > 0
+                    ? AppColors.overdueRed
+                    : AppColors.textTertiary,
                 iconColor: AppColors.overdueRed,
                 icon: Icons.warning_rounded,
                 subtitle: '${s.overdueChargesCount} overdue',
-                bgColor: s.totalOverduePaise > 0 ? AppColors.overdueRedBg : null,
+                bgColor: s.totalOverduePaise > 0
+                    ? AppColors.overdueRedBg
+                    : null,
               ),
             ),
           ],
@@ -710,7 +771,10 @@ class _MetricCard extends StatelessWidget {
           const SizedBox(height: 3),
           Text(
             subtitle,
-            style: const TextStyle(fontSize: 10.5, color: AppColors.textTertiary),
+            style: const TextStyle(
+              fontSize: 10.5,
+              color: AppColors.textTertiary,
+            ),
           ),
         ],
       ),
@@ -729,8 +793,18 @@ class _MonthCard extends StatelessWidget {
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final month = [
-      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
-      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
     ][now.month - 1];
 
     return Container(
@@ -745,7 +819,11 @@ class _MonthCard extends StatelessWidget {
         children: [
           Row(
             children: [
-              const Icon(Icons.calendar_month_rounded, size: 15, color: AppColors.brand),
+              const Icon(
+                Icons.calendar_month_rounded,
+                size: 15,
+                color: AppColors.brand,
+              ),
               const SizedBox(width: 6),
               Text(
                 'THIS MONTH  •  $month ${now.year}',
@@ -791,18 +869,30 @@ class _MonthStat extends StatelessWidget {
   final String label;
   final int paise;
   final Color color;
-  const _MonthStat({required this.label, required this.paise, required this.color});
+  const _MonthStat({
+    required this.label,
+    required this.paise,
+    required this.color,
+  });
 
   @override
   Widget build(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 11.5, color: AppColors.textTertiary)),
+        Text(
+          label,
+          style: const TextStyle(fontSize: 11.5, color: AppColors.textTertiary),
+        ),
         const SizedBox(height: 4),
         Text(
           CurrencyFormatter.formatPaise(paise),
-          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: color, letterSpacing: -0.2),
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w800,
+            color: color,
+            letterSpacing: -0.2,
+          ),
         ),
       ],
     );
@@ -847,7 +937,11 @@ class _OverdueBadge extends StatelessWidget {
       ),
       child: Text(
         '$count overdue',
-        style: const TextStyle(fontSize: 11, color: AppColors.overdueRed, fontWeight: FontWeight.w700),
+        style: const TextStyle(
+          fontSize: 11,
+          color: AppColors.overdueRed,
+          fontWeight: FontWeight.w700,
+        ),
       ),
     );
   }
@@ -868,7 +962,8 @@ class _OverdueTile extends StatelessWidget {
         await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => ChargeDetailScreen(chargeId: ch.id, controller: controller),
+            builder: (_) =>
+                ChargeDetailScreen(chargeId: ch.id, controller: controller),
           ),
         );
       },
@@ -887,7 +982,11 @@ class _OverdueTile extends StatelessWidget {
                 color: AppColors.overdueRedBg,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.warning_amber_rounded, color: AppColors.overdueRed, size: 18),
+              child: const Icon(
+                Icons.warning_amber_rounded,
+                color: AppColors.overdueRed,
+                size: 18,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -897,13 +996,18 @@ class _OverdueTile extends StatelessWidget {
                   Text(
                     ch.payerName ?? 'Student',
                     style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '${ch.title} • Due ${CurrencyFormatter.formatDisplayDate(ch.dueDate)}',
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -914,7 +1018,9 @@ class _OverdueTile extends StatelessWidget {
                 Text(
                   CurrencyFormatter.formatPaise(ch.outstandingPaise),
                   style: const TextStyle(
-                    fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.overdueRed,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w800,
+                    color: AppColors.overdueRed,
                   ),
                 ),
                 const SizedBox(height: 3),
@@ -943,7 +1049,10 @@ class _ReceiptTile extends StatelessWidget {
         await Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (_) => PaymentDetailReceiptScreen(paymentId: pm.id, controller: controller),
+            builder: (_) => PaymentDetailReceiptScreen(
+              paymentId: pm.id,
+              controller: controller,
+            ),
           ),
         );
       },
@@ -962,7 +1071,11 @@ class _ReceiptTile extends StatelessWidget {
                 color: AppColors.settledGreenBg,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.receipt_long_rounded, color: AppColors.settledGreen, size: 18),
+              child: const Icon(
+                Icons.receipt_long_rounded,
+                color: AppColors.settledGreen,
+                size: 18,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -972,13 +1085,18 @@ class _ReceiptTile extends StatelessWidget {
                   Text(
                     pm.payerName ?? 'Student',
                     style: const TextStyle(
-                      fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary,
+                      fontSize: 14,
+                      fontWeight: FontWeight.w700,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '#${pm.receiptNumber} • ${pm.method} • ${CurrencyFormatter.formatDisplayDate(pm.paidDate)}',
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),
@@ -986,7 +1104,9 @@ class _ReceiptTile extends StatelessWidget {
             Text(
               CurrencyFormatter.formatPaise(pm.amountPaise),
               style: const TextStyle(
-                fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.settledGreen,
+                fontSize: 15,
+                fontWeight: FontWeight.w800,
+                color: AppColors.settledGreen,
               ),
             ),
           ],
@@ -1023,16 +1143,28 @@ class _EmptyStateCard extends StatelessWidget {
       ),
       child: Column(
         children: [
-          Icon(icon, size: 36, color: (iconColor ?? AppColors.textTertiary).withValues(alpha: 0.7)),
+          Icon(
+            icon,
+            size: 36,
+            color: (iconColor ?? AppColors.textTertiary).withValues(alpha: 0.7),
+          ),
           const SizedBox(height: 10),
           Text(
             title,
-            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+            style: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textPrimary,
+            ),
           ),
           const SizedBox(height: 4),
           Text(
             subtitle,
-            style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary, height: 1.4),
+            style: const TextStyle(
+              fontSize: 12.5,
+              color: AppColors.textSecondary,
+              height: 1.4,
+            ),
             textAlign: TextAlign.center,
           ),
         ],

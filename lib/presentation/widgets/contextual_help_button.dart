@@ -54,7 +54,11 @@ class ContextualHelpButton extends StatelessWidget {
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, size: 20, color: AppColors.textSecondary),
+                    icon: const Icon(
+                      Icons.close,
+                      size: 20,
+                      color: AppColors.textSecondary,
+                    ),
                     onPressed: () => Navigator.pop(ctx),
                   ),
                 ],
@@ -114,7 +118,13 @@ class ContextualHelpButton extends StatelessWidget {
                     ),
                     elevation: 0,
                   ),
-                  child: const Text('Got it', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'Got it',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
                 ),
               ),
             ],

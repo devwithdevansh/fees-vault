@@ -39,8 +39,12 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
   Future<void> _loadDetails() async {
     setState(() => _isLoading = true);
     try {
-      final ch = await widget.controller.chargeRepo.getChargeById(widget.chargeId);
-      final payments = await widget.controller.paymentRepo.getPaymentsForCharge(widget.chargeId);
+      final ch = await widget.controller.chargeRepo.getChargeById(
+        widget.chargeId,
+      );
+      final payments = await widget.controller.paymentRepo.getPaymentsForCharge(
+        widget.chargeId,
+      );
 
       if (mounted) {
         setState(() {
@@ -82,7 +86,9 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Delete Fee Installment?'),
-        content: Text('Are you sure you want to delete "${_charge!.title}"? This cannot be undone.'),
+        content: Text(
+          'Are you sure you want to delete "${_charge!.title}"? This cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -90,7 +96,10 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete', style: TextStyle(color: AppColors.overdueRed)),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: AppColors.overdueRed),
+            ),
           ),
         ],
       ),
@@ -136,7 +145,10 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_outlined, color: AppColors.textSecondary),
+            icon: const Icon(
+              Icons.edit_outlined,
+              color: AppColors.textSecondary,
+            ),
             tooltip: 'Edit Fee Installment',
             onPressed: () async {
               await Navigator.push(
@@ -203,7 +215,10 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                     const SizedBox(height: 4),
                     Text(
                       'Academic Year: ${ch.period!}',
-                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                   ],
                   const SizedBox(height: 6),
@@ -212,7 +227,9 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: ch.isOverdue ? AppColors.overdueRed : AppColors.textSecondary,
+                      color: ch.isOverdue
+                          ? AppColors.overdueRed
+                          : AppColors.textSecondary,
                     ),
                   ),
                   if (ch.notes != null && ch.notes!.isNotEmpty) ...[
@@ -226,7 +243,10 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                       ),
                       child: Text(
                         ch.notes!,
-                        style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ),
                   ],
@@ -251,7 +271,10 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                     ),
                   ),
                   const SizedBox(height: 12),
-                  _breakdownRow('Gross Course Fee', CurrencyFormatter.formatPaise(ch.grossPaise)),
+                  _breakdownRow(
+                    'Gross Course Fee',
+                    CurrencyFormatter.formatPaise(ch.grossPaise),
+                  ),
                   if (ch.discountPaise > 0) ...[
                     const SizedBox(height: 8),
                     _breakdownRow(
@@ -270,13 +293,20 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                     padding: EdgeInsets.symmetric(vertical: 10),
                     child: Divider(color: AppColors.divider),
                   ),
-                  _breakdownRow('Total Collected', CurrencyFormatter.formatPaise(ch.paidPaise)),
+                  _breakdownRow(
+                    'Total Collected',
+                    CurrencyFormatter.formatPaise(ch.paidPaise),
+                  ),
                   const SizedBox(height: 8),
                   _breakdownRow(
                     'Remaining Dues',
-                    ch.outstandingPaise == 0 ? 'Settled (₹0)' : CurrencyFormatter.formatPaise(ch.outstandingPaise),
+                    ch.outstandingPaise == 0
+                        ? 'Settled (₹0)'
+                        : CurrencyFormatter.formatPaise(ch.outstandingPaise),
                     isBold: true,
-                    valueColor: ch.outstandingPaise > 0 ? AppColors.overdueRed : AppColors.settledGreen,
+                    valueColor: ch.outstandingPaise > 0
+                        ? AppColors.overdueRed
+                        : AppColors.settledGreen,
                   ),
                 ],
               ),
@@ -302,12 +332,18 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                 icon: const Icon(Icons.payments_outlined, color: Colors.white),
                 label: Text(
                   'Record Payment (${CurrencyFormatter.formatPaise(ch.outstandingPaise)} Due)',
-                  style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
+                  style: const TextStyle(
+                    fontSize: 15,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                  ),
                 ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: AppColors.brand,
                   padding: const EdgeInsets.symmetric(vertical: 14),
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
                   elevation: 0,
                 ),
               ),
@@ -329,7 +365,10 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                 ),
                 Text(
                   '${_payments.length} receipt(s)',
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
               ],
             ),
@@ -341,7 +380,10 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                 child: Center(
                   child: Text(
                     'No payments recorded against this fee installment yet.',
-                    style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
+                    style: TextStyle(
+                      color: AppColors.textSecondary,
+                      fontSize: 13,
+                    ),
                   ),
                 ),
               )
@@ -355,7 +397,12 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
     );
   }
 
-  Widget _breakdownRow(String label, String value, {bool isBold = false, Color? valueColor}) {
+  Widget _breakdownRow(
+    String label,
+    String value, {
+    bool isBold = false,
+    Color? valueColor,
+  }) {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
@@ -372,7 +419,9 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
           style: TextStyle(
             fontSize: isBold ? 15 : 13.5,
             fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
-            color: valueColor ?? (isBold ? AppColors.textPrimary : AppColors.textPrimary),
+            color:
+                valueColor ??
+                (isBold ? AppColors.textPrimary : AppColors.textPrimary),
           ),
         ),
       ],
@@ -404,7 +453,11 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                 color: AppColors.settledGreenBg,
                 borderRadius: BorderRadius.circular(8),
               ),
-              child: const Icon(Icons.receipt_long, color: AppColors.settledGreen, size: 20),
+              child: const Icon(
+                Icons.receipt_long,
+                color: AppColors.settledGreen,
+                size: 20,
+              ),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -424,12 +477,22 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                       if (pm.isEdited) ...[
                         const SizedBox(width: 6),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 1),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 1,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.unpaidAmberBg,
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text('Edited', style: TextStyle(color: AppColors.unpaidAmber, fontSize: 10, fontWeight: FontWeight.bold)),
+                          child: const Text(
+                            'Edited',
+                            style: TextStyle(
+                              color: AppColors.unpaidAmber,
+                              fontSize: 10,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ],
                     ],
@@ -437,7 +500,10 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                   const SizedBox(height: 2),
                   Text(
                     '${pm.method} • ${CurrencyFormatter.formatDisplayDate(pm.paidDate)}',
-                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                 ],
               ),

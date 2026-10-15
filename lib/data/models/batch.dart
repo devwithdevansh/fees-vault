@@ -45,7 +45,8 @@ class Batch {
     };
   }
 
-  factory Batch.fromMap(Map<String, dynamic> map, {
+  factory Batch.fromMap(
+    Map<String, dynamic> map, {
     int studentCount = 0,
     int totalFeePaise = 0,
     int totalCollectedPaise = 0,
@@ -90,7 +91,8 @@ class Batch {
       studentCount: studentCount ?? this.studentCount,
       totalFeePaise: totalFeePaise ?? this.totalFeePaise,
       totalCollectedPaise: totalCollectedPaise ?? this.totalCollectedPaise,
-      totalOutstandingPaise: totalOutstandingPaise ?? this.totalOutstandingPaise,
+      totalOutstandingPaise:
+          totalOutstandingPaise ?? this.totalOutstandingPaise,
       feeTemplates: feeTemplates ?? this.feeTemplates,
     );
   }

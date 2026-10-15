@@ -46,13 +46,18 @@ class PaymentRepository {
 
     if (query != null && query.trim().isNotEmpty) {
       final q = '%${query.trim()}%';
-      whereClauses.add('(p.name LIKE ? OR c.title LIKE ? OR pm.reference LIKE ? OR CAST(pm.receiptNumber AS TEXT) LIKE ?)');
+      whereClauses.add(
+        '(p.name LIKE ? OR c.title LIKE ? OR pm.reference LIKE ? OR CAST(pm.receiptNumber AS TEXT) LIKE ?)',
+      );
       whereArgs.addAll([q, q, q, q]);
     }
 
-    final whereSql = whereClauses.isNotEmpty ? 'WHERE ${whereClauses.join(' AND ')}' : '';
+    final whereSql = whereClauses.isNotEmpty
+        ? 'WHERE ${whereClauses.join(' AND ')}'
+        : '';
 
-    final sql = '''
+    final sql =
+        '''
       SELECT 
         pm.*,
         c.title AS chargeTitle,
@@ -159,7 +164,9 @@ class PaymentRepository {
     String? notes,
   }) async {
     if (amountPaise <= 0) {
-      throw const ValidationException('Payment amount must be greater than zero');
+      throw const ValidationException(
+        'Payment amount must be greater than zero',
+      );
     }
     if (!AppConstants.paymentMethods.contains(method)) {
       throw ValidationException('Invalid payment method: $method');
@@ -186,10 +193,14 @@ class PaymentRepository {
       final netCharge = gross - discount;
 
       // 2. Compute current total paid for this charge
-      final currentPaid = Sqflite.firstIntValue(await txn.rawQuery(
-        'SELECT COALESCE(SUM(amountPaise), 0) FROM payments WHERE chargeId = ?;',
-        [chargeId],
-      )) ?? 0;
+      final currentPaid =
+          Sqflite.firstIntValue(
+            await txn.rawQuery(
+              'SELECT COALESCE(SUM(amountPaise), 0) FROM payments WHERE chargeId = ?;',
+              [chargeId],
+            ),
+          ) ??
+          0;
 
       final remaining = netCharge - currentPaid;
       if (amountPaise > remaining) {
@@ -250,10 +261,14 @@ class PaymentRepository {
   }) async {
     final cleanReason = correctionReason.trim();
     if (cleanReason.isEmpty) {
-      throw const ValidationException('A correction reason is required when editing a payment record');
+      throw const ValidationException(
+        'A correction reason is required when editing a payment record',
+      );
     }
     if (payment.amountPaise <= 0) {
-      throw const ValidationException('Payment amount must be greater than zero');
+      throw const ValidationException(
+        'Payment amount must be greater than zero',
+      );
     }
     if (!AppConstants.paymentMethods.contains(payment.method)) {
       throw ValidationException('Invalid payment method: ${payment.method}');
@@ -277,7 +292,9 @@ class PaymentRepository {
 
       // Rule: Do not move an existing payment to another charge
       if (existingPayment.chargeId != payment.chargeId) {
-        throw const BusinessRuleException('Moving a payment to a different charge is not permitted');
+        throw const BusinessRuleException(
+          'Moving a payment to a different charge is not permitted',
+        );
       }
 
       // 2. Fetch charge and compute allowed headroom excluding previous payment value
@@ -291,12 +308,18 @@ class PaymentRepository {
         throw const BusinessRuleException('Target charge not found');
       }
       final charge = chargeRows.first;
-      final netCharge = (charge['grossPaise'] as int) - ((charge['discountPaise'] as int?) ?? 0);
+      final netCharge =
+          (charge['grossPaise'] as int) -
+          ((charge['discountPaise'] as int?) ?? 0);
 
-      final otherPaid = Sqflite.firstIntValue(await txn.rawQuery(
-        'SELECT COALESCE(SUM(amountPaise), 0) FROM payments WHERE chargeId = ? AND id != ?;',
-        [payment.chargeId, payment.id],
-      )) ?? 0;
+      final otherPaid =
+          Sqflite.firstIntValue(
+            await txn.rawQuery(
+              'SELECT COALESCE(SUM(amountPaise), 0) FROM payments WHERE chargeId = ? AND id != ?;',
+              [payment.chargeId, payment.id],
+            ),
+          ) ??
+          0;
 
       final allowedMax = netCharge - otherPaid;
       if (payment.amountPaise > allowedMax) {
@@ -308,8 +331,12 @@ class PaymentRepository {
 
       final now = DateTime.now().millisecondsSinceEpoch;
       final updated = payment.copyWith(
-        reference: payment.reference?.trim().isEmpty == true ? null : payment.reference?.trim(),
-        notes: payment.notes?.trim().isEmpty == true ? null : payment.notes?.trim(),
+        reference: payment.reference?.trim().isEmpty == true
+            ? null
+            : payment.reference?.trim(),
+        notes: payment.notes?.trim().isEmpty == true
+            ? null
+            : payment.notes?.trim(),
         updatedAt: now,
       );
 
@@ -347,7 +374,9 @@ class PaymentRepository {
   }) async {
     final cleanReason = correctionReason.trim();
     if (cleanReason.isEmpty) {
-      throw const ValidationException('A correction reason is required to delete a payment record');
+      throw const ValidationException(
+        'A correction reason is required to delete a payment record',
+      );
     }
 
     final db = _dbManager.database;
@@ -374,18 +403,12 @@ class PaymentRepository {
         action: 'delete',
         timestamp: now,
         reason: cleanReason,
-        detailsJson: jsonEncode({
-          'deletedRecord': existingPayment.toMap(),
-        }),
+        detailsJson: jsonEncode({'deletedRecord': existingPayment.toMap()}),
       );
       await txn.insert('audit_events', audit.toMap());
 
       // 2. Delete payment record (receiptNumber is NEVER reused)
-      await txn.delete(
-        'payments',
-        where: 'id = ?',
-        whereArgs: [paymentId],
-      );
+      await txn.delete('payments', where: 'id = ?', whereArgs: [paymentId]);
     });
   }
 }

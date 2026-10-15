@@ -3,12 +3,7 @@ import '../../core/errors/app_exceptions.dart';
 import '../../core/security/auth_service.dart';
 import '../../data/database/app_database.dart';
 
-enum AuthStatus {
-  locked,
-  authenticating,
-  unlocked,
-  failedClosed,
-}
+enum AuthStatus { locked, authenticating, unlocked, failedClosed }
 
 /// Controller managing the lock/unlock state machine and app lifecycle security.
 /// Guarantees that sensitive screens are obscured when inactive, locked when backgrounded,
@@ -22,13 +17,11 @@ class AuthController extends ChangeNotifier {
   String? _errorMessage;
   bool _isAuthenticatingSheet = false;
 
-  AuthController({
-    required this.authService,
-    required this.database,
-  });
+  AuthController({required this.authService, required this.database});
 
   AuthStatus get status => _status;
-  bool get isLocked => _status == AuthStatus.locked || _status == AuthStatus.failedClosed;
+  bool get isLocked =>
+      _status == AuthStatus.locked || _status == AuthStatus.failedClosed;
   bool get isObscured => _isObscured || isLocked;
   String? get errorMessage => _errorMessage;
 
@@ -52,7 +45,9 @@ class AuthController extends ChangeNotifier {
       _isAuthenticatingSheet = false;
 
       if (authenticated) {
-        debugPrint('[FeesVault] AuthController: User authenticated! Initializing encrypted database...');
+        debugPrint(
+          '[FeesVault] AuthController: User authenticated! Initializing encrypted database...',
+        );
         // Open the encrypted database
         await database.initializeAndOpen();
         _status = AuthStatus.unlocked;
@@ -62,15 +57,20 @@ class AuthController extends ChangeNotifier {
         notifyListeners();
         return true;
       } else {
-        debugPrint('[FeesVault] AuthController: Authentication not successful or dismissed.');
+        debugPrint(
+          '[FeesVault] AuthController: Authentication not successful or dismissed.',
+        );
         _status = AuthStatus.locked;
         _isObscured = true;
-        _errorMessage = 'Authentication canceled or failed. Tap retry to unlock.';
+        _errorMessage =
+            'Authentication canceled or failed. Tap retry to unlock.';
         notifyListeners();
         return false;
       }
     } on DatabaseSecurityException catch (e) {
-      debugPrint('[FeesVault] AuthController DatabaseSecurityException: ${e.message}');
+      debugPrint(
+        '[FeesVault] AuthController DatabaseSecurityException: ${e.message}',
+      );
       _status = AuthStatus.failedClosed;
       _isObscured = true;
       _errorMessage = e.message;

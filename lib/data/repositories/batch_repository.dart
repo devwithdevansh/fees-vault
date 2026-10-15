@@ -24,7 +24,8 @@ class BatchRepository {
     final where = academicYear != null ? 'WHERE b.academicYear = ?' : '';
     final args = academicYear != null ? [academicYear] : null;
 
-    final sql = '''
+    final sql =
+        '''
       SELECT 
         b.*,
         (SELECT COUNT(*) FROM payers p 
@@ -59,14 +60,16 @@ class BatchRepository {
       final feePaise = (row['totalFeePaise'] as int?) ?? 0;
       final collectedPaise = (row['totalCollectedPaise'] as int?) ?? 0;
 
-      batches.add(Batch.fromMap(
-        row,
-        studentCount: studentCount,
-        totalFeePaise: feePaise,
-        totalCollectedPaise: collectedPaise,
-        totalOutstandingPaise: feePaise - collectedPaise,
-        feeTemplates: templates,
-      ));
+      batches.add(
+        Batch.fromMap(
+          row,
+          studentCount: studentCount,
+          totalFeePaise: feePaise,
+          totalCollectedPaise: collectedPaise,
+          totalOutstandingPaise: feePaise - collectedPaise,
+          feeTemplates: templates,
+        ),
+      );
     }
 
     return batches;
@@ -177,10 +180,14 @@ class BatchRepository {
     final batch = await getBatchById(id);
     if (batch == null) return;
 
-    final studentCount = Sqflite.firstIntValue(await db.rawQuery(
-      'SELECT COUNT(*) FROM payers WHERE batchId = ? OR (batchId IS NULL AND batch = ?);',
-      [id, batch.name],
-    )) ?? 0;
+    final studentCount =
+        Sqflite.firstIntValue(
+          await db.rawQuery(
+            'SELECT COUNT(*) FROM payers WHERE batchId = ? OR (batchId IS NULL AND batch = ?);',
+            [id, batch.name],
+          ),
+        ) ??
+        0;
 
     if (studentCount > 0) {
       throw BusinessRuleException(
@@ -190,7 +197,11 @@ class BatchRepository {
     }
 
     await db.transaction((txn) async {
-      await txn.delete('batch_fee_templates', where: 'batchId = ?', whereArgs: [id]);
+      await txn.delete(
+        'batch_fee_templates',
+        where: 'batchId = ?',
+        whereArgs: [id],
+      );
       await txn.delete('batches', where: 'id = ?', whereArgs: [id]);
     });
   }
@@ -234,7 +245,9 @@ class BatchRepository {
       batchId: batchId,
       title: cleanTitle,
       grossPaise: grossPaise,
-      defaultDueDate: defaultDueDate?.trim().isEmpty == true ? null : defaultDueDate?.trim(),
+      defaultDueDate: defaultDueDate?.trim().isEmpty == true
+          ? null
+          : defaultDueDate?.trim(),
       createdAt: now,
       updatedAt: now,
     );
@@ -253,14 +266,17 @@ class BatchRepository {
       throw const ValidationException('Fee amount must be greater than zero');
     }
 
-    if (template.defaultDueDate != null && template.defaultDueDate!.trim().isNotEmpty) {
+    if (template.defaultDueDate != null &&
+        template.defaultDueDate!.trim().isNotEmpty) {
       CurrencyFormatter.parseDate(template.defaultDueDate!.trim());
     }
 
     final updated = template.copyWith(
       title: cleanTitle,
       grossPaise: template.grossPaise,
-      defaultDueDate: template.defaultDueDate?.trim().isEmpty == true ? null : template.defaultDueDate?.trim(),
+      defaultDueDate: template.defaultDueDate?.trim().isEmpty == true
+          ? null
+          : template.defaultDueDate?.trim(),
       updatedAt: DateTime.now().millisecondsSinceEpoch,
     );
 
@@ -294,12 +310,21 @@ class BatchRepository {
     final db = _dbManager.database;
     final templates = await getFeeTemplates(batchId);
     if (templates.isEmpty) {
-      throw const BusinessRuleException('No fee installments are configured for this batch yet.');
+      throw const BusinessRuleException(
+        'No fee installments are configured for this batch yet.',
+      );
     }
 
     // Get batch information for labeling
-    final batchRow = await db.query('batches', where: 'id = ?', whereArgs: [batchId], limit: 1);
-    final academicYear = batchRow.isNotEmpty ? batchRow.first['academicYear'] as String? : null;
+    final batchRow = await db.query(
+      'batches',
+      where: 'id = ?',
+      whereArgs: [batchId],
+      limit: 1,
+    );
+    final academicYear = batchRow.isNotEmpty
+        ? batchRow.first['academicYear'] as String?
+        : null;
 
     // Check existing charges for this student to prevent duplicate charges
     final existingCharges = await db.query(
@@ -307,12 +332,16 @@ class BatchRepository {
       where: 'payerId = ?',
       whereArgs: [payerId],
     );
-    final existingTitles = existingCharges.map((c) => (c['title'] as String).toLowerCase()).toSet();
+    final existingTitles = existingCharges
+        .map((c) => (c['title'] as String).toLowerCase())
+        .toSet();
 
     final createdCharges = <Charge>[];
     int remainingConcession = concessionPaise;
 
-    final defaultDue = CurrencyFormatter.toYmd(DateTime.now().add(const Duration(days: 30)));
+    final defaultDue = CurrencyFormatter.toYmd(
+      DateTime.now().add(const Duration(days: 30)),
+    );
 
     await db.transaction((txn) async {
       for (final template in templates) {
@@ -324,7 +353,9 @@ class BatchRepository {
         // Apply remaining concession up to the gross fee
         int discountForThisCharge = 0;
         if (remainingConcession > 0) {
-          discountForThisCharge = remainingConcession <= template.grossPaise ? remainingConcession : template.grossPaise;
+          discountForThisCharge = remainingConcession <= template.grossPaise
+              ? remainingConcession
+              : template.grossPaise;
           remainingConcession -= discountForThisCharge;
         }
 
@@ -360,18 +391,23 @@ class BatchRepository {
     if (batch == null) throw const NotFoundException('Batch not found');
 
     if (batch.feeTemplates.isEmpty) {
-      throw const BusinessRuleException('Please add fee installments to this batch before charging students.');
+      throw const BusinessRuleException(
+        'Please add fee installments to this batch before charging students.',
+      );
     }
 
     // Find all enrolled students (by batchId or batch name)
     final studentRows = await db.query(
       'payers',
-      where: 'archived = 0 AND (batchId = ? OR (batchId IS NULL AND batch = ?))',
+      where:
+          'archived = 0 AND (batchId = ? OR (batchId IS NULL AND batch = ?))',
       whereArgs: [batchId, batch.name],
     );
 
     if (studentRows.isEmpty) {
-      throw const BusinessRuleException('No students are currently enrolled in this batch.');
+      throw const BusinessRuleException(
+        'No students are currently enrolled in this batch.',
+      );
     }
 
     int totalCreated = 0;

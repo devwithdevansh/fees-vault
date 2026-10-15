@@ -54,7 +54,11 @@ class CurrencyFormatter {
 
   /// Formats paise integer to en_IN format.
   /// If showDecimalsIfZero is false and paise is an exact rupee, skips .00 for cleaner UI.
-  static String formatPaise(int paise, {bool includeSymbol = true, bool showDecimalsIfZero = false}) {
+  static String formatPaise(
+    int paise, {
+    bool includeSymbol = true,
+    bool showDecimalsIfZero = false,
+  }) {
     final isNegative = paise < 0;
     final absPaise = paise.abs();
     final rupeesValue = absPaise / 100.0;
@@ -98,7 +102,9 @@ class CurrencyFormatter {
   static DateTime parseDate(String ymdDate) {
     final parts = ymdDate.split('-');
     if (parts.length != 3) {
-      throw ValidationException('Invalid date format: $ymdDate. Expected YYYY-MM-DD');
+      throw ValidationException(
+        'Invalid date format: $ymdDate. Expected YYYY-MM-DD',
+      );
     }
     return DateTime(
       int.parse(parts[0]),

@@ -56,8 +56,9 @@ class VaultController extends ChangeNotifier {
     required this.auditRepo,
     AcademicYearRepository? academicYearRepo,
     BatchRepository? batchRepo,
-  })  : academicYearRepo = academicYearRepo ?? AcademicYearRepository(payerRepo.dbManager),
-        batchRepo = batchRepo ?? BatchRepository(payerRepo.dbManager);
+  }) : academicYearRepo =
+           academicYearRepo ?? AcademicYearRepository(payerRepo.dbManager),
+       batchRepo = batchRepo ?? BatchRepository(payerRepo.dbManager);
 
   VaultSummary get summary => _summary;
   List<Payer> get payers => _payers;
@@ -94,7 +95,9 @@ class VaultController extends ChangeNotifier {
       // Load Academic Years
       _academicYears = await academicYearRepo.getAcademicYears();
       _currentAcademicYear = await academicYearRepo.getCurrentAcademicYear();
-      _selectedAcademicYearFilter = _currentAcademicYear?.name ?? (_academicYears.isNotEmpty ? _academicYears.first.name : '2026-2027');
+      _selectedAcademicYearFilter =
+          _currentAcademicYear?.name ??
+          (_academicYears.isNotEmpty ? _academicYears.first.name : '2026-2027');
 
       await refreshAll();
     } catch (e) {
@@ -115,7 +118,8 @@ class VaultController extends ChangeNotifier {
       _academicYears = await academicYearRepo.getAcademicYears();
       _currentAcademicYear = await academicYearRepo.getCurrentAcademicYear();
 
-      final yearFilter = _selectedAcademicYearFilter ?? _currentAcademicYear?.name;
+      final yearFilter =
+          _selectedAcademicYearFilter ?? _currentAcademicYear?.name;
       _batches = await batchRepo.getBatches(academicYear: yearFilter);
       _errorMessage = null;
     } catch (e) {
@@ -151,15 +155,23 @@ class VaultController extends ChangeNotifier {
 
   // --- Academic Year Actions ---
 
-  Future<AcademicYear> createAcademicYear(String name, {bool isCurrent = false}) async {
+  Future<AcademicYear> createAcademicYear(
+    String name, {
+    bool isCurrent = false,
+  }) async {
     const opKey = 'create_academic_year';
     if (_inFlightOperations.contains(opKey)) {
-      throw const BusinessRuleException('A save operation is already in progress');
+      throw const BusinessRuleException(
+        'A save operation is already in progress',
+      );
     }
     _inFlightOperations.add(opKey);
 
     try {
-      final ay = await academicYearRepo.createAcademicYear(name: name, isCurrent: isCurrent);
+      final ay = await academicYearRepo.createAcademicYear(
+        name: name,
+        isCurrent: isCurrent,
+      );
       if (isCurrent) {
         _selectedAcademicYearFilter = ay.name;
       }
@@ -191,7 +203,9 @@ class VaultController extends ChangeNotifier {
   }) async {
     const opKey = 'create_batch';
     if (_inFlightOperations.contains(opKey)) {
-      throw const BusinessRuleException('A save operation is already in progress');
+      throw const BusinessRuleException(
+        'A save operation is already in progress',
+      );
     }
     _inFlightOperations.add(opKey);
 
@@ -298,7 +312,9 @@ class VaultController extends ChangeNotifier {
     _inFlightOperations.add(opKey);
 
     try {
-      final count = await batchRepo.chargeBatchFeesToAllStudents(batchId: batchId);
+      final count = await batchRepo.chargeBatchFeesToAllStudents(
+        batchId: batchId,
+      );
       await refreshAll();
       return count;
     } finally {
@@ -319,7 +335,9 @@ class VaultController extends ChangeNotifier {
   }) async {
     const opKey = 'add_payer';
     if (_inFlightOperations.contains(opKey)) {
-      throw const BusinessRuleException('A save operation is already in progress');
+      throw const BusinessRuleException(
+        'A save operation is already in progress',
+      );
     }
     _inFlightOperations.add(opKey);
 
@@ -389,7 +407,9 @@ class VaultController extends ChangeNotifier {
   }) async {
     const opKey = 'add_charge';
     if (_inFlightOperations.contains(opKey)) {
-      throw const BusinessRuleException('A save operation is already in progress');
+      throw const BusinessRuleException(
+        'A save operation is already in progress',
+      );
     }
     _inFlightOperations.add(opKey);
 
@@ -441,7 +461,9 @@ class VaultController extends ChangeNotifier {
   }) async {
     final opKey = 'record_payment_$chargeId';
     if (_inFlightOperations.contains(opKey)) {
-      throw const BusinessRuleException('A payment save is already in progress');
+      throw const BusinessRuleException(
+        'A payment save is already in progress',
+      );
     }
     _inFlightOperations.add(opKey);
 

@@ -20,11 +20,10 @@ class SettingsRepository {
   }
 
   Future<void> setSetting(String key, String value) async {
-    await _dbManager.database.insert(
-      'settings',
-      {'key': key, 'value': value},
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await _dbManager.database.insert('settings', {
+      'key': key,
+      'value': value,
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
   }
 
   /// Transactionally increments and returns the next unique receipt number.
@@ -46,14 +45,10 @@ class SettingsRepository {
 
     final nextNumber = currentCounter + 1;
 
-    await txn.insert(
-      'settings',
-      {
-        'key': AppConstants.settingReceiptCounter,
-        'value': nextNumber.toString(),
-      },
-      conflictAlgorithm: ConflictAlgorithm.replace,
-    );
+    await txn.insert('settings', {
+      'key': AppConstants.settingReceiptCounter,
+      'value': nextNumber.toString(),
+    }, conflictAlgorithm: ConflictAlgorithm.replace);
 
     return nextNumber;
   }

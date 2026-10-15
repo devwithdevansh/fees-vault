@@ -7,10 +7,7 @@ import 'walkthrough_screen.dart';
 class OnboardingScreen extends StatelessWidget {
   final VaultController controller;
 
-  const OnboardingScreen({
-    super.key,
-    required this.controller,
-  });
+  const OnboardingScreen({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
@@ -95,7 +92,11 @@ class OnboardingScreen extends StatelessWidget {
                     ),
                   );
                 },
-                icon: const Icon(Icons.menu_book_outlined, color: AppColors.brand, size: 20),
+                icon: const Icon(
+                  Icons.menu_book_outlined,
+                  color: AppColors.brand,
+                  size: 20,
+                ),
                 label: const Text(
                   'How to Use FeesVault (Academy Guide)',
                   style: TextStyle(
@@ -149,10 +150,14 @@ class OnboardingScreen extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isWarning ? AppColors.unpaidAmberBg.withValues(alpha: 0.4) : AppColors.surface,
+        color: isWarning
+            ? AppColors.unpaidAmberBg.withValues(alpha: 0.4)
+            : AppColors.surface,
         borderRadius: BorderRadius.circular(12),
         border: Border.all(
-          color: isWarning ? AppColors.unpaidAmber.withValues(alpha: 0.5) : AppColors.divider,
+          color: isWarning
+              ? AppColors.unpaidAmber.withValues(alpha: 0.5)
+              : AppColors.divider,
         ),
       ),
       child: Row(
@@ -173,7 +178,9 @@ class OnboardingScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: isWarning ? AppColors.unpaidAmber : AppColors.textPrimary,
+                    color: isWarning
+                        ? AppColors.unpaidAmber
+                        : AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),

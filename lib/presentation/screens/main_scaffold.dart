@@ -28,14 +28,19 @@ class MainScaffold extends StatefulWidget {
   State<MainScaffold> createState() => _MainScaffoldState();
 }
 
-class _MainScaffoldState extends State<MainScaffold> with SingleTickerProviderStateMixin {
+class _MainScaffoldState extends State<MainScaffold>
+    with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
 
   static const _tabs = [
     _NavItem(Icons.grid_view_rounded, Icons.grid_view_rounded, 'Dashboard'),
     _NavItem(Icons.layers_outlined, Icons.layers_rounded, 'Batches'),
     _NavItem(Icons.school_outlined, Icons.school_rounded, 'Students'),
-    _NavItem(Icons.receipt_long_outlined, Icons.receipt_long_rounded, 'Receipts'),
+    _NavItem(
+      Icons.receipt_long_outlined,
+      Icons.receipt_long_rounded,
+      'Receipts',
+    ),
     _NavItem(Icons.tune_outlined, Icons.tune_rounded, 'Settings'),
   ];
 
@@ -60,10 +65,7 @@ class _MainScaffoldState extends State<MainScaffold> with SingleTickerProviderSt
     ];
 
     return Scaffold(
-      body: IndexedStack(
-        index: _currentIndex,
-        children: screens,
-      ),
+      body: IndexedStack(index: _currentIndex, children: screens),
       bottomNavigationBar: _PremiumNavBar(
         currentIndex: _currentIndex,
         tabs: _tabs,
@@ -96,9 +98,7 @@ class _PremiumNavBar extends StatelessWidget {
     return Container(
       decoration: BoxDecoration(
         color: AppColors.surface,
-        border: Border(
-          top: BorderSide(color: AppColors.divider, width: 1),
-        ),
+        border: Border(top: BorderSide(color: AppColors.divider, width: 1)),
         boxShadow: [
           BoxShadow(
             color: Colors.black.withValues(alpha: 0.06),
@@ -128,14 +128,21 @@ class _PremiumNavBar extends StatelessWidget {
                       children: [
                         AnimatedContainer(
                           duration: const Duration(milliseconds: 200),
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 5,
+                          ),
                           decoration: BoxDecoration(
-                            color: isActive ? AppColors.brandLight : Colors.transparent,
+                            color: isActive
+                                ? AppColors.brandLight
+                                : Colors.transparent,
                             borderRadius: BorderRadius.circular(20),
                           ),
                           child: Icon(
                             isActive ? tab.activeIcon : tab.icon,
-                            color: isActive ? AppColors.brand : AppColors.textTertiary,
+                            color: isActive
+                                ? AppColors.brand
+                                : AppColors.textTertiary,
                             size: 22,
                           ),
                         ),
@@ -144,8 +151,12 @@ class _PremiumNavBar extends StatelessWidget {
                           tab.label,
                           style: TextStyle(
                             fontSize: 10.5,
-                            fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
-                            color: isActive ? AppColors.brand : AppColors.textTertiary,
+                            fontWeight: isActive
+                                ? FontWeight.w700
+                                : FontWeight.w400,
+                            color: isActive
+                                ? AppColors.brand
+                                : AppColors.textTertiary,
                             letterSpacing: 0.1,
                           ),
                         ),

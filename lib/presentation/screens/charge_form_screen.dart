@@ -39,11 +39,24 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
   void initState() {
     super.initState();
     final ch = widget.chargeToEdit;
-    _selectedPayerId = ch?.payerId ?? widget.initialPayerId ?? (widget.controller.payers.isNotEmpty ? widget.controller.payers.first.id : null);
+    _selectedPayerId =
+        ch?.payerId ??
+        widget.initialPayerId ??
+        (widget.controller.payers.isNotEmpty
+            ? widget.controller.payers.first.id
+            : null);
     _titleController = TextEditingController(text: ch?.title ?? '');
     _periodController = TextEditingController(text: ch?.period ?? '');
-    _grossController = TextEditingController(text: ch != null ? CurrencyFormatter.paiseToEditableString(ch.grossPaise) : '');
-    _discountController = TextEditingController(text: ch != null && ch.discountPaise > 0 ? CurrencyFormatter.paiseToEditableString(ch.discountPaise) : '');
+    _grossController = TextEditingController(
+      text: ch != null
+          ? CurrencyFormatter.paiseToEditableString(ch.grossPaise)
+          : '',
+    );
+    _discountController = TextEditingController(
+      text: ch != null && ch.discountPaise > 0
+          ? CurrencyFormatter.paiseToEditableString(ch.discountPaise)
+          : '',
+    );
     _notesController = TextEditingController(text: ch?.notes ?? '');
 
     if (ch != null) {
@@ -79,17 +92,31 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
   Future<void> _submit() async {
     if (_isSaving) return;
     if (_selectedPayerId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Please select a student.')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Please select a student.')));
       return;
     }
     if (!_formKey.currentState!.validate()) return;
 
-    final grossPaise = CurrencyFormatter.parseToPaise(_grossController.text);
-    final discountPaise = _discountController.text.trim().isNotEmpty
-        ? CurrencyFormatter.parseToPaise(_discountController.text)
-        : 0;
+    int grossPaise = 0;
+    int discountPaise = 0;
+    try {
+      grossPaise = CurrencyFormatter.parseToPaise(_grossController.text);
+      if (_discountController.text.trim().isNotEmpty) {
+        discountPaise = CurrencyFormatter.parseToPaise(
+          _discountController.text,
+        );
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Invalid amount format: $e'),
+          backgroundColor: AppColors.overdueRed,
+        ),
+      );
+      return;
+    }
 
     if (discountPaise > grossPaise) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -204,7 +231,11 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
           TextButton(
             onPressed: _isSaving ? null : _submit,
             child: _isSaving
-                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
                 : const Text(
                     'Save',
                     style: TextStyle(
@@ -243,19 +274,27 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
                 items: payers.map((p) {
                   return DropdownMenuItem(
                     value: p.id,
-                    child: Text('${p.name}${p.batch != null ? " (${p.batch})" : ""}'),
+                    child: Text(
+                      '${p.name}${p.batch != null ? " (${p.batch})" : ""}',
+                    ),
                   );
                 }).toList(),
                 onChanged: (val) => setState(() => _selectedPayerId = val),
-                decoration: _inputDecoration('Assign to Student *', Icons.person_outline),
+                decoration: _inputDecoration(
+                  'Assign to Student *',
+                  Icons.person_outline,
+                ),
                 validator: (v) => v == null ? 'Please select a student' : null,
               ),
               const SizedBox(height: 20),
             ] else ...[
               TextFormField(
-                initialValue: widget.chargeToEdit?.payerName ??
+                initialValue:
+                    widget.chargeToEdit?.payerName ??
                     (payers.any((p) => p.id == widget.initialPayerId)
-                        ? payers.firstWhere((p) => p.id == widget.initialPayerId).name
+                        ? payers
+                              .firstWhere((p) => p.id == widget.initialPayerId)
+                              .name
                         : 'Selected Student'),
                 enabled: false,
                 decoration: _inputDecoration('Student', Icons.school_outlined),
@@ -281,15 +320,22 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
                   child: TextFormField(
                     controller: _titleController,
                     textCapitalization: TextCapitalization.words,
-                    decoration: _inputDecoration('Fee / Installment Title *', Icons.label_outline, hint: 'e.g. Term 1 Tuition, Q2 Installment'),
-                    validator: (v) => v == null || v.trim().isEmpty ? 'Please enter a fee title' : null,
+                    decoration: _inputDecoration(
+                      'Fee / Installment Title *',
+                      Icons.label_outline,
+                      hint: 'e.g. Term 1 Tuition, Q2 Installment',
+                    ),
+                    validator: (v) => v == null || v.trim().isEmpty
+                        ? 'Please enter a fee title'
+                        : null,
                   ),
                 ),
                 const ContextualHelpButton(
                   title: 'Fee / Installment Title',
                   explanation:
                       'Name of this fee obligation. You can enter a single full course fee or split into multiple installments with separate due dates.',
-                  example: 'Term 1 Tuition Fee, Annual Course Fee, Installment 2 (Jan)',
+                  example:
+                      'Term 1 Tuition Fee, Annual Course Fee, Installment 2 (Jan)',
                 ),
               ],
             ),
@@ -301,12 +347,17 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
                   child: TextFormField(
                     controller: _periodController,
                     textCapitalization: TextCapitalization.words,
-                    decoration: _inputDecoration('Academic Year / Session (Optional)', Icons.calendar_view_month_outlined, hint: 'e.g. 2026-27, Semester 1'),
+                    decoration: _inputDecoration(
+                      'Academic Year / Session (Optional)',
+                      Icons.calendar_view_month_outlined,
+                      hint: 'e.g. 2026-27, Semester 1',
+                    ),
                   ),
                 ),
                 const ContextualHelpButton(
                   title: 'Academic Year / Session',
-                  explanation: 'The academic session or year for which this fee applies. Helps distinguish recurring annual sessions.',
+                  explanation:
+                      'The academic session or year for which this fee applies. Helps distinguish recurring annual sessions.',
                   example: '2026-27, 2026 Term 1, Class 10 Session',
                 ),
               ],
@@ -349,8 +400,10 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
                   padding: EdgeInsets.only(top: 14),
                   child: ContextualHelpButton(
                     title: 'Fee Concession',
-                    explanation: 'Any scholarship, sibling discount, or fee reduction granted to the student. The net payable fee updates automatically.',
-                    example: '₹ 2,000.00 sibling discount, ₹ 5,000.00 merit scholarship',
+                    explanation:
+                        'Any scholarship, sibling discount, or fee reduction granted to the student. The net payable fee updates automatically.',
+                    example:
+                        '₹ 2,000.00 sibling discount, ₹ 5,000.00 merit scholarship',
                   ),
                 ),
               ],
@@ -370,7 +423,11 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
                 children: [
                   const Text(
                     'Net Fee Payable:',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                    style: TextStyle(
+                      fontSize: 13,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   Text(
                     CurrencyFormatter.formatPaise(net),
@@ -404,17 +461,26 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
                     onTap: _pickDueDate,
                     borderRadius: BorderRadius.circular(10),
                     child: InputDecorator(
-                      decoration: _inputDecoration('Due Date *', Icons.calendar_today_outlined),
+                      decoration: _inputDecoration(
+                        'Due Date *',
+                        Icons.calendar_today_outlined,
+                      ),
                       child: Text(
-                        CurrencyFormatter.formatDisplayDate(CurrencyFormatter.toYmd(_selectedDueDate)),
-                        style: const TextStyle(fontSize: 15, color: AppColors.textPrimary),
+                        CurrencyFormatter.formatDisplayDate(
+                          CurrencyFormatter.toYmd(_selectedDueDate),
+                        ),
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
                     ),
                   ),
                 ),
                 const ContextualHelpButton(
                   title: 'Due Date',
-                  explanation: 'The deadline by which this fee installment must be paid. If unpaid past this date, it is flagged as Overdue on your Academy Dashboard.',
+                  explanation:
+                      'The deadline by which this fee installment must be paid. If unpaid past this date, it is flagged as Overdue on your Academy Dashboard.',
                   example: '15th of the month, or term commencement date',
                 ),
               ],
@@ -424,7 +490,11 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
             TextFormField(
               controller: _notesController,
               maxLines: 2,
-              decoration: _inputDecoration('Notes / Remarks (Optional)', Icons.notes_outlined, hint: 'e.g. Includes lab and exam charges'),
+              decoration: _inputDecoration(
+                'Notes / Remarks (Optional)',
+                Icons.notes_outlined,
+                hint: 'e.g. Includes lab and exam charges',
+              ),
             ),
             const SizedBox(height: 28),
 
@@ -433,18 +503,29 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.brand,
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 elevation: 0,
               ),
               child: _isSaving
                   ? const SizedBox(
                       height: 20,
                       width: 20,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
                     )
                   : Text(
-                      isEdit ? 'Update Fee Installment' : 'Save Fee Installment',
-                      style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                      isEdit
+                          ? 'Update Fee Installment'
+                          : 'Save Fee Installment',
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white,
+                      ),
                     ),
             ),
           ],
@@ -453,7 +534,11 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
     );
   }
 
-  InputDecoration _inputDecoration(String label, IconData icon, {String? hint}) {
+  InputDecoration _inputDecoration(
+    String label,
+    IconData icon, {
+    String? hint,
+  }) {
     return InputDecoration(
       labelText: label,
       hintText: hint,

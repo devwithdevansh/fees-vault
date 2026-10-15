@@ -22,7 +22,9 @@ class DatabaseSecurityException extends AppException {
 }
 
 class KeyMissingException extends DatabaseSecurityException {
-  const KeyMissingException([super.message = 'Encryption key missing in secure storage']);
+  const KeyMissingException([
+    super.message = 'Encryption key missing in secure storage',
+  ]);
 }
 
 class BiometricAuthException extends AppException {

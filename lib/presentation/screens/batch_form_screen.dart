@@ -33,7 +33,9 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
     _nameController = TextEditingController(text: b?.name ?? '');
     _notesController = TextEditingController(text: b?.notes ?? '');
 
-    final availableYears = widget.controller.academicYears.map((ay) => ay.name).toList();
+    final availableYears = widget.controller.academicYears
+        .map((ay) => ay.name)
+        .toList();
     if (b != null && availableYears.contains(b.academicYear)) {
       _selectedAcademicYear = b.academicYear;
     } else if (widget.controller.selectedAcademicYearFilter != null &&
@@ -159,14 +161,21 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: AppColors.divider),
+                            borderSide: const BorderSide(
+                              color: AppColors.divider,
+                            ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: AppColors.divider),
+                            borderSide: const BorderSide(
+                              color: AppColors.divider,
+                            ),
                           ),
                         ),
                         items: academicYears.map((ay) {
@@ -178,7 +187,10 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                                 if (ay.isCurrent) ...[
                                   const SizedBox(width: 8),
                                   Container(
-                                    padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 6,
+                                      vertical: 2,
+                                    ),
                                     decoration: BoxDecoration(
                                       color: AppColors.brandLight,
                                       borderRadius: BorderRadius.circular(4),
@@ -198,7 +210,9 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                           );
                         }).toList(),
                         onChanged: (val) {
-                          if (val != null) setState(() => _selectedAcademicYear = val);
+                          if (val != null) {
+                            setState(() => _selectedAcademicYear = val);
+                          }
                         },
                       ),
                       const SizedBox(height: 16),
@@ -219,14 +233,21 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                           hintText: 'e.g. Class 10 - Science, NEET Morning',
                           filled: true,
                           fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: AppColors.divider),
+                            borderSide: const BorderSide(
+                              color: AppColors.divider,
+                            ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: AppColors.divider),
+                            borderSide: const BorderSide(
+                              color: AppColors.divider,
+                            ),
                           ),
                         ),
                         validator: (val) {
@@ -254,14 +275,21 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                           hintText: 'e.g. Mon-Fri 8:00 AM - 10:00 AM, Room 3',
                           filled: true,
                           fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: AppColors.divider),
+                            borderSide: const BorderSide(
+                              color: AppColors.divider,
+                            ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: AppColors.divider),
+                            borderSide: const BorderSide(
+                              color: AppColors.divider,
+                            ),
                           ),
                         ),
                       ),
@@ -274,13 +302,18 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.brand,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: _isSaving
                       ? const SizedBox(
                           height: 20,
                           width: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
                         )
                       : Text(
                           isEditing ? 'Save Changes' : 'Create Batch',

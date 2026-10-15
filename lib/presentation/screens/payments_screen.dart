@@ -66,27 +66,6 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
         ),
         backgroundColor: AppColors.surface,
         elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.payments_outlined, color: AppColors.brand),
-            tooltip: 'Record Payment',
-            onPressed: () async {
-              if (!hasStudents) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Please register a student and create a fee installment first.')),
-                );
-                return;
-              }
-              await Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => PaymentFormScreen(controller: widget.controller),
-                ),
-              );
-              await _loadPayments();
-            },
-          ),
-        ],
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
           child: Divider(height: 1, color: AppColors.divider),
@@ -118,7 +97,11 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
         icon: const Icon(Icons.add, color: Colors.white, size: 20),
         label: const Text(
           'Record Payment',
-          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 14),
+          style: TextStyle(
+            color: Colors.white,
+            fontWeight: FontWeight.bold,
+            fontSize: 14,
+          ),
         ),
       ),
       body: Column(
@@ -153,82 +136,108 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : _payments.isEmpty
-                      ? Center(
-                          child: Padding(
-                            padding: const EdgeInsets.symmetric(horizontal: 32),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(
-                                  Icons.receipt_long_outlined,
-                                  size: 48,
-                                  color: AppColors.textSecondary.withValues(alpha: 0.6),
+                  ? Center(
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 32),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.receipt_long_outlined,
+                              size: 48,
+                              color: AppColors.textSecondary.withValues(
+                                alpha: 0.6,
+                              ),
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              _selectedMethod == 'All'
+                                  ? 'No Fee Payments Recorded'
+                                  : 'No payments found for $_selectedMethod.',
+                              style: const TextStyle(
+                                color: AppColors.textPrimary,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            const SizedBox(height: 6),
+                            Text(
+                              _selectedMethod == 'All'
+                                  ? 'Record fee payments received via Cash, UPI, or Bank Transfer to generate official receipts.'
+                                  : 'Try selecting "All" to view all payment receipts.',
+                              style: const TextStyle(
+                                color: AppColors.textSecondary,
+                                fontSize: 13,
+                                height: 1.4,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                            if (_selectedMethod == 'All') ...[
+                              const SizedBox(height: 20),
+                              ElevatedButton.icon(
+                                onPressed: () async {
+                                  if (!hasStudents) {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => PayerFormScreen(
+                                          controller: widget.controller,
+                                        ),
+                                      ),
+                                    );
+                                  } else {
+                                    await Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => PaymentFormScreen(
+                                          controller: widget.controller,
+                                        ),
+                                      ),
+                                    );
+                                  }
+                                  await _loadPayments();
+                                },
+                                icon: const Icon(
+                                  Icons.payments_outlined,
+                                  color: Colors.white,
+                                  size: 18,
                                 ),
-                                const SizedBox(height: 12),
-                                Text(
-                                  _selectedMethod == 'All'
-                                      ? 'No Fee Payments Recorded'
-                                      : 'No payments found for $_selectedMethod.',
+                                label: Text(
+                                  hasStudents
+                                      ? 'Record First Payment'
+                                      : 'Register Student First',
                                   style: const TextStyle(
-                                    color: AppColors.textPrimary,
-                                    fontSize: 16,
+                                    color: Colors.white,
                                     fontWeight: FontWeight.bold,
                                   ),
-                                  textAlign: TextAlign.center,
                                 ),
-                                const SizedBox(height: 6),
-                                Text(
-                                  _selectedMethod == 'All'
-                                      ? 'Record fee payments received via Cash, UPI, or Bank Transfer to generate official receipts.'
-                                      : 'Try selecting "All" to view all payment receipts.',
-                                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.4),
-                                  textAlign: TextAlign.center,
-                                ),
-                                if (_selectedMethod == 'All') ...[
-                                  const SizedBox(height: 20),
-                                  ElevatedButton.icon(
-                                    onPressed: () async {
-                                      if (!hasStudents) {
-                                        await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => PayerFormScreen(controller: widget.controller),
-                                          ),
-                                        );
-                                      } else {
-                                        await Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (_) => PaymentFormScreen(controller: widget.controller),
-                                          ),
-                                        );
-                                      }
-                                      await _loadPayments();
-                                    },
-                                    icon: const Icon(Icons.payments_outlined, color: Colors.white, size: 18),
-                                    label: Text(
-                                      hasStudents ? 'Record First Payment' : 'Register Student First',
-                                      style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
-                                    ),
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.brand,
-                                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                                      elevation: 0,
-                                    ),
+                                style: ElevatedButton.styleFrom(
+                                  backgroundColor: AppColors.brand,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10),
                                   ),
-                                ],
-                              ],
-                            ),
-                          ),
-                        )
-                      : ListView.builder(
-                          padding: const EdgeInsets.only(left: 16, right: 16, top: 16, bottom: 80),
-                          itemCount: _payments.length,
-                          itemBuilder: (context, index) {
-                            final pm = _payments[index];
-                            return _paymentItem(context, pm);
-                          },
+                                  elevation: 0,
+                                ),
+                              ),
+                            ],
+                          ],
                         ),
+                      ),
+                    )
+                  : ListView.builder(
+                      padding: const EdgeInsets.only(
+                        left: 16,
+                        right: 16,
+                        top: 16,
+                        bottom: 80,
+                      ),
+                      itemCount: _payments.length,
+                      itemBuilder: (context, index) {
+                        final pm = _payments[index];
+                        return _paymentItem(context, pm);
+                      },
+                    ),
             ),
           ),
         ],
@@ -279,7 +288,11 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
                 color: AppColors.settledGreenBg,
                 borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.receipt_long, color: AppColors.settledGreen, size: 22),
+              child: const Icon(
+                Icons.receipt_long,
+                color: AppColors.settledGreen,
+                size: 22,
+              ),
             ),
             const SizedBox(width: 14),
             Expanded(
@@ -302,12 +315,22 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
                       if (pm.isEdited) ...[
                         const SizedBox(width: 6),
                         Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 2),
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 4,
+                            vertical: 2,
+                          ),
                           decoration: BoxDecoration(
                             color: AppColors.unpaidAmberBg,
                             borderRadius: BorderRadius.circular(4),
                           ),
-                          child: const Text('Edited', style: TextStyle(fontSize: 10, color: AppColors.unpaidAmber, fontWeight: FontWeight.bold)),
+                          child: const Text(
+                            'Edited',
+                            style: TextStyle(
+                              fontSize: 10,
+                              color: AppColors.unpaidAmber,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
                         ),
                       ],
                     ],
@@ -315,12 +338,18 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
                   const SizedBox(height: 2),
                   Text(
                     '${pm.chargeTitle ?? "Fee"} • Receipt #${pm.receiptNumber}',
-                    style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
+                    style: const TextStyle(
+                      fontSize: 12.5,
+                      color: AppColors.textSecondary,
+                    ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '${pm.method} • ${CurrencyFormatter.formatDisplayDate(pm.paidDate)}',
-                    style: const TextStyle(fontSize: 11.5, color: AppColors.textTertiary),
+                    style: const TextStyle(
+                      fontSize: 11.5,
+                      color: AppColors.textTertiary,
+                    ),
                   ),
                 ],
               ),
@@ -339,7 +368,11 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
                 const SizedBox(height: 2),
                 const Text(
                   'Paid',
-                  style: TextStyle(fontSize: 11, color: AppColors.settledGreen, fontWeight: FontWeight.w500),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: AppColors.settledGreen,
+                    fontWeight: FontWeight.w500,
+                  ),
                 ),
               ],
             ),

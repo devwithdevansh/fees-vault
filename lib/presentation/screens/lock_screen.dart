@@ -50,9 +50,7 @@ class LockScreen extends StatelessWidget {
 
                   // Title
                   Text(
-                    isFailedClosed
-                        ? 'Security Lockout'
-                        : 'FeesVault',
+                    isFailedClosed ? 'Security Lockout' : 'FeesVault is Locked',
                     style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.w800,
@@ -65,7 +63,7 @@ class LockScreen extends StatelessWidget {
                   Text(
                     isFailedClosed
                         ? (authController.errorMessage ??
-                            'Decryption key unavailable. Cannot open records.')
+                              'Decryption key unavailable. Cannot open records.')
                         : 'Your fee records are encrypted and offline.\nAuthenticate to open FeesVault.',
                     style: const TextStyle(
                       fontSize: 14.5,
@@ -83,8 +81,11 @@ class LockScreen extends StatelessWidget {
                         onPressed: () => authController.unlock(),
                         icon: const Icon(Icons.fingerprint_rounded, size: 22),
                         label: const Text(
-                          'Unlock with Biometrics',
-                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+                          'Unlock with Device Passcode',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.white,
@@ -100,7 +101,10 @@ class LockScreen extends StatelessWidget {
                     if (authController.errorMessage != null) ...[
                       const SizedBox(height: 16),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 10,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(10),
@@ -121,7 +125,9 @@ class LockScreen extends StatelessWidget {
                       decoration: BoxDecoration(
                         color: Colors.white.withValues(alpha: 0.08),
                         borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.white.withValues(alpha: 0.15)),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.15),
+                        ),
                       ),
                       child: const Text(
                         'ATTENTION: Never wipe or recreate an empty database to bypass this error. '
@@ -142,7 +148,10 @@ class LockScreen extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 4,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.12),
                           borderRadius: BorderRadius.circular(20),
@@ -150,7 +159,11 @@ class LockScreen extends StatelessWidget {
                         child: const Row(
                           mainAxisSize: MainAxisSize.min,
                           children: [
-                            Icon(Icons.wifi_off_rounded, size: 12, color: Color(0xFFB0B8FF)),
+                            Icon(
+                              Icons.wifi_off_rounded,
+                              size: 12,
+                              color: Color(0xFFB0B8FF),
+                            ),
                             SizedBox(width: 5),
                             Text(
                               'Fully Offline & Encrypted',

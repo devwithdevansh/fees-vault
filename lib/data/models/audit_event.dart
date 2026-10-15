@@ -4,7 +4,7 @@ class AuditEvent {
   final String id;
   final String entityType; // 'payment', 'charge', 'payer'
   final String entityId;
-  final String action;     // 'create', 'update', 'delete'
+  final String action; // 'create', 'update', 'delete'
   final int timestamp;
   final String? reason;
   final String? detailsJson;

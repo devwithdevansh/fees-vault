@@ -4,7 +4,7 @@ class Payment {
   final String chargeId;
   final int amountPaise;
   final String paidDate; // YYYY-MM-DD
-  final String method;   // Cash, UPI, Bank transfer, Other
+  final String method; // Cash, UPI, Bank transfer, Other
   final String? reference;
   final String? notes;
   final int receiptNumber; // Unique monotonic integer counter
@@ -53,7 +53,8 @@ class Payment {
     };
   }
 
-  factory Payment.fromMap(Map<String, dynamic> map, {
+  factory Payment.fromMap(
+    Map<String, dynamic> map, {
     String? payerName,
     String? chargeTitle,
     int? remainingBalancePaise,
@@ -72,7 +73,8 @@ class Payment {
       updatedAt: map['updatedAt'] as int,
       payerName: payerName ?? map['payerName'] as String?,
       chargeTitle: chargeTitle ?? map['chargeTitle'] as String?,
-      remainingBalancePaise: remainingBalancePaise ?? (map['remainingBalancePaise'] as int?),
+      remainingBalancePaise:
+          remainingBalancePaise ?? (map['remainingBalancePaise'] as int?),
       isEdited: isEdited,
     );
   }
@@ -106,7 +108,8 @@ class Payment {
       updatedAt: updatedAt ?? this.updatedAt,
       payerName: payerName ?? this.payerName,
       chargeTitle: chargeTitle ?? this.chargeTitle,
-      remainingBalancePaise: remainingBalancePaise ?? this.remainingBalancePaise,
+      remainingBalancePaise:
+          remainingBalancePaise ?? this.remainingBalancePaise,
       isEdited: isEdited ?? this.isEdited,
     );
   }

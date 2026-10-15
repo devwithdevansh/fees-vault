@@ -53,8 +53,10 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
       text: pm != null
           ? CurrencyFormatter.paiseToEditableString(pm.amountPaise)
           : (widget.suggestedAmountPaise != null
-              ? CurrencyFormatter.paiseToEditableString(widget.suggestedAmountPaise!)
-              : ''),
+                ? CurrencyFormatter.paiseToEditableString(
+                    widget.suggestedAmountPaise!,
+                  )
+                : ''),
     );
     _referenceController = TextEditingController(text: pm?.reference ?? '');
     _notesController = TextEditingController(text: pm?.notes ?? '');
@@ -87,7 +89,12 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
       // If new payment, prefer charges with outstanding > 0 or the pre-selected one
       final filtered = widget.paymentToEdit != null
           ? all
-          : all.where((c) => c.outstandingPaise > 0 || c.id == widget.targetChargeId).toList();
+          : all
+                .where(
+                  (c) =>
+                      c.outstandingPaise > 0 || c.id == widget.targetChargeId,
+                )
+                .toList();
 
       Charge? current;
       if (_selectedChargeId != null) {
@@ -99,7 +106,9 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
         current = filtered.first;
         _selectedChargeId = current.id;
         if (_amountController.text.isEmpty && current.outstandingPaise > 0) {
-          _amountController.text = CurrencyFormatter.paiseToEditableString(current.outstandingPaise);
+          _amountController.text = CurrencyFormatter.paiseToEditableString(
+            current.outstandingPaise,
+          );
         }
       }
 
@@ -143,7 +152,9 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
     if (isEdit && _reasonController.text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Correction reason is strictly mandatory when editing a payment.'),
+          content: Text(
+            'Correction reason is strictly mandatory when editing a payment.',
+          ),
           backgroundColor: AppColors.overdueRed,
         ),
       );
@@ -153,7 +164,9 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
     final amountPaise = CurrencyFormatter.parseToPaise(_amountController.text);
     if (amountPaise <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Payment amount must be greater than zero.')),
+        const SnackBar(
+          content: Text('Payment amount must be greater than zero.'),
+        ),
       );
       return;
     }
@@ -223,7 +236,9 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             const SnackBar(
-              content: Text('Payment entry updated with correction audit trail.'),
+              content: Text(
+                'Payment entry updated with correction audit trail.',
+              ),
               backgroundColor: AppColors.settledGreen,
             ),
           );
@@ -265,7 +280,11 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
           TextButton(
             onPressed: _isSaving ? null : _submit,
             child: _isSaving
-                ? const SizedBox(width: 16, height: 16, child: CircularProgressIndicator(strokeWidth: 2))
+                ? const SizedBox(
+                    width: 16,
+                    height: 16,
+                    child: CircularProgressIndicator(strokeWidth: 2),
+                  )
                 : const Text(
                     'Save',
                     style: TextStyle(
@@ -304,16 +323,24 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                       onChanged: (val) {
                         setState(() {
                           _selectedChargeId = val;
-                          _selectedCharge = _availableCharges.firstWhere((c) => c.id == val);
-                          if (_selectedCharge != null && _selectedCharge!.outstandingPaise > 0) {
-                            _amountController.text = CurrencyFormatter.paiseToEditableString(
-                              _selectedCharge!.outstandingPaise,
-                            );
+                          _selectedCharge = _availableCharges.firstWhere(
+                            (c) => c.id == val,
+                          );
+                          if (_selectedCharge != null &&
+                              _selectedCharge!.outstandingPaise > 0) {
+                            _amountController.text =
+                                CurrencyFormatter.paiseToEditableString(
+                                  _selectedCharge!.outstandingPaise,
+                                );
                           }
                         });
                       },
-                      decoration: _inputDecoration('Select Fee Installment *', Icons.receipt_long_outlined),
-                      validator: (v) => v == null ? 'Please select a fee installment' : null,
+                      decoration: _inputDecoration(
+                        'Select Fee Installment *',
+                        Icons.receipt_long_outlined,
+                      ),
+                      validator: (v) =>
+                          v == null ? 'Please select a fee installment' : null,
                     ),
                     const SizedBox(height: 16),
                   ] else ...[
@@ -329,18 +356,29 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                         children: [
                           Text(
                             _selectedCharge?.payerName ?? 'Student',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary),
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 14,
+                              color: AppColors.textPrimary,
+                            ),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             _selectedCharge?.title ?? 'Fee Installment',
-                            style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                            style: const TextStyle(
+                              fontSize: 13,
+                              color: AppColors.textSecondary,
+                            ),
                           ),
                           if (_selectedCharge != null) ...[
                             const SizedBox(height: 4),
                             Text(
                               'Outstanding Due: ${CurrencyFormatter.formatPaise(_selectedCharge!.outstandingPaise)}',
-                              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.overdueRed),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w600,
+                                color: AppColors.overdueRed,
+                              ),
                             ),
                           ],
                         ],
@@ -365,8 +403,12 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                     items: AppConstants.paymentMethods.map((m) {
                       return DropdownMenuItem(value: m, child: Text(m));
                     }).toList(),
-                    onChanged: (val) => setState(() => _selectedMethod = val ?? 'UPI'),
-                    decoration: _inputDecoration('Payment Method *', Icons.account_balance_wallet_outlined),
+                    onChanged: (val) =>
+                        setState(() => _selectedMethod = val ?? 'UPI'),
+                    decoration: _inputDecoration(
+                      'Payment Method *',
+                      Icons.account_balance_wallet_outlined,
+                    ),
                   ),
                   const SizedBox(height: 16),
 
@@ -375,10 +417,18 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                     onTap: _pickDate,
                     borderRadius: BorderRadius.circular(10),
                     child: InputDecorator(
-                      decoration: _inputDecoration('Date Paid *', Icons.calendar_today_outlined),
+                      decoration: _inputDecoration(
+                        'Date Paid *',
+                        Icons.calendar_today_outlined,
+                      ),
                       child: Text(
-                        CurrencyFormatter.formatDisplayDate(CurrencyFormatter.toYmd(_selectedPaidDate)),
-                        style: const TextStyle(fontSize: 15, color: AppColors.textPrimary),
+                        CurrencyFormatter.formatDisplayDate(
+                          CurrencyFormatter.toYmd(_selectedPaidDate),
+                        ),
+                        style: const TextStyle(
+                          fontSize: 15,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
                     ),
                   ),
@@ -386,14 +436,20 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
 
                   TextFormField(
                     controller: _referenceController,
-                    decoration: _inputDecoration('Reference / UPI UTR / Bank Ref (Optional)', Icons.tag),
+                    decoration: _inputDecoration(
+                      'Reference / UPI UTR / Bank Ref (Optional)',
+                      Icons.tag,
+                    ),
                   ),
                   const SizedBox(height: 16),
 
                   TextFormField(
                     controller: _notesController,
                     maxLines: 2,
-                    decoration: _inputDecoration('Notes / Remarks (Optional)', Icons.notes_outlined),
+                    decoration: _inputDecoration(
+                      'Notes / Remarks (Optional)',
+                      Icons.notes_outlined,
+                    ),
                   ),
 
                   // Mandatory correction reason when editing!
@@ -404,18 +460,29 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                       decoration: BoxDecoration(
                         color: AppColors.unpaidAmberBg.withValues(alpha: 0.4),
                         borderRadius: BorderRadius.circular(10),
-                        border: Border.all(color: AppColors.unpaidAmber.withValues(alpha: 0.5)),
+                        border: Border.all(
+                          color: AppColors.unpaidAmber.withValues(alpha: 0.5),
+                        ),
                       ),
                       child: const Text(
                         'Audit Trail Notice: Any edit to a committed payment is permanently recorded in the local correction history.',
-                        style: TextStyle(fontSize: 12, color: AppColors.unpaidAmber, fontWeight: FontWeight.w500),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.unpaidAmber,
+                          fontWeight: FontWeight.w500,
+                        ),
                       ),
                     ),
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _reasonController,
-                      decoration: _inputDecoration('Correction Reason * (Mandatory)', Icons.history_edu_outlined),
-                      validator: (v) => v == null || v.trim().isEmpty ? 'Please enter a correction reason' : null,
+                      decoration: _inputDecoration(
+                        'Correction Reason * (Mandatory)',
+                        Icons.history_edu_outlined,
+                      ),
+                      validator: (v) => v == null || v.trim().isEmpty
+                          ? 'Please enter a correction reason'
+                          : null,
                     ),
                   ],
 
@@ -426,18 +493,29 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                     style: ElevatedButton.styleFrom(
                       backgroundColor: AppColors.brand,
                       padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       elevation: 0,
                     ),
                     child: _isSaving
                         ? const SizedBox(
                             height: 20,
                             width: 20,
-                            child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
                           )
                         : Text(
-                            isEdit ? 'Save Correction' : 'Commit & View Receipt',
-                            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Colors.white),
+                            isEdit
+                                ? 'Save Correction'
+                                : 'Commit & View Receipt',
+                            style: const TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
                           ),
                   ),
                 ],

@@ -65,11 +65,103 @@ void main() async {
     batchRepo: batchRepo,
   );
 
-  runApp(FeesVaultApp(
-    authController: authController,
-    vaultController: vaultController,
-    database: database,
-  ));
+  // Safe global fallback widget replacing the default red screen
+  ErrorWidget.builder = (FlutterErrorDetails details) {
+    return Builder(
+      builder: (context) {
+        final canGoBack = Navigator.canPop(context);
+        return Material(
+          color: AppColors.background,
+          child: SafeArea(
+            child: Center(
+              child: Padding(
+                padding: const EdgeInsets.all(24.0),
+                child: Container(
+                  padding: const EdgeInsets.all(20),
+                  decoration: BoxDecoration(
+                    color: AppColors.surface,
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: AppColors.divider),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withValues(alpha: 0.04),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: const BoxDecoration(
+                          color: AppColors.unpaidAmberBg,
+                          shape: BoxShape.circle,
+                        ),
+                        child: const Icon(
+                          Icons.info_outline_rounded,
+                          size: 32,
+                          color: AppColors.unpaidAmber,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Unable to display component',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.textPrimary,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      const Text(
+                        'A render issue occurred with this view. Your stored fee records and encrypted data remain intact.',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                          height: 1.4,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      if (canGoBack) ...[
+                        const SizedBox(height: 16),
+                        ElevatedButton.icon(
+                          onPressed: () => Navigator.pop(context),
+                          icon: const Icon(Icons.arrow_back_rounded, size: 16),
+                          label: const Text('Back'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.brand,
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 10,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  };
+
+  runApp(
+    FeesVaultApp(
+      authController: authController,
+      vaultController: vaultController,
+      database: database,
+    ),
+  );
 }
 
 /// Root Application Widget with lifecycle listener and lock state gate.
@@ -89,7 +181,8 @@ class FeesVaultApp extends StatefulWidget {
   State<FeesVaultApp> createState() => _FeesVaultAppState();
 }
 
-class _FeesVaultAppState extends State<FeesVaultApp> with WidgetsBindingObserver {
+class _FeesVaultAppState extends State<FeesVaultApp>
+    with WidgetsBindingObserver {
   @override
   void initState() {
     super.initState();
@@ -207,7 +300,10 @@ class _FeesVaultAppState extends State<FeesVaultApp> with WidgetsBindingObserver
         chipTheme: ChipThemeData(
           backgroundColor: AppColors.surfaceSubtle,
           selectedColor: AppColors.brandLight,
-          labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+          labelStyle: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+          ),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.all(Radius.circular(8)),
           ),
@@ -223,10 +319,14 @@ class _FeesVaultAppState extends State<FeesVaultApp> with WidgetsBindingObserver
         ),
       ),
       home: ListenableBuilder(
-        listenable: Listenable.merge([widget.authController, widget.vaultController]),
+        listenable: Listenable.merge([
+          widget.authController,
+          widget.vaultController,
+        ]),
         builder: (context, _) {
           // 1. If vault is locked or halted in fail-closed state
-          if (widget.authController.isLocked || widget.authController.isObscured) {
+          if (widget.authController.isLocked ||
+              widget.authController.isObscured) {
             return LockScreen(authController: widget.authController);
           }
 

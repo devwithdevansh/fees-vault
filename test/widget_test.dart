@@ -8,7 +8,9 @@ import 'package:fees_vault/presentation/controllers/auth_controller.dart';
 import 'package:fees_vault/presentation/screens/lock_screen.dart';
 
 void main() {
-  testWidgets('LockScreen renders locked curtain and unlock action', (WidgetTester tester) async {
+  testWidgets('LockScreen renders locked curtain and unlock action', (
+    WidgetTester tester,
+  ) async {
     final keyStorage = KeyStorageService();
     final platformSecurity = PlatformSecurityService();
     final authService = AuthService();
@@ -23,9 +25,7 @@ void main() {
     );
 
     await tester.pumpWidget(
-      MaterialApp(
-        home: LockScreen(authController: authController),
-      ),
+      MaterialApp(home: LockScreen(authController: authController)),
     );
 
     expect(find.text('FeesVault is Locked'), findsOneWidget);

@@ -9,13 +9,7 @@ import '../../core/security/key_storage_service.dart';
 import '../../core/security/platform_security_service.dart';
 import 'migrations.dart';
 
-enum DatabaseInitState {
-  uninitialized,
-  opening,
-  ready,
-  locked,
-  failedClosed,
-}
+enum DatabaseInitState { uninitialized, opening, ready, locked, failedClosed }
 
 /// Encrypted SQLCipher database manager.
 /// Enforces fail-closed security, private application support directory location,
@@ -33,8 +27,8 @@ class AppDatabase {
   AppDatabase({
     KeyStorageService? keyStorage,
     PlatformSecurityService? platformSecurity,
-  })  : _keyStorage = keyStorage ?? KeyStorageService(),
-        _platformSecurity = platformSecurity ?? PlatformSecurityService();
+  }) : _keyStorage = keyStorage ?? KeyStorageService(),
+       _platformSecurity = platformSecurity ?? PlatformSecurityService();
 
   DatabaseInitState get state => _state;
   bool get isOpen => _db != null && _db!.isOpen;
@@ -61,7 +55,9 @@ class AppDatabase {
     try {
       // 1. Resolve dedicated private Application Support directory
       final appSupportDir = await getApplicationSupportDirectory();
-      final vaultDir = Directory(p.join(appSupportDir.path, AppConstants.vaultDirectoryName));
+      final vaultDir = Directory(
+        p.join(appSupportDir.path, AppConstants.vaultDirectoryName),
+      );
       if (!await vaultDir.exists()) {
         await vaultDir.create(recursive: true);
       }
@@ -123,7 +119,9 @@ class AppDatabase {
         throw DatabaseSecurityException(_fatalError!);
       }
 
-      debugPrint('[FeesVault] SQLCipher successfully opened & verified! Cipher version: $_cipherVersion');
+      debugPrint(
+        '[FeesVault] SQLCipher successfully opened & verified! Cipher version: $_cipherVersion',
+      );
 
       // 5. Re-apply and verify file protection & backup exclusion on database and any sidecars
       await _platformSecurity.applyProtectionAndBackupExclusion(vaultDir.path);

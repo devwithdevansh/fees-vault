@@ -11,10 +11,7 @@ import 'batch_form_screen.dart';
 class BatchesScreen extends StatefulWidget {
   final VaultController controller;
 
-  const BatchesScreen({
-    super.key,
-    required this.controller,
-  });
+  const BatchesScreen({super.key, required this.controller});
 
   @override
   State<BatchesScreen> createState() => _BatchesScreenState();
@@ -57,22 +54,32 @@ class _BatchesScreenState extends State<BatchesScreen> {
                 ),
                 const Divider(color: AppColors.divider),
                 ...widget.controller.academicYears.map((ay) {
-                  final isSelected = widget.controller.selectedAcademicYearFilter == ay.name;
+                  final isSelected =
+                      widget.controller.selectedAcademicYearFilter == ay.name;
                   return ListTile(
                     leading: Icon(
-                      isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
-                      color: isSelected ? AppColors.brand : AppColors.textSecondary,
+                      isSelected
+                          ? Icons.check_circle
+                          : Icons.radio_button_unchecked,
+                      color: isSelected
+                          ? AppColors.brand
+                          : AppColors.textSecondary,
                     ),
                     title: Text(
                       ay.name,
                       style: TextStyle(
-                        fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: isSelected
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                         color: AppColors.textPrimary,
                       ),
                     ),
                     trailing: ay.isCurrent
                         ? Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.brandLight,
                               borderRadius: BorderRadius.circular(6),
@@ -95,7 +102,10 @@ class _BatchesScreenState extends State<BatchesScreen> {
                 }),
                 const Divider(color: AppColors.divider),
                 ListTile(
-                  leading: const Icon(Icons.add_circle_outline, color: AppColors.brand),
+                  leading: const Icon(
+                    Icons.add_circle_outline,
+                    color: AppColors.brand,
+                  ),
                   title: const Text(
                     'Add Academic Year',
                     style: TextStyle(
@@ -138,9 +148,13 @@ class _BatchesScreenState extends State<BatchesScreen> {
               const SizedBox(height: 12),
               CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Set as current active year', style: TextStyle(fontSize: 14)),
+                title: const Text(
+                  'Set as current active year',
+                  style: TextStyle(fontSize: 14),
+                ),
                 value: makeCurrent,
-                onChanged: (val) => setDialogState(() => makeCurrent = val ?? false),
+                onChanged: (val) =>
+                    setDialogState(() => makeCurrent = val ?? false),
               ),
             ],
           ),
@@ -157,15 +171,24 @@ class _BatchesScreenState extends State<BatchesScreen> {
                   final messenger = ScaffoldMessenger.of(context);
                   Navigator.pop(ctx);
                   try {
-                    await widget.controller.createAcademicYear(name, isCurrent: makeCurrent);
+                    await widget.controller.createAcademicYear(
+                      name,
+                      isCurrent: makeCurrent,
+                    );
                   } catch (e) {
                     messenger.showSnackBar(
-                      SnackBar(content: Text(e.toString()), backgroundColor: AppColors.overdueRed),
+                      SnackBar(
+                        content: Text(e.toString()),
+                        backgroundColor: AppColors.overdueRed,
+                      ),
                     );
                   }
                 }
               },
-              child: const Text('Create', style: TextStyle(color: Colors.white)),
+              child: const Text(
+                'Create',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),
@@ -178,12 +201,14 @@ class _BatchesScreenState extends State<BatchesScreen> {
     return ListenableBuilder(
       listenable: widget.controller,
       builder: (context, _) {
-        final currentYear = widget.controller.selectedAcademicYearFilter ?? '2026-2027';
+        final currentYear =
+            widget.controller.selectedAcademicYearFilter ?? '2026-2027';
         final allBatches = widget.controller.batches;
         final batches = allBatches.where((b) {
           if (_searchQuery.isEmpty) return true;
           return b.name.toLowerCase().contains(_searchQuery.toLowerCase()) ||
-              (b.notes?.toLowerCase().contains(_searchQuery.toLowerCase()) ?? false);
+              (b.notes?.toLowerCase().contains(_searchQuery.toLowerCase()) ??
+                  false);
         }).toList();
 
         return Scaffold(
@@ -197,7 +222,11 @@ class _BatchesScreenState extends State<BatchesScreen> {
               Padding(
                 padding: const EdgeInsets.only(right: 12),
                 child: ActionChip(
-                  avatar: const Icon(Icons.calendar_month, size: 16, color: AppColors.brand),
+                  avatar: const Icon(
+                    Icons.calendar_month,
+                    size: 16,
+                    color: AppColors.brand,
+                  ),
                   label: Text(
                     currentYear,
                     style: const TextStyle(
@@ -208,52 +237,81 @@ class _BatchesScreenState extends State<BatchesScreen> {
                   ),
                   backgroundColor: AppColors.brandLight,
                   side: BorderSide.none,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(20),
+                  ),
                   onPressed: _showAcademicYearSelector,
                 ),
               ),
             ],
           ),
-          floatingActionButton: FloatingActionButton.extended(
-            heroTag: 'add_batch_fab',
-            backgroundColor: AppColors.brand,
-            foregroundColor: Colors.white,
-            icon: const Icon(Icons.add),
-            label: const Text('New Batch', style: TextStyle(fontWeight: FontWeight.w600)),
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => BatchFormScreen(controller: widget.controller),
+          floatingActionButton: batches.isEmpty
+              ? null
+              : FloatingActionButton.extended(
+                  heroTag: 'add_batch_fab',
+                  backgroundColor: AppColors.brand,
+                  foregroundColor: Colors.white,
+                  icon: const Icon(Icons.add_rounded),
+                  label: const Text(
+                    'New Batch',
+                    style: TextStyle(fontWeight: FontWeight.w700),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) =>
+                            BatchFormScreen(controller: widget.controller),
+                      ),
+                    );
+                  },
                 ),
-              );
-            },
-          ),
           body: SafeArea(
             child: Column(
               children: [
                 // Search bar
                 if (allBatches.isNotEmpty)
                   Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 16,
+                      vertical: 8,
+                    ),
                     child: TextField(
                       controller: _searchController,
                       decoration: InputDecoration(
                         hintText: 'Search batches or courses...',
-                        prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
+                        prefixIcon: const Icon(
+                          Icons.search_rounded,
+                          color: AppColors.textTertiary,
+                          size: 20,
+                        ),
                         filled: true,
-                        fillColor: Colors.white,
-                        contentPadding: const EdgeInsets.symmetric(vertical: 10),
+                        fillColor: AppColors.surface,
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 12,
+                        ),
                         border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: AppColors.divider),
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: AppColors.divider,
+                          ),
                         ),
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(10),
-                          borderSide: const BorderSide(color: AppColors.divider),
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: AppColors.divider,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide: const BorderSide(
+                            color: AppColors.brand,
+                            width: 2,
+                          ),
                         ),
                       ),
-                      onChanged: (val) => setState(() => _searchQuery = val.trim()),
+                      onChanged: (val) =>
+                          setState(() => _searchQuery = val.trim()),
                     ),
                   ),
 
@@ -261,10 +319,14 @@ class _BatchesScreenState extends State<BatchesScreen> {
                 Expanded(
                   child: RefreshIndicator(
                     onRefresh: () => widget.controller.refreshAll(),
+                    color: AppColors.brand,
                     child: batches.isEmpty
                         ? _buildEmptyState(currentYear)
                         : ListView.builder(
-                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 16,
+                              vertical: 8,
+                            ),
                             itemCount: batches.length,
                             itemBuilder: (context, index) {
                               final batch = batches[index];
@@ -289,58 +351,148 @@ class _BatchesScreenState extends State<BatchesScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Container(
-              width: 80,
-              height: 80,
-              decoration: BoxDecoration(
+              width: 72,
+              height: 72,
+              decoration: const BoxDecoration(
                 color: AppColors.brandLight,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.groups_outlined, size: 40, color: AppColors.brand),
+              child: const Icon(
+                Icons.layers_outlined,
+                size: 36,
+                color: AppColors.brand,
+              ),
             ),
             const SizedBox(height: 20),
             Text(
               'No Batches for $year',
               style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
+                fontSize: 20,
+                fontWeight: FontWeight.w800,
                 color: AppColors.textPrimary,
+                letterSpacing: -0.3,
               ),
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 6),
             const Text(
-              'Connect your academy workflow seamlessly:\n'
-              '1. Create a Batch (e.g. Class 10 Science)\n'
-              '2. Define standard fee installments once\n'
-              '3. Enroll students into the batch\n'
-              '4. Charge all students with one tap!',
+              'Organize your students into classes or subjects to manage standard fee schedules seamlessly.',
               textAlign: TextAlign.center,
               style: TextStyle(
-                fontSize: 14,
+                fontSize: 13.5,
                 color: AppColors.textSecondary,
-                height: 1.5,
+                height: 1.4,
               ),
             ),
             const SizedBox(height: 24),
-            ElevatedButton.icon(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => BatchFormScreen(controller: widget.controller),
+            // Structured 3-step guide card
+            Container(
+              padding: const EdgeInsets.all(16),
+              decoration: BoxDecoration(
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(14),
+                border: Border.all(color: AppColors.divider),
+              ),
+              child: Column(
+                children: [
+                  _emptyStepRow(
+                    '1',
+                    'Create Batch',
+                    'e.g., "Class 10 Science" or "NEET Morning"',
                   ),
-                );
-              },
-              icon: const Icon(Icons.add, color: Colors.white),
-              label: const Text('Create First Batch', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.brand,
-                padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                  const Divider(height: 20, color: AppColors.divider),
+                  _emptyStepRow(
+                    '2',
+                    'Set Standard Fees',
+                    'Define installment amounts & due dates once',
+                  ),
+                  const Divider(height: 20, color: AppColors.divider),
+                  _emptyStepRow(
+                    '3',
+                    'Enroll & Charge',
+                    'Enroll students and charge all with 1 tap',
+                  ),
+                ],
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              width: double.infinity,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) =>
+                          BatchFormScreen(controller: widget.controller),
+                    ),
+                  );
+                },
+                icon: const Icon(Icons.add_rounded, size: 20),
+                label: const Text(
+                  'Create First Batch',
+                  style: TextStyle(fontWeight: FontWeight.w700),
+                ),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.brand,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 15),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  elevation: 0,
+                ),
               ),
             ),
           ],
         ),
       ),
+    );
+  }
+
+  Widget _emptyStepRow(String stepNum, String title, String subtitle) {
+    return Row(
+      children: [
+        Container(
+          width: 24,
+          height: 24,
+          decoration: BoxDecoration(
+            color: AppColors.brandLight,
+            borderRadius: BorderRadius.circular(6),
+          ),
+          alignment: Alignment.center,
+          child: Text(
+            stepNum,
+            style: const TextStyle(
+              fontSize: 12,
+              fontWeight: FontWeight.bold,
+              color: AppColors.brand,
+            ),
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                title,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              Text(
+                subtitle,
+                style: const TextStyle(
+                  fontSize: 11.5,
+                  color: AppColors.textSecondary,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ],
     );
   }
 
@@ -386,7 +538,10 @@ class _BatchesScreenState extends State<BatchesScreen> {
                           batch.notes!,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                       ],
                     ],
@@ -401,23 +556,39 @@ class _BatchesScreenState extends State<BatchesScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.people_outline, size: 16, color: AppColors.textSecondary),
+                    const Icon(
+                      Icons.people_outline,
+                      size: 16,
+                      color: AppColors.textSecondary,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       '${batch.studentCount} student${batch.studentCount == 1 ? '' : 's'}',
-                      style: const TextStyle(fontSize: 13, color: AppColors.textPrimary, fontWeight: FontWeight.w500),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
                 Row(
                   children: [
-                    const Icon(Icons.receipt_long_outlined, size: 16, color: AppColors.textSecondary),
+                    const Icon(
+                      Icons.receipt_long_outlined,
+                      size: 16,
+                      color: AppColors.textSecondary,
+                    ),
                     const SizedBox(width: 4),
                     Text(
                       batch.feeTemplates.isNotEmpty
                           ? '${CurrencyFormatter.formatPaise(batch.standardBatchFeePaise)} / student'
                           : 'No fee setup yet',
-                      style: const TextStyle(fontSize: 13, color: AppColors.textPrimary, fontWeight: FontWeight.w500),
+                      style: const TextStyle(
+                        fontSize: 13,
+                        color: AppColors.textPrimary,
+                        fontWeight: FontWeight.w500,
+                      ),
                     ),
                   ],
                 ),
@@ -430,7 +601,9 @@ class _BatchesScreenState extends State<BatchesScreen> {
                 child: LinearProgressIndicator(
                   value: collectedRatio,
                   backgroundColor: AppColors.divider,
-                  valueColor: const AlwaysStoppedAnimation<Color>(AppColors.settledGreen),
+                  valueColor: const AlwaysStoppedAnimation<Color>(
+                    AppColors.settledGreen,
+                  ),
                   minHeight: 6,
                 ),
               ),
@@ -440,17 +613,29 @@ class _BatchesScreenState extends State<BatchesScreen> {
                 children: [
                   Text(
                     'Collected: ${CurrencyFormatter.formatPaise(batch.totalCollectedPaise)}',
-                    style: const TextStyle(fontSize: 12, color: AppColors.settledGreen, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 12,
+                      color: AppColors.settledGreen,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                   if (batch.totalOutstandingPaise > 0)
                     Text(
                       'Pending: ${CurrencyFormatter.formatPaise(batch.totalOutstandingPaise)}',
-                      style: const TextStyle(fontSize: 12, color: AppColors.overdueRed, fontWeight: FontWeight.w600),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.overdueRed,
+                        fontWeight: FontWeight.w600,
+                      ),
                     )
                   else
                     const Text(
                       'All Settled',
-                      style: TextStyle(fontSize: 12, color: AppColors.settledGreen, fontWeight: FontWeight.w600),
+                      style: TextStyle(
+                        fontSize: 12,
+                        color: AppColors.settledGreen,
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                 ],
               ),

@@ -20,10 +20,12 @@ class PaymentDetailReceiptScreen extends StatefulWidget {
   });
 
   @override
-  State<PaymentDetailReceiptScreen> createState() => _PaymentDetailReceiptScreenState();
+  State<PaymentDetailReceiptScreen> createState() =>
+      _PaymentDetailReceiptScreenState();
 }
 
-class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen> {
+class _PaymentDetailReceiptScreenState
+    extends State<PaymentDetailReceiptScreen> {
   Payment? _payment;
   List<AuditEvent> _auditEvents = [];
   bool _isLoading = true;
@@ -37,8 +39,11 @@ class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen>
   Future<void> _loadDetails() async {
     setState(() => _isLoading = true);
     try {
-      final pm = await widget.controller.paymentRepo.getPaymentById(widget.paymentId);
-      final history = await widget.controller.auditRepo.getAuditHistoryForEntity(widget.paymentId);
+      final pm = await widget.controller.paymentRepo.getPaymentById(
+        widget.paymentId,
+      );
+      final history = await widget.controller.auditRepo
+          .getAuditHistoryForEntity(widget.paymentId);
 
       if (mounted) {
         setState(() {
@@ -72,7 +77,10 @@ class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen>
                 'Deleting Receipt #${_payment!.receiptNumber} will restore '
                 '${CurrencyFormatter.formatPaise(_payment!.amountPaise)} to the outstanding dues. '
                 'This action is permanently recorded in the local audit history.',
-                style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                style: const TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textSecondary,
+                ),
               ),
               const SizedBox(height: 14),
               TextFormField(
@@ -83,9 +91,13 @@ class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen>
                   hintText: 'e.g. Mistyped amount, duplicate check',
                   filled: true,
                   fillColor: AppColors.surfaceSubtle,
-                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                 ),
-                validator: (v) => v == null || v.trim().isEmpty ? 'Please enter a reason' : null,
+                validator: (v) => v == null || v.trim().isEmpty
+                    ? 'Please enter a reason'
+                    : null,
               ),
             ],
           ),
@@ -96,13 +108,18 @@ class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen>
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.overdueRed),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.overdueRed,
+            ),
             onPressed: () {
               if (formKey.currentState!.validate()) {
                 Navigator.pop(ctx, true);
               }
             },
-            child: const Text('Delete Entry', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Delete Entry',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -111,7 +128,9 @@ class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen>
     if (confirmed == true && mounted) {
       try {
         final receiptNum = _payment!.receiptNumber;
-        final restoredAmount = CurrencyFormatter.formatPaise(_payment!.amountPaise);
+        final restoredAmount = CurrencyFormatter.formatPaise(
+          _payment!.amountPaise,
+        );
         await widget.controller.deletePayment(
           paymentId: _payment!.id,
           correctionReason: reasonController.text.trim(),
@@ -122,7 +141,9 @@ class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen>
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
-              content: Text('Receipt #$receiptNum voided. $restoredAmount restored to fee balance.'),
+              content: Text(
+                'Receipt #$receiptNum voided. $restoredAmount restored to fee balance.',
+              ),
               backgroundColor: AppColors.textPrimary,
               duration: const Duration(seconds: 4),
             ),
@@ -132,7 +153,10 @@ class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen>
       } catch (e) {
         if (mounted) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(e.toString()), backgroundColor: AppColors.overdueRed),
+            SnackBar(
+              content: Text(e.toString()),
+              backgroundColor: AppColors.overdueRed,
+            ),
           );
         }
       }
@@ -176,6 +200,37 @@ class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen>
         ),
         backgroundColor: AppColors.surface,
         elevation: 0,
+        actions: [
+          IconButton(
+            icon: const Icon(
+              Icons.copy_outlined,
+              color: AppColors.textSecondary,
+            ),
+            tooltip: 'Copy Receipt Summary',
+            onPressed: () {
+              final text =
+                  '''
+RECEIPT #${pm.receiptNumber}
+${widget.controller.businessName.toUpperCase()}
+Student: ${pm.payerName ?? 'N/A'}
+Fee: ${pm.chargeTitle ?? 'N/A'}
+Amount Paid: ${CurrencyFormatter.formatPaise(pm.amountPaise)}
+Date: ${CurrencyFormatter.formatDisplayDate(pm.paidDate)}
+Method: ${pm.method}
+${pm.reference != null && pm.reference!.isNotEmpty ? 'Ref: ${pm.reference}\n' : ''}Status: Verified Payment
+'''
+                      .trim();
+              Clipboard.setData(ClipboardData(text: text));
+              HapticFeedback.lightImpact();
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(
+                  content: Text('Receipt summary copied to clipboard'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+            },
+          ),
+        ],
         bottom: const PreferredSize(
           preferredSize: Size.fromHeight(1),
           child: Divider(height: 1, color: AppColors.divider),
@@ -244,7 +299,10 @@ class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen>
                           ),
                           Text(
                             '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year} ${dt.hour}:${dt.minute.toString().padLeft(2, '0')}',
-                            style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: AppColors.textTertiary,
+                            ),
                           ),
                         ],
                       ),
@@ -252,7 +310,10 @@ class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen>
                         const SizedBox(height: 4),
                         Text(
                           'Reason: ${ev.reason!}',
-                          style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
+                          style: const TextStyle(
+                            fontSize: 13,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                       ],
                     ],

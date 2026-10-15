@@ -52,7 +52,8 @@ class Payer {
     };
   }
 
-  factory Payer.fromMap(Map<String, dynamic> map, {
+  factory Payer.fromMap(
+    Map<String, dynamic> map, {
     int totalNetPaise = 0,
     int totalPaidPaise = 0,
     int totalOutstandingPaise = 0,
@@ -102,7 +103,8 @@ class Payer {
       updatedAt: updatedAt ?? this.updatedAt,
       totalNetPaise: totalNetPaise ?? this.totalNetPaise,
       totalPaidPaise: totalPaidPaise ?? this.totalPaidPaise,
-      totalOutstandingPaise: totalOutstandingPaise ?? this.totalOutstandingPaise,
+      totalOutstandingPaise:
+          totalOutstandingPaise ?? this.totalOutstandingPaise,
       chargeCount: chargeCount ?? this.chargeCount,
     );
   }

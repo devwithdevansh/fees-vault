@@ -6,13 +6,11 @@ import '../../core/constants/app_colors.dart';
 class AcademyWalkthroughScreen extends StatefulWidget {
   final VoidCallback? onComplete;
 
-  const AcademyWalkthroughScreen({
-    super.key,
-    this.onComplete,
-  });
+  const AcademyWalkthroughScreen({super.key, this.onComplete});
 
   @override
-  State<AcademyWalkthroughScreen> createState() => _AcademyWalkthroughScreenState();
+  State<AcademyWalkthroughScreen> createState() =>
+      _AcademyWalkthroughScreenState();
 }
 
 class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
@@ -23,7 +21,8 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
     _WalkthroughStep(
       badge: 'STEP 1 OF 4',
       title: 'Register Students & Contacts',
-      subtitle: 'Add learners, parent contact numbers, and course/batch details',
+      subtitle:
+          'Add learners, parent contact numbers, and course/batch details',
       icon: Icons.school_outlined,
       accentColor: AppColors.brand,
       description:
@@ -33,12 +32,14 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
         'Direct Parent / Guardian phone reference',
         'Optional Student ID or Roll Number',
       ],
-      quickTip: 'Tip: You can search students by name, batch, or parent contact phone at any time.',
+      quickTip:
+          'Tip: You can search students by name, batch, or parent contact phone at any time.',
     ),
     _WalkthroughStep(
       badge: 'STEP 2 OF 4',
       title: 'Set Up Course Fees & Installments',
-      subtitle: 'Specify academic year, fee amounts, concessions, and due dates',
+      subtitle:
+          'Specify academic year, fee amounts, concessions, and due dates',
       icon: Icons.request_quote_outlined,
       accentColor: AppColors.partialBlue,
       description:
@@ -48,12 +49,14 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
         'Deduct Concessions & Scholarships cleanly',
         'Set calendar due dates to track upcoming dues',
       ],
-      quickTip: 'Tip: Fees with due dates in the past automatically highlight in Overdue alerts.',
+      quickTip:
+          'Tip: Fees with due dates in the past automatically highlight in Overdue alerts.',
     ),
     _WalkthroughStep(
       badge: 'STEP 3 OF 4',
       title: 'Record Payments & Issue Receipts',
-      subtitle: 'Collect fees via Cash, UPI, or Bank Transfer with instant receipts',
+      subtitle:
+          'Collect fees via Cash, UPI, or Bank Transfer with instant receipts',
       icon: Icons.receipt_long_outlined,
       accentColor: AppColors.settledGreen,
       description:
@@ -63,7 +66,8 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
         'Monotonic, non-reusable receipt numbering',
         'Mandatory correction reason if modifying history',
       ],
-      quickTip: 'Tip: Overpayments above the outstanding fee balance are strictly prevented.',
+      quickTip:
+          'Tip: Overpayments above the outstanding fee balance are strictly prevented.',
     ),
     _WalkthroughStep(
       badge: 'STEP 4 OF 4',
@@ -78,7 +82,8 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
         'One-tap access to Overdue Installments',
         'Zero cloud dependency: works fully offline',
       ],
-      quickTip: 'Tip: Access this guide anytime from Settings > Academy User Guide.',
+      quickTip:
+          'Tip: Access this guide anytime from Settings > Academy User Guide.',
     ),
   ];
 
@@ -119,7 +124,10 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
         elevation: 0,
         leading: _currentPage > 0
             ? IconButton(
-                icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
+                icon: const Icon(
+                  Icons.arrow_back,
+                  color: AppColors.textPrimary,
+                ),
                 onPressed: () {
                   _pageController.previousPage(
                     duration: const Duration(milliseconds: 300),
@@ -165,13 +173,19 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
                 itemBuilder: (context, index) {
                   final s = _steps[index];
                   return ListView(
-                    padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 20),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 20,
+                    ),
                     children: [
                       // Badge
                       Row(
                         children: [
                           Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
                             decoration: BoxDecoration(
                               color: s.accentColor.withValues(alpha: 0.12),
                               borderRadius: BorderRadius.circular(6),
@@ -305,11 +319,16 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
 
                       // Quick Tip Box
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 12,
+                        ),
                         decoration: BoxDecoration(
                           color: AppColors.brandLight.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColors.brand.withValues(alpha: 0.2)),
+                          border: Border.all(
+                            color: AppColors.brand.withValues(alpha: 0.2),
+                          ),
                         ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -359,7 +378,9 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
                         width: _currentPage == i ? 22 : 8,
                         height: 8,
                         decoration: BoxDecoration(
-                          color: _currentPage == i ? step.accentColor : AppColors.divider,
+                          color: _currentPage == i
+                              ? step.accentColor
+                              : AppColors.divider,
                           borderRadius: BorderRadius.circular(4),
                         ),
                       ),
@@ -371,7 +392,10 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
                     onPressed: _next,
                     style: ElevatedButton.styleFrom(
                       backgroundColor: step.accentColor,
-                      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 24,
+                        vertical: 12,
+                      ),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12),
                       ),

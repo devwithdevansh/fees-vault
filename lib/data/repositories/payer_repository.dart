@@ -34,9 +34,12 @@ class PayerRepository {
       whereArgs.addAll([pattern, pattern, pattern]);
     }
 
-    final whereSql = whereClauses.isNotEmpty ? 'WHERE ${whereClauses.join(' AND ')}' : '';
+    final whereSql = whereClauses.isNotEmpty
+        ? 'WHERE ${whereClauses.join(' AND ')}'
+        : '';
 
-    final sql = '''
+    final sql =
+        '''
       SELECT 
         p.*,
         COALESCE((SELECT SUM(c.grossPaise - c.discountPaise) FROM charges c WHERE c.payerId = p.id), 0) AS totalNetPaise,
@@ -135,7 +138,9 @@ class PayerRepository {
       name: cleanName,
       phone: payer.phone?.trim().isEmpty == true ? null : payer.phone?.trim(),
       batch: payer.batch?.trim().isEmpty == true ? null : payer.batch?.trim(),
-      batchId: payer.batchId?.trim().isEmpty == true ? null : payer.batchId?.trim(),
+      batchId: payer.batchId?.trim().isEmpty == true
+          ? null
+          : payer.batchId?.trim(),
       notes: payer.notes?.trim().isEmpty == true ? null : payer.notes?.trim(),
       updatedAt: DateTime.now().millisecondsSinceEpoch,
     );
@@ -165,10 +170,13 @@ class PayerRepository {
   /// Hard deletion is allowed ONLY when there are zero linked charges.
   Future<void> deletePayer(String id) async {
     final db = _dbManager.database;
-    final chargeCount = Sqflite.firstIntValue(await db.rawQuery(
-      'SELECT COUNT(*) FROM charges WHERE payerId = ?;',
-      [id],
-    )) ?? 0;
+    final chargeCount =
+        Sqflite.firstIntValue(
+          await db.rawQuery('SELECT COUNT(*) FROM charges WHERE payerId = ?;', [
+            id,
+          ]),
+        ) ??
+        0;
 
     if (chargeCount > 0) {
       throw const BusinessRuleException(

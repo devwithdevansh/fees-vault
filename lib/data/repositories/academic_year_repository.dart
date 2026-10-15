@@ -33,7 +33,11 @@ class AcademicYearRepository {
       return AcademicYear.fromMap(rows.first);
     }
     // Fallback: Return first record if none marked current
-    final all = await db.query('academic_years', orderBy: 'createdAt DESC', limit: 1);
+    final all = await db.query(
+      'academic_years',
+      orderBy: 'createdAt DESC',
+      limit: 1,
+    );
     if (all.isNotEmpty) {
       return AcademicYear.fromMap(all.first);
     }
@@ -101,15 +105,24 @@ class AcademicYearRepository {
   /// Deletes an academic year if no batches are linked to it.
   Future<void> deleteAcademicYear(String id) async {
     final db = _dbManager.database;
-    final yearRow = await db.query('academic_years', where: 'id = ?', whereArgs: [id], limit: 1);
+    final yearRow = await db.query(
+      'academic_years',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
     if (yearRow.isEmpty) return;
 
     final yearName = yearRow.first['name'] as String;
 
-    final batchCount = Sqflite.firstIntValue(await db.rawQuery(
-      'SELECT COUNT(*) FROM batches WHERE academicYear = ?;',
-      [yearName],
-    )) ?? 0;
+    final batchCount =
+        Sqflite.firstIntValue(
+          await db.rawQuery(
+            'SELECT COUNT(*) FROM batches WHERE academicYear = ?;',
+            [yearName],
+          ),
+        ) ??
+        0;
 
     if (batchCount > 0) {
       throw BusinessRuleException(

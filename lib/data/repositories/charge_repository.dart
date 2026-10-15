@@ -28,7 +28,9 @@ class ChargeRepository {
     ''';
 
     final rows = await db.rawQuery(sql, [payerId]);
-    return rows.map((r) => Charge.fromMap(r, paidPaise: (r['paidPaise'] as int?) ?? 0)).toList();
+    return rows
+        .map((r) => Charge.fromMap(r, paidPaise: (r['paidPaise'] as int?) ?? 0))
+        .toList();
   }
 
   /// Retrieves all charges across the system with optional status filter.
@@ -37,7 +39,8 @@ class ChargeRepository {
     final where = payerId != null ? 'WHERE c.payerId = ?' : '';
     final args = payerId != null ? [payerId] : null;
 
-    final sql = '''
+    final sql =
+        '''
       SELECT 
         c.*,
         p.name AS payerName,
@@ -49,7 +52,9 @@ class ChargeRepository {
     ''';
 
     final rows = await db.rawQuery(sql, args);
-    return rows.map((r) => Charge.fromMap(r, paidPaise: (r['paidPaise'] as int?) ?? 0)).toList();
+    return rows
+        .map((r) => Charge.fromMap(r, paidPaise: (r['paidPaise'] as int?) ?? 0))
+        .toList();
   }
 
   /// Retrieves a single charge by ID with paid balance.
@@ -90,7 +95,9 @@ class ChargeRepository {
     ''';
 
     final rows = await db.rawQuery(sql, [today, limit]);
-    return rows.map((r) => Charge.fromMap(r, paidPaise: (r['paidPaise'] as int?) ?? 0)).toList();
+    return rows
+        .map((r) => Charge.fromMap(r, paidPaise: (r['paidPaise'] as int?) ?? 0))
+        .toList();
   }
 
   /// Creates a new charge.
@@ -161,10 +168,14 @@ class ChargeRepository {
 
     final db = _dbManager.database;
     // Check total payments already recorded for this charge
-    final paidTotal = Sqflite.firstIntValue(await db.rawQuery(
-      'SELECT COALESCE(SUM(amountPaise), 0) FROM payments WHERE chargeId = ?;',
-      [charge.id],
-    )) ?? 0;
+    final paidTotal =
+        Sqflite.firstIntValue(
+          await db.rawQuery(
+            'SELECT COALESCE(SUM(amountPaise), 0) FROM payments WHERE chargeId = ?;',
+            [charge.id],
+          ),
+        ) ??
+        0;
 
     final newNetPaise = charge.grossPaise - charge.discountPaise;
     if (newNetPaise < paidTotal) {
@@ -176,7 +187,9 @@ class ChargeRepository {
 
     final updated = charge.copyWith(
       title: cleanTitle,
-      period: charge.period?.trim().isEmpty == true ? null : charge.period?.trim(),
+      period: charge.period?.trim().isEmpty == true
+          ? null
+          : charge.period?.trim(),
       notes: charge.notes?.trim().isEmpty == true ? null : charge.notes?.trim(),
       updatedAt: DateTime.now().millisecondsSinceEpoch,
     );
@@ -193,10 +206,14 @@ class ChargeRepository {
   /// Strictly blocked if payments have been recorded for this charge!
   Future<void> deleteCharge(String id) async {
     final db = _dbManager.database;
-    final paymentCount = Sqflite.firstIntValue(await db.rawQuery(
-      'SELECT COUNT(*) FROM payments WHERE chargeId = ?;',
-      [id],
-    )) ?? 0;
+    final paymentCount =
+        Sqflite.firstIntValue(
+          await db.rawQuery(
+            'SELECT COUNT(*) FROM payments WHERE chargeId = ?;',
+            [id],
+          ),
+        ) ??
+        0;
 
     if (paymentCount > 0) {
       throw const BusinessRuleException(
@@ -213,29 +230,41 @@ class ChargeRepository {
     final db = _dbManager.database;
     final now = DateTime.now();
     final today = CurrencyFormatter.toYmd(now);
-    final currentMonthPrefix = '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}%';
+    final currentMonthPrefix =
+        '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}%';
 
     // 1. Total net fees raised (independent)
-    final totalNetFees = Sqflite.firstIntValue(await db.rawQuery(
-      'SELECT COALESCE(SUM(grossPaise - discountPaise), 0) FROM charges;',
-    )) ?? 0;
+    final totalNetFees =
+        Sqflite.firstIntValue(
+          await db.rawQuery(
+            'SELECT COALESCE(SUM(grossPaise - discountPaise), 0) FROM charges;',
+          ),
+        ) ??
+        0;
 
     // 2. Total collected (independent)
-    final totalCollected = Sqflite.firstIntValue(await db.rawQuery(
-      'SELECT COALESCE(SUM(amountPaise), 0) FROM payments;',
-    )) ?? 0;
+    final totalCollected =
+        Sqflite.firstIntValue(
+          await db.rawQuery(
+            'SELECT COALESCE(SUM(amountPaise), 0) FROM payments;',
+          ),
+        ) ??
+        0;
 
     // 3. Total outstanding
     final totalOutstanding = totalNetFees - totalCollected;
 
     // 4. Overdue charges amount
     // Sum of outstanding for charges where dueDate < today
-    final overdueRows = await db.rawQuery('''
+    final overdueRows = await db.rawQuery(
+      '''
       SELECT 
         (c.grossPaise - c.discountPaise) - COALESCE((SELECT SUM(pm.amountPaise) FROM payments pm WHERE pm.chargeId = c.id), 0) AS remaining
       FROM charges c
       WHERE c.dueDate < ?
-    ''', [today]);
+    ''',
+      [today],
+    );
 
     int totalOverdue = 0;
     int overdueCount = 0;
@@ -248,29 +277,43 @@ class ChargeRepository {
     }
 
     // 5. Current month net fees raised (dueDate in current month)
-    final monthNetFees = Sqflite.firstIntValue(await db.rawQuery(
-      'SELECT COALESCE(SUM(grossPaise - discountPaise), 0) FROM charges WHERE dueDate LIKE ?;',
-      [currentMonthPrefix],
-    )) ?? 0;
+    final monthNetFees =
+        Sqflite.firstIntValue(
+          await db.rawQuery(
+            'SELECT COALESCE(SUM(grossPaise - discountPaise), 0) FROM charges WHERE dueDate LIKE ?;',
+            [currentMonthPrefix],
+          ),
+        ) ??
+        0;
 
     // 6. Current month collected (paidDate in current month)
-    final monthCollected = Sqflite.firstIntValue(await db.rawQuery(
-      'SELECT COALESCE(SUM(amountPaise), 0) FROM payments WHERE paidDate LIKE ?;',
-      [currentMonthPrefix],
-    )) ?? 0;
+    final monthCollected =
+        Sqflite.firstIntValue(
+          await db.rawQuery(
+            'SELECT COALESCE(SUM(amountPaise), 0) FROM payments WHERE paidDate LIKE ?;',
+            [currentMonthPrefix],
+          ),
+        ) ??
+        0;
 
     // 7. Counts
-    final activePayers = Sqflite.firstIntValue(await db.rawQuery(
-      'SELECT COUNT(*) FROM payers WHERE archived = 0;',
-    )) ?? 0;
+    final activePayers =
+        Sqflite.firstIntValue(
+          await db.rawQuery('SELECT COUNT(*) FROM payers WHERE archived = 0;'),
+        ) ??
+        0;
 
-    final archivedPayers = Sqflite.firstIntValue(await db.rawQuery(
-      'SELECT COUNT(*) FROM payers WHERE archived = 1;',
-    )) ?? 0;
+    final archivedPayers =
+        Sqflite.firstIntValue(
+          await db.rawQuery('SELECT COUNT(*) FROM payers WHERE archived = 1;'),
+        ) ??
+        0;
 
-    final totalCharges = Sqflite.firstIntValue(await db.rawQuery(
-      'SELECT COUNT(*) FROM charges;',
-    )) ?? 0;
+    final totalCharges =
+        Sqflite.firstIntValue(
+          await db.rawQuery('SELECT COUNT(*) FROM charges;'),
+        ) ??
+        0;
 
     return VaultSummary(
       totalNetFeesPaise: totalNetFees,

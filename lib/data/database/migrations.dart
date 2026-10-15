@@ -62,8 +62,12 @@ class DatabaseMigrations {
         updatedAt INTEGER NOT NULL
       );
     ''');
-    await db.execute('CREATE INDEX idx_payments_chargeId ON payments(chargeId);');
-    await db.execute('CREATE INDEX idx_payments_paidDate ON payments(paidDate);');
+    await db.execute(
+      'CREATE INDEX idx_payments_chargeId ON payments(chargeId);',
+    );
+    await db.execute(
+      'CREATE INDEX idx_payments_paidDate ON payments(paidDate);',
+    );
 
     // 4. Audit events table (encrypted local correction history)
     await db.execute('''
@@ -77,7 +81,9 @@ class DatabaseMigrations {
         detailsJson TEXT
       );
     ''');
-    await db.execute('CREATE INDEX idx_audit_entity ON audit_events(entityType, entityId);');
+    await db.execute(
+      'CREATE INDEX idx_audit_entity ON audit_events(entityType, entityId);',
+    );
 
     // 5. Settings table
     await db.execute('''
@@ -108,7 +114,9 @@ class DatabaseMigrations {
         updatedAt INTEGER NOT NULL
       );
     ''');
-    await db.execute('CREATE INDEX idx_batches_academicYear ON batches(academicYear);');
+    await db.execute(
+      'CREATE INDEX idx_batches_academicYear ON batches(academicYear);',
+    );
 
     // 8. Batch Fee Templates table (standard fee structure per batch)
     await db.execute('''
@@ -122,7 +130,9 @@ class DatabaseMigrations {
         updatedAt INTEGER NOT NULL
       );
     ''');
-    await db.execute('CREATE INDEX idx_bft_batchId ON batch_fee_templates(batchId);');
+    await db.execute(
+      'CREATE INDEX idx_bft_batchId ON batch_fee_templates(batchId);',
+    );
 
     // Seed default settings inside the encrypted database
     await db.insert('settings', {
@@ -152,7 +162,11 @@ class DatabaseMigrations {
     });
   }
 
-  static Future<void> onUpgrade(Database db, int oldVersion, int newVersion) async {
+  static Future<void> onUpgrade(
+    Database db,
+    int oldVersion,
+    int newVersion,
+  ) async {
     if (oldVersion < 2) {
       // 1. Create academic_years table
       await db.execute('''
@@ -175,7 +189,9 @@ class DatabaseMigrations {
           updatedAt INTEGER NOT NULL
         );
       ''');
-      await db.execute('CREATE INDEX IF NOT EXISTS idx_batches_academicYear ON batches(academicYear);');
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_batches_academicYear ON batches(academicYear);',
+      );
 
       // 3. Create batch_fee_templates table
       await db.execute('''
@@ -189,22 +205,32 @@ class DatabaseMigrations {
           updatedAt INTEGER NOT NULL
         );
       ''');
-      await db.execute('CREATE INDEX IF NOT EXISTS idx_bft_batchId ON batch_fee_templates(batchId);');
+      await db.execute(
+        'CREATE INDEX IF NOT EXISTS idx_bft_batchId ON batch_fee_templates(batchId);',
+      );
 
       // 4. Safely add batchId column to payers if missing
       try {
         await db.execute('ALTER TABLE payers ADD COLUMN batchId TEXT;');
-        await db.execute('CREATE INDEX IF NOT EXISTS idx_payers_batchId ON payers(batchId);');
+        await db.execute(
+          'CREATE INDEX IF NOT EXISTS idx_payers_batchId ON payers(batchId);',
+        );
       } catch (_) {}
 
       // 5. Safely add batchId column to charges if missing
       try {
         await db.execute('ALTER TABLE charges ADD COLUMN batchId TEXT;');
-        await db.execute('CREATE INDEX IF NOT EXISTS idx_charges_batchId ON charges(batchId);');
+        await db.execute(
+          'CREATE INDEX IF NOT EXISTS idx_charges_batchId ON charges(batchId);',
+        );
       } catch (_) {}
 
       // 6. Seed default academic year if table is empty
-      final ayCount = Sqflite.firstIntValue(await db.rawQuery('SELECT COUNT(*) FROM academic_years;')) ?? 0;
+      final ayCount =
+          Sqflite.firstIntValue(
+            await db.rawQuery('SELECT COUNT(*) FROM academic_years;'),
+          ) ??
+          0;
       if (ayCount == 0) {
         final now = DateTime.now().millisecondsSinceEpoch;
         await db.insert('academic_years', {

@@ -20,10 +20,12 @@ class BatchFeeTemplateFormScreen extends StatefulWidget {
   });
 
   @override
-  State<BatchFeeTemplateFormScreen> createState() => _BatchFeeTemplateFormScreenState();
+  State<BatchFeeTemplateFormScreen> createState() =>
+      _BatchFeeTemplateFormScreenState();
 }
 
-class _BatchFeeTemplateFormScreenState extends State<BatchFeeTemplateFormScreen> {
+class _BatchFeeTemplateFormScreenState
+    extends State<BatchFeeTemplateFormScreen> {
   final _formKey = GlobalKey<FormState>();
   late TextEditingController _titleController;
   late TextEditingController _amountController;
@@ -39,7 +41,9 @@ class _BatchFeeTemplateFormScreenState extends State<BatchFeeTemplateFormScreen>
       text: t != null ? (t.grossPaise / 100).toStringAsFixed(0) : '',
     );
     _dueDateController = TextEditingController(
-      text: t?.defaultDueDate ?? CurrencyFormatter.toYmd(DateTime.now().add(const Duration(days: 30))),
+      text:
+          t?.defaultDueDate ??
+          CurrencyFormatter.toYmd(DateTime.now().add(const Duration(days: 30))),
     );
   }
 
@@ -81,9 +85,11 @@ class _BatchFeeTemplateFormScreenState extends State<BatchFeeTemplateFormScreen>
 
     try {
       final title = _titleController.text.trim();
-      final rupees = double.parse(_amountController.text.trim());
+      final rupees = double.tryParse(_amountController.text.trim()) ?? 0.0;
       final grossPaise = (rupees * 100).round();
-      final dueDate = _dueDateController.text.trim().isEmpty ? null : _dueDateController.text.trim();
+      final dueDate = _dueDateController.text.trim().isEmpty
+          ? null
+          : _dueDateController.text.trim();
 
       if (widget.templateToEdit == null) {
         await widget.controller.addBatchFeeTemplate(
@@ -159,7 +165,10 @@ class _BatchFeeTemplateFormScreenState extends State<BatchFeeTemplateFormScreen>
                       const SizedBox(height: 6),
                       const Text(
                         'This fee obligation will be applied to students enrolled in this batch.',
-                        style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                       const SizedBox(height: 16),
                       // Title
@@ -179,14 +188,21 @@ class _BatchFeeTemplateFormScreenState extends State<BatchFeeTemplateFormScreen>
                           hintText: 'e.g. Term 1 Tuition, Lab & Study Material',
                           filled: true,
                           fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: AppColors.divider),
+                            borderSide: const BorderSide(
+                              color: AppColors.divider,
+                            ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: AppColors.divider),
+                            borderSide: const BorderSide(
+                              color: AppColors.divider,
+                            ),
                           ),
                         ),
                         validator: (val) {
@@ -209,21 +225,32 @@ class _BatchFeeTemplateFormScreenState extends State<BatchFeeTemplateFormScreen>
                       const SizedBox(height: 6),
                       TextFormField(
                         controller: _amountController,
-                        keyboardType: const TextInputType.numberWithOptions(decimal: false),
-                        inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                        keyboardType: const TextInputType.numberWithOptions(
+                          decimal: false,
+                        ),
+                        inputFormatters: [
+                          FilteringTextInputFormatter.digitsOnly,
+                        ],
                         decoration: InputDecoration(
                           prefixText: '₹ ',
                           hintText: 'e.g. 15000',
                           filled: true,
                           fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: AppColors.divider),
+                            borderSide: const BorderSide(
+                              color: AppColors.divider,
+                            ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: AppColors.divider),
+                            borderSide: const BorderSide(
+                              color: AppColors.divider,
+                            ),
                           ),
                         ),
                         validator: (val) {
@@ -254,17 +281,28 @@ class _BatchFeeTemplateFormScreenState extends State<BatchFeeTemplateFormScreen>
                         onTap: _pickDueDate,
                         decoration: InputDecoration(
                           hintText: 'YYYY-MM-DD',
-                          suffixIcon: const Icon(Icons.calendar_today, size: 20, color: AppColors.textSecondary),
+                          suffixIcon: const Icon(
+                            Icons.calendar_today,
+                            size: 20,
+                            color: AppColors.textSecondary,
+                          ),
                           filled: true,
                           fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 14,
+                            vertical: 12,
+                          ),
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: AppColors.divider),
+                            borderSide: const BorderSide(
+                              color: AppColors.divider,
+                            ),
                           ),
                           enabledBorder: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(color: AppColors.divider),
+                            borderSide: const BorderSide(
+                              color: AppColors.divider,
+                            ),
                           ),
                         ),
                       ),
@@ -277,16 +315,23 @@ class _BatchFeeTemplateFormScreenState extends State<BatchFeeTemplateFormScreen>
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.brand,
                     padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   child: _isSaving
                       ? const SizedBox(
                           height: 20,
                           width: 20,
-                          child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                          child: CircularProgressIndicator(
+                            color: Colors.white,
+                            strokeWidth: 2,
+                          ),
                         )
                       : Text(
-                          isEditing ? 'Save Installment' : 'Add Fee Installment',
+                          isEditing
+                              ? 'Save Installment'
+                              : 'Add Fee Installment',
                           style: const TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.w600,

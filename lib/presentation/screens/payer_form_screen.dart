@@ -69,7 +69,9 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
   Batch? get _selectedBatch {
     if (_selectedBatchId == null) return null;
     try {
-      return widget.controller.batches.firstWhere((b) => b.id == _selectedBatchId);
+      return widget.controller.batches.firstWhere(
+        (b) => b.id == _selectedBatchId,
+      );
     } catch (_) {
       return null;
     }
@@ -264,13 +266,17 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
                   ),
                   const SizedBox(width: 8),
                   IconButton(
-                    icon: const Icon(Icons.add_circle_outline, color: AppColors.brand),
+                    icon: const Icon(
+                      Icons.add_circle_outline,
+                      color: AppColors.brand,
+                    ),
                     tooltip: 'Create New Batch',
                     onPressed: () async {
                       await Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (_) => BatchFormScreen(controller: widget.controller),
+                          builder: (_) =>
+                              BatchFormScreen(controller: widget.controller),
                         ),
                       );
                       setState(() {});
@@ -288,7 +294,10 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
                     const Expanded(
                       child: Text(
                         'No batches created yet. You can create a batch to configure standard fees.',
-                        style: TextStyle(fontSize: 13, color: AppColors.textPrimary),
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textPrimary,
+                        ),
                       ),
                     ),
                     TextButton(
@@ -296,7 +305,8 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
                         await Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (_) => BatchFormScreen(controller: widget.controller),
+                            builder: (_) =>
+                                BatchFormScreen(controller: widget.controller),
                           ),
                         );
                         setState(() {});
@@ -318,7 +328,11 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.bolt, color: AppColors.brand, size: 20),
+                        const Icon(
+                          Icons.bolt,
+                          color: AppColors.brand,
+                          size: 20,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           'Batch Fee Structure: ${CurrencyFormatter.formatPaise(selectedBatch.standardBatchFeePaise)}',
@@ -335,7 +349,10 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
                       selectedBatch.feeTemplates.isNotEmpty
                           ? '${selectedBatch.feeTemplates.length} standard installment(s) configured'
                           : 'No standard installments configured in this batch yet',
-                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                      style: const TextStyle(
+                        fontSize: 12,
+                        color: AppColors.textSecondary,
+                      ),
                     ),
                     if (selectedBatch.feeTemplates.isNotEmpty) ...[
                       const Divider(height: 16, color: AppColors.divider),
@@ -344,30 +361,45 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
                         dense: true,
                         title: const Text(
                           'Charge batch fee structure immediately',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
+                          style: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.w600,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                         subtitle: const Text(
                           'Creates standard fee obligations automatically for this student',
-                          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                         value: _applyBatchFees,
                         activeThumbColor: AppColors.brand,
-                        onChanged: (val) => setState(() => _applyBatchFees = val),
+                        onChanged: (val) =>
+                            setState(() => _applyBatchFees = val),
                       ),
                       if (_applyBatchFees) ...[
                         const SizedBox(height: 8),
                         TextFormField(
                           controller: _concessionController,
                           keyboardType: TextInputType.number,
-                          inputFormatters: [FilteringTextInputFormatter.digitsOnly],
+                          inputFormatters: [
+                            FilteringTextInputFormatter.digitsOnly,
+                          ],
                           decoration: InputDecoration(
                             labelText: 'Scholarship / Concession (Optional)',
                             hintText: 'e.g. 5000',
                             prefixText: '₹ ',
                             filled: true,
                             fillColor: Colors.white,
-                            contentPadding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-                            border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                            contentPadding: const EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 10,
+                            ),
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
                       ],
@@ -421,14 +453,19 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.brand,
                 padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
                 elevation: 0,
               ),
               child: _isSaving
                   ? const SizedBox(
                       height: 20,
                       width: 20,
-                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
+                      child: CircularProgressIndicator(
+                        color: Colors.white,
+                        strokeWidth: 2,
+                      ),
                     )
                   : Text(
                       isEdit ? 'Update Student Details' : 'Register Student',

@@ -40,13 +40,19 @@ class SettingsScreen extends StatelessWidget {
               labelText: 'Business Name',
               filled: true,
               fillColor: AppColors.surfaceSubtle,
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
             ),
-            validator: (v) => v == null || v.trim().isEmpty ? 'Name cannot be empty' : null,
+            validator: (v) =>
+                v == null || v.trim().isEmpty ? 'Name cannot be empty' : null,
           ),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.brand),
             onPressed: () {
@@ -94,19 +100,28 @@ class SettingsScreen extends StatelessWidget {
                 ...controller.academicYears.map((ay) {
                   return ListTile(
                     leading: Icon(
-                      ay.isCurrent ? Icons.check_circle : Icons.radio_button_unchecked,
-                      color: ay.isCurrent ? AppColors.brand : AppColors.textSecondary,
+                      ay.isCurrent
+                          ? Icons.check_circle
+                          : Icons.radio_button_unchecked,
+                      color: ay.isCurrent
+                          ? AppColors.brand
+                          : AppColors.textSecondary,
                     ),
                     title: Text(
                       ay.name,
                       style: TextStyle(
-                        fontWeight: ay.isCurrent ? FontWeight.bold : FontWeight.normal,
+                        fontWeight: ay.isCurrent
+                            ? FontWeight.bold
+                            : FontWeight.normal,
                         color: AppColors.textPrimary,
                       ),
                     ),
                     trailing: ay.isCurrent
                         ? Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
                             decoration: BoxDecoration(
                               color: AppColors.brandLight,
                               borderRadius: BorderRadius.circular(6),
@@ -131,7 +146,10 @@ class SettingsScreen extends StatelessWidget {
                 }),
                 const Divider(color: AppColors.divider),
                 ListTile(
-                  leading: const Icon(Icons.add_circle_outline, color: AppColors.brand),
+                  leading: const Icon(
+                    Icons.add_circle_outline,
+                    color: AppColors.brand,
+                  ),
                   title: const Text(
                     'Add Academic Year',
                     style: TextStyle(
@@ -174,9 +192,13 @@ class SettingsScreen extends StatelessWidget {
               const SizedBox(height: 12),
               CheckboxListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Set as current active year', style: TextStyle(fontSize: 14)),
+                title: const Text(
+                  'Set as current active year',
+                  style: TextStyle(fontSize: 14),
+                ),
                 value: makeCurrent,
-                onChanged: (val) => setDialogState(() => makeCurrent = val ?? false),
+                onChanged: (val) =>
+                    setDialogState(() => makeCurrent = val ?? false),
               ),
             ],
           ),
@@ -193,15 +215,24 @@ class SettingsScreen extends StatelessWidget {
                   final messenger = ScaffoldMessenger.of(context);
                   Navigator.pop(ctx);
                   try {
-                    await controller.createAcademicYear(name, isCurrent: makeCurrent);
+                    await controller.createAcademicYear(
+                      name,
+                      isCurrent: makeCurrent,
+                    );
                   } catch (e) {
                     messenger.showSnackBar(
-                      SnackBar(content: Text(e.toString()), backgroundColor: AppColors.overdueRed),
+                      SnackBar(
+                        content: Text(e.toString()),
+                        backgroundColor: AppColors.overdueRed,
+                      ),
                     );
                   }
                 }
               },
-              child: const Text('Create', style: TextStyle(color: Colors.white)),
+              child: const Text(
+                'Create',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),
@@ -243,7 +274,10 @@ class SettingsScreen extends StatelessWidget {
                     color: AppColors.brandLight,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.menu_book_outlined, color: AppColors.brand),
+                  child: const Icon(
+                    Icons.menu_book_outlined,
+                    color: AppColors.brand,
+                  ),
                 ),
                 const SizedBox(width: 14),
                 const Expanded(
@@ -252,11 +286,17 @@ class SettingsScreen extends StatelessWidget {
                     children: [
                       Text(
                         'Academy User Guide & Help',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
                       ),
                       Text(
                         'Step-by-step walkthrough of student fee workflows',
-                        style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ],
                   ),
@@ -273,9 +313,14 @@ class SettingsScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.brand,
                     elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                  child: const Text('View Guide', style: TextStyle(color: Colors.white, fontSize: 13)),
+                  child: const Text(
+                    'View Guide',
+                    style: TextStyle(color: Colors.white, fontSize: 13),
+                  ),
                 ),
               ],
             ),
@@ -306,14 +351,23 @@ class SettingsScreen extends StatelessWidget {
                       color: AppColors.surfaceSubtle,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.school, color: AppColors.textPrimary),
+                    child: const Icon(
+                      Icons.school,
+                      color: AppColors.textPrimary,
+                    ),
                   ),
                   title: Text(
                     controller.businessName,
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                   subtitle: const Text('Tap to change academy receipt header'),
-                  trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+                  trailing: const Icon(
+                    Icons.chevron_right,
+                    color: AppColors.textSecondary,
+                  ),
                   onTap: () => _editBusinessName(context),
                 ),
                 const Divider(color: AppColors.divider),
@@ -325,22 +379,45 @@ class SettingsScreen extends StatelessWidget {
                       color: AppColors.brandLight,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.calendar_month, color: AppColors.brand),
+                    child: const Icon(
+                      Icons.calendar_month,
+                      color: AppColors.brand,
+                    ),
                   ),
                   title: Text(
                     'Active Year: ${controller.currentAcademicYear?.name ?? "2026-2027"}',
-                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 15,
+                    ),
                   ),
-                  subtitle: const Text('Manage academic cycles & switch active year'),
-                  trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
+                  subtitle: const Text(
+                    'Manage academic cycles & switch active year',
+                  ),
+                  trailing: const Icon(
+                    Icons.chevron_right,
+                    color: AppColors.textSecondary,
+                  ),
                   onTap: () => _manageAcademicYears(context),
                 ),
                 const Divider(color: AppColors.divider),
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Currency', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
-                    Text('INR (₹) • Indian Rupee', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
+                    Text(
+                      'Currency',
+                      style: TextStyle(
+                        color: AppColors.textSecondary,
+                        fontSize: 14,
+                      ),
+                    ),
+                    Text(
+                      'INR (₹) • Indian Rupee',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 14,
+                      ),
+                    ),
                   ],
                 ),
               ],
@@ -359,7 +436,10 @@ class SettingsScreen extends StatelessWidget {
                     color: AppColors.unpaidAmberBg,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.lock_clock_outlined, color: AppColors.unpaidAmber),
+                  child: const Icon(
+                    Icons.lock_clock_outlined,
+                    color: AppColors.unpaidAmber,
+                  ),
                 ),
                 const SizedBox(width: 14),
                 const Expanded(
@@ -368,11 +448,17 @@ class SettingsScreen extends StatelessWidget {
                     children: [
                       Text(
                         'Lock Vault Now',
-                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                        style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
                       ),
                       Text(
                         'Closes database and requires passcode/Face ID',
-                        style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ],
                   ),
@@ -382,9 +468,14 @@ class SettingsScreen extends StatelessWidget {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: AppColors.textPrimary,
                     elevation: 0,
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
-                  child: const Text('Lock', style: TextStyle(color: Colors.white)),
+                  child: const Text(
+                    'Lock',
+                    style: TextStyle(color: Colors.white),
+                  ),
                 ),
               ],
             ),
@@ -465,7 +556,11 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.info_outline, size: 18, color: AppColors.textSecondary),
+                    Icon(
+                      Icons.info_outline,
+                      size: 18,
+                      color: AppColors.textSecondary,
+                    ),
                     SizedBox(width: 8),
                     Text(
                       'DATA RETENTION & RECOVERY BOUNDARY',
@@ -542,8 +637,21 @@ class SettingsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textPrimary)),
-              Text(value, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
+              Text(
+                title,
+                style: const TextStyle(
+                  fontWeight: FontWeight.w600,
+                  fontSize: 13,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              Text(
+                value,
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: AppColors.textSecondary,
+                ),
+              ),
             ],
           ),
         ),
@@ -555,8 +663,18 @@ class SettingsScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textPrimary)),
+        Text(
+          label,
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+        ),
+        Text(
+          value,
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 13,
+            color: AppColors.textPrimary,
+          ),
+        ),
       ],
     );
   }

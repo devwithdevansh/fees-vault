@@ -50,7 +50,10 @@ class ReceiptCard extends StatelessWidget {
                 if (payment.isEdited)
                   Container(
                     margin: const EdgeInsets.only(bottom: 8),
-                    padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 4,
+                    ),
                     decoration: BoxDecoration(
                       color: AppColors.unpaidAmberBg,
                       borderRadius: BorderRadius.circular(6),
@@ -105,14 +108,22 @@ class ReceiptCard extends StatelessWidget {
             padding: const EdgeInsets.all(20),
             child: Column(
               children: [
-                _receiptRow('Student Name', payment.payerName ?? 'N/A', isBold: true),
+                _receiptRow(
+                  'Student Name',
+                  payment.payerName ?? 'N/A',
+                  isBold: true,
+                ),
                 const SizedBox(height: 12),
                 _receiptRow('Fee / Installment', payment.chargeTitle ?? 'N/A'),
                 const SizedBox(height: 12),
-                _receiptRow('Date Paid', CurrencyFormatter.formatDisplayDate(payment.paidDate)),
+                _receiptRow(
+                  'Date Paid',
+                  CurrencyFormatter.formatDisplayDate(payment.paidDate),
+                ),
                 const SizedBox(height: 12),
                 _receiptRow('Method', payment.method),
-                if (payment.reference != null && payment.reference!.isNotEmpty) ...[
+                if (payment.reference != null &&
+                    payment.reference!.isNotEmpty) ...[
                   const SizedBox(height: 12),
                   _receiptRow('Reference / Txn ID', payment.reference!),
                 ],
@@ -166,7 +177,9 @@ class ReceiptCard extends StatelessWidget {
                       Text(
                         payment.remainingBalancePaise == 0
                             ? 'Settled (₹0)'
-                            : CurrencyFormatter.formatPaise(payment.remainingBalancePaise!),
+                            : CurrencyFormatter.formatPaise(
+                                payment.remainingBalancePaise!,
+                              ),
                         style: TextStyle(
                           color: payment.remainingBalancePaise == 0
                               ? AppColors.settledGreen
@@ -192,14 +205,28 @@ class ReceiptCard extends StatelessWidget {
                   if (onEdit != null)
                     TextButton.icon(
                       onPressed: onEdit,
-                      icon: const Icon(Icons.edit_outlined, size: 16, color: AppColors.textSecondary),
-                      label: const Text('Edit Entry', style: TextStyle(color: AppColors.textSecondary)),
+                      icon: const Icon(
+                        Icons.edit_outlined,
+                        size: 16,
+                        color: AppColors.textSecondary,
+                      ),
+                      label: const Text(
+                        'Edit Entry',
+                        style: TextStyle(color: AppColors.textSecondary),
+                      ),
                     ),
                   if (onDelete != null)
                     TextButton.icon(
                       onPressed: onDelete,
-                      icon: const Icon(Icons.delete_outline, size: 16, color: AppColors.overdueRed),
-                      label: const Text('Delete Entry', style: TextStyle(color: AppColors.overdueRed)),
+                      icon: const Icon(
+                        Icons.delete_outline,
+                        size: 16,
+                        color: AppColors.overdueRed,
+                      ),
+                      label: const Text(
+                        'Delete Entry',
+                        style: TextStyle(color: AppColors.overdueRed),
+                      ),
                     ),
                 ],
               ),
@@ -217,10 +244,7 @@ class ReceiptCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(
-            color: AppColors.textSecondary,
-            fontSize: 13,
-          ),
+          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
         ),
         const SizedBox(width: 16),
         Flexible(

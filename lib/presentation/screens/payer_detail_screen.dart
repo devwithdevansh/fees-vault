@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/formatters/currency_formatter.dart';
 import '../../data/models/batch.dart';
@@ -43,13 +44,17 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
     setState(() => _isLoading = true);
     try {
       final p = await widget.controller.payerRepo.getPayerById(widget.payerId);
-      final charges = await widget.controller.chargeRepo.getChargesForPayer(widget.payerId);
+      final charges = await widget.controller.chargeRepo.getChargesForPayer(
+        widget.payerId,
+      );
 
       Batch? b;
       if (p?.batchId != null) {
         b = await widget.controller.batchRepo.getBatchById(p!.batchId!);
       } else if (p?.batch != null) {
-        final matches = widget.controller.batches.where((batch) => batch.name == p!.batch);
+        final matches = widget.controller.batches.where(
+          (batch) => batch.name == p!.batch,
+        );
         if (matches.isNotEmpty) {
           b = await widget.controller.batchRepo.getBatchById(matches.first.id);
         }
@@ -92,7 +97,10 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                 await widget.controller.archivePayer(_payer!.id, true);
                 await _loadPayerDetails();
               },
-              child: const Text('Archive Student', style: TextStyle(color: Colors.white)),
+              child: const Text(
+                'Archive Student',
+                style: TextStyle(color: Colors.white),
+              ),
             ),
           ],
         ),
@@ -104,7 +112,9 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Delete Student?'),
-        content: Text('Are you sure you want to permanently delete ${_payer!.name}? This cannot be undone.'),
+        content: Text(
+          'Are you sure you want to permanently delete ${_payer!.name}? This cannot be undone.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
@@ -112,7 +122,10 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
           ),
           TextButton(
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Delete', style: TextStyle(color: AppColors.overdueRed)),
+            child: const Text(
+              'Delete',
+              style: TextStyle(color: AppColors.overdueRed),
+            ),
           ),
         ],
       ),
@@ -151,11 +164,17 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
           ],
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: AppColors.brand),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Charge Now', style: TextStyle(color: Colors.white)),
+            child: const Text(
+              'Charge Now',
+              style: TextStyle(color: Colors.white),
+            ),
           ),
         ],
       ),
@@ -178,7 +197,9 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Standard fees successfully charged to ${_payer!.name}.'),
+            content: Text(
+              'Standard fees successfully charged to ${_payer!.name}.',
+            ),
             backgroundColor: AppColors.settledGreen,
           ),
         );
@@ -220,7 +241,10 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_outlined, color: AppColors.textSecondary),
+            icon: const Icon(
+              Icons.edit_outlined,
+              color: AppColors.textSecondary,
+            ),
             tooltip: 'Edit Student',
             onPressed: () async {
               await Navigator.push(
@@ -242,18 +266,28 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                 final confirm = await showDialog<bool>(
                   context: context,
                   builder: (ctx) => AlertDialog(
-                    title: Text(p.archived ? 'Unarchive Student?' : 'Archive Student?'),
+                    title: Text(
+                      p.archived ? 'Unarchive Student?' : 'Archive Student?',
+                    ),
                     content: Text(
                       p.archived
                           ? 'This student will return to the active student list.'
                           : 'Archiving hides the student from the active list, but preserves all fee records and outstanding dues in financial totals.',
                     ),
                     actions: [
-                      TextButton(onPressed: () => Navigator.pop(ctx, false), child: const Text('Cancel')),
+                      TextButton(
+                        onPressed: () => Navigator.pop(ctx, false),
+                        child: const Text('Cancel'),
+                      ),
                       ElevatedButton(
-                        style: ElevatedButton.styleFrom(backgroundColor: AppColors.brand),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: AppColors.brand,
+                        ),
                         onPressed: () => Navigator.pop(ctx, true),
-                        child: Text(p.archived ? 'Unarchive' : 'Archive', style: const TextStyle(color: Colors.white)),
+                        child: Text(
+                          p.archived ? 'Unarchive' : 'Archive',
+                          style: const TextStyle(color: Colors.white),
+                        ),
                       ),
                     ],
                   ),
@@ -269,11 +303,16 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
             itemBuilder: (_) => [
               PopupMenuItem(
                 value: 'archive',
-                child: Text(p.archived ? 'Unarchive Student' : 'Archive Student'),
+                child: Text(
+                  p.archived ? 'Unarchive Student' : 'Archive Student',
+                ),
               ),
               const PopupMenuItem(
                 value: 'delete',
-                child: Text('Delete Student', style: TextStyle(color: AppColors.overdueRed)),
+                child: Text(
+                  'Delete Student',
+                  style: TextStyle(color: AppColors.overdueRed),
+                ),
               ),
             ],
           ),
@@ -315,26 +354,62 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                     const SizedBox(height: 8),
                     Row(
                       children: [
-                        const Icon(Icons.school_outlined, size: 16, color: AppColors.brand),
+                        const Icon(
+                          Icons.school_outlined,
+                          size: 16,
+                          color: AppColors.brand,
+                        ),
                         const SizedBox(width: 8),
                         Text(
                           'Course / Batch: ${p.batch!}',
-                          style: const TextStyle(fontSize: 13.5, color: AppColors.textPrimary, fontWeight: FontWeight.w500),
+                          style: const TextStyle(
+                            fontSize: 13.5,
+                            color: AppColors.textPrimary,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ],
                     ),
                   ],
                   if (p.phone != null && p.phone!.isNotEmpty) ...[
                     const SizedBox(height: 6),
-                    Row(
-                      children: [
-                        const Icon(Icons.phone_outlined, size: 16, color: AppColors.textSecondary),
-                        const SizedBox(width: 8),
-                        Text(
-                          'Parent / Guardian: ${p.phone!}',
-                          style: const TextStyle(fontSize: 13.5, color: AppColors.textSecondary),
-                        ),
-                      ],
+                    GestureDetector(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        Clipboard.setData(ClipboardData(text: p.phone!));
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          SnackBar(
+                            content: Text(
+                              'Copied phone "${p.phone!}" to clipboard',
+                            ),
+                            duration: const Duration(seconds: 2),
+                          ),
+                        );
+                      },
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.phone_outlined,
+                            size: 16,
+                            color: AppColors.textSecondary,
+                          ),
+                          const SizedBox(width: 8),
+                          Text(
+                            'Parent: ${p.phone!}',
+                            style: const TextStyle(
+                              fontSize: 13.5,
+                              color: AppColors.textSecondary,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                          const SizedBox(width: 6),
+                          const Icon(
+                            Icons.copy_rounded,
+                            size: 12,
+                            color: AppColors.textTertiary,
+                          ),
+                        ],
+                      ),
                     ),
                   ],
                   if (p.notes != null && p.notes!.isNotEmpty) ...[
@@ -348,7 +423,10 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                       ),
                       child: Text(
                         p.notes!,
-                        style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
+                        style: const TextStyle(
+                          fontSize: 12.5,
+                          color: AppColors.textSecondary,
+                        ),
                       ),
                     ),
                   ],
@@ -366,11 +444,21 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Total Fees', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                        const Text(
+                          'Total Fees',
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 11,
+                          ),
+                        ),
                         const SizedBox(height: 2),
                         Text(
                           CurrencyFormatter.formatPaise(p.totalNetPaise),
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.textPrimary,
+                          ),
                         ),
                       ],
                     ),
@@ -381,11 +469,21 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Total Paid', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                        const Text(
+                          'Total Paid',
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 11,
+                          ),
+                        ),
                         const SizedBox(height: 2),
                         Text(
                           CurrencyFormatter.formatPaise(p.totalPaidPaise),
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: AppColors.settledGreen),
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: AppColors.settledGreen,
+                          ),
                         ),
                       ],
                     ),
@@ -396,14 +494,24 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text('Outstanding', style: TextStyle(color: AppColors.textSecondary, fontSize: 11)),
+                        const Text(
+                          'Outstanding',
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontSize: 11,
+                          ),
+                        ),
                         const SizedBox(height: 2),
                         Text(
-                          CurrencyFormatter.formatPaise(p.totalOutstandingPaise),
+                          CurrencyFormatter.formatPaise(
+                            p.totalOutstandingPaise,
+                          ),
                           style: TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: p.totalOutstandingPaise > 0 ? AppColors.unpaidAmber : AppColors.settledGreen,
+                            color: p.totalOutstandingPaise > 0
+                                ? AppColors.unpaidAmber
+                                : AppColors.settledGreen,
                           ),
                         ),
                       ],
@@ -415,32 +523,50 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
             const SizedBox(height: 16),
 
             // Batch Quick Charge Action Card
-            if (_payerBatch != null && _payerBatch!.feeTemplates.isNotEmpty) ...[
+            if (_payerBatch != null &&
+                _payerBatch!.feeTemplates.isNotEmpty) ...[
               () {
-                final existingTitles = _charges.map((c) => c.title.toLowerCase()).toSet();
+                final existingTitles = _charges
+                    .map((c) => c.title.toLowerCase())
+                    .toSet();
                 final uncharged = _payerBatch!.feeTemplates
-                    .where((t) => !existingTitles.contains(t.title.toLowerCase()))
+                    .where(
+                      (t) => !existingTitles.contains(t.title.toLowerCase()),
+                    )
                     .toList();
                 if (uncharged.isEmpty) return const SizedBox.shrink();
 
-                final unchargedTotal = uncharged.fold<int>(0, (sum, t) => sum + t.grossPaise);
+                final unchargedTotal = uncharged.fold<int>(
+                  0,
+                  (sum, t) => sum + t.grossPaise,
+                );
 
                 return Padding(
                   padding: const EdgeInsets.only(bottom: 16),
                   child: AppCard(
-                    backgroundColor: AppColors.brandLight.withValues(alpha: 0.4),
+                    backgroundColor: AppColors.brandLight.withValues(
+                      alpha: 0.4,
+                    ),
                     padding: const EdgeInsets.all(14),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Row(
                           children: [
-                            const Icon(Icons.bolt, color: AppColors.brand, size: 20),
+                            const Icon(
+                              Icons.bolt,
+                              color: AppColors.brand,
+                              size: 20,
+                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(
                                 'Batch Fee Structure: ${_payerBatch!.name}',
-                                style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
+                                style: const TextStyle(
+                                  fontSize: 14,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.textPrimary,
+                                ),
                               ),
                             ),
                           ],
@@ -448,20 +574,36 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                         const SizedBox(height: 4),
                         Text(
                           '${uncharged.length} installment(s) available (${CurrencyFormatter.formatPaise(unchargedTotal)})',
-                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                         const SizedBox(height: 10),
                         ElevatedButton.icon(
                           style: ElevatedButton.styleFrom(
                             backgroundColor: AppColors.brand,
-                            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 14,
+                              vertical: 10,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                           onPressed: () => _applyBatchFees(_payerBatch!),
-                          icon: const Icon(Icons.bolt, size: 16, color: Colors.white),
+                          icon: const Icon(
+                            Icons.bolt,
+                            size: 16,
+                            color: Colors.white,
+                          ),
                           label: Text(
                             'Charge ${uncharged.length} Batch Installment(s)',
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 13),
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
                           ),
                         ),
                       ],
@@ -500,7 +642,10 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                   icon: const Icon(Icons.add, size: 16, color: AppColors.brand),
                   label: const Text(
                     'Add Fee Installment',
-                    style: TextStyle(color: AppColors.brand, fontWeight: FontWeight.bold),
+                    style: TextStyle(
+                      color: AppColors.brand,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -509,11 +654,18 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
 
             if (_charges.isEmpty)
               AppCard(
-                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+                padding: const EdgeInsets.symmetric(
+                  vertical: 24,
+                  horizontal: 16,
+                ),
                 child: Center(
                   child: Column(
                     children: [
-                      const Icon(Icons.request_quote_outlined, size: 36, color: AppColors.textSecondary),
+                      const Icon(
+                        Icons.request_quote_outlined,
+                        size: 36,
+                        color: AppColors.textSecondary,
+                      ),
                       const SizedBox(height: 8),
                       const Text(
                         'No Fee Installments Yet',
@@ -526,7 +678,10 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                       const SizedBox(height: 4),
                       const Text(
                         'Add a course fee or installment with a due date to start recording payments.',
-                        style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: AppColors.textSecondary,
+                        ),
                         textAlign: TextAlign.center,
                       ),
                       const SizedBox(height: 14),
@@ -543,11 +698,23 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                           );
                           await _loadPayerDetails();
                         },
-                        icon: const Icon(Icons.add, size: 16, color: Colors.white),
-                        label: const Text('Add Fee Installment', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                        icon: const Icon(
+                          Icons.add,
+                          size: 16,
+                          color: Colors.white,
+                        ),
+                        label: const Text(
+                          'Add Fee Installment',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: AppColors.brand,
-                          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
                           elevation: 0,
                         ),
                       ),
@@ -603,7 +770,10 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                       if (ch.period != null && ch.period!.isNotEmpty)
                         Text(
                           'Academic Year: ${ch.period!}',
-                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.textSecondary,
+                          ),
                         ),
                     ],
                   ),
@@ -617,7 +787,10 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
               children: [
                 Text(
                   'Due: ${CurrencyFormatter.formatDisplayDate(ch.dueDate)}',
-                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                  style: const TextStyle(
+                    fontSize: 12,
+                    color: AppColors.textSecondary,
+                  ),
                 ),
                 Text(
                   ch.outstandingPaise == 0
@@ -626,7 +799,9 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                   style: TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.bold,
-                    color: ch.outstandingPaise > 0 ? AppColors.unpaidAmber : AppColors.settledGreen,
+                    color: ch.outstandingPaise > 0
+                        ? AppColors.unpaidAmber
+                        : AppColors.settledGreen,
                   ),
                 ),
               ],
@@ -635,7 +810,10 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
               const SizedBox(height: 4),
               Text(
                 'Includes Concession: -${CurrencyFormatter.formatPaise(ch.discountPaise)}',
-                style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
+                style: const TextStyle(
+                  fontSize: 11,
+                  color: AppColors.textTertiary,
+                ),
               ),
             ],
             if (ch.outstandingPaise > 0) ...[
@@ -656,12 +834,25 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                     );
                     await _loadPayerDetails();
                   },
-                  icon: const Icon(Icons.payments_outlined, size: 16, color: AppColors.brand),
-                  label: const Text('Record Payment', style: TextStyle(color: AppColors.brand, fontWeight: FontWeight.bold, fontSize: 13)),
+                  icon: const Icon(
+                    Icons.payments_outlined,
+                    size: 16,
+                    color: AppColors.brand,
+                  ),
+                  label: const Text(
+                    'Record Payment',
+                    style: TextStyle(
+                      color: AppColors.brand,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 13,
+                    ),
+                  ),
                   style: OutlinedButton.styleFrom(
                     side: const BorderSide(color: AppColors.brand),
                     padding: const EdgeInsets.symmetric(vertical: 8),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
                   ),
                 ),
               ),
