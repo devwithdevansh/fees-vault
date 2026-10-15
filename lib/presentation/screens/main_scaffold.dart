@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../core/constants/app_colors.dart';
 import '../../data/database/app_database.dart';
 import '../controllers/auth_controller.dart';
@@ -27,8 +28,22 @@ class MainScaffold extends StatefulWidget {
   State<MainScaffold> createState() => _MainScaffoldState();
 }
 
-class _MainScaffoldState extends State<MainScaffold> {
+class _MainScaffoldState extends State<MainScaffold> with SingleTickerProviderStateMixin {
   int _currentIndex = 0;
+
+  static const _tabs = [
+    _NavItem(Icons.grid_view_rounded, Icons.grid_view_rounded, 'Dashboard'),
+    _NavItem(Icons.layers_outlined, Icons.layers_rounded, 'Batches'),
+    _NavItem(Icons.school_outlined, Icons.school_rounded, 'Students'),
+    _NavItem(Icons.receipt_long_outlined, Icons.receipt_long_rounded, 'Receipts'),
+    _NavItem(Icons.tune_outlined, Icons.tune_rounded, 'Settings'),
+  ];
+
+  void _onTabTap(int index) {
+    if (index == _currentIndex) return;
+    HapticFeedback.selectionClick();
+    setState(() => _currentIndex = index);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -49,49 +64,98 @@ class _MainScaffoldState extends State<MainScaffold> {
         index: _currentIndex,
         children: screens,
       ),
-      bottomNavigationBar: Container(
-        decoration: const BoxDecoration(
-          border: Border(top: BorderSide(color: AppColors.divider, width: 1)),
+      bottomNavigationBar: _PremiumNavBar(
+        currentIndex: _currentIndex,
+        tabs: _tabs,
+        onTap: _onTabTap,
+      ),
+    );
+  }
+}
+
+class _NavItem {
+  final IconData icon;
+  final IconData activeIcon;
+  final String label;
+  const _NavItem(this.icon, this.activeIcon, this.label);
+}
+
+class _PremiumNavBar extends StatelessWidget {
+  final int currentIndex;
+  final List<_NavItem> tabs;
+  final ValueChanged<int> onTap;
+
+  const _PremiumNavBar({
+    required this.currentIndex,
+    required this.tabs,
+    required this.onTap,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        border: Border(
+          top: BorderSide(color: AppColors.divider, width: 1),
         ),
-        child: BottomNavigationBar(
-          currentIndex: _currentIndex,
-          onTap: (index) {
-            setState(() => _currentIndex = index);
-          },
-          type: BottomNavigationBarType.fixed,
-          backgroundColor: AppColors.surface,
-          selectedItemColor: AppColors.primaryTealDark,
-          unselectedItemColor: AppColors.slate,
-          selectedFontSize: 12,
-          unselectedFontSize: 12,
-          elevation: 0,
-          items: const [
-            BottomNavigationBarItem(
-              icon: Icon(Icons.dashboard_outlined),
-              activeIcon: Icon(Icons.dashboard),
-              label: 'Dashboard',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.groups_outlined),
-              activeIcon: Icon(Icons.groups),
-              label: 'Batches',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.school_outlined),
-              activeIcon: Icon(Icons.school),
-              label: 'Students',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.receipt_long_outlined),
-              activeIcon: Icon(Icons.receipt_long),
-              label: 'Receipts',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.settings_outlined),
-              activeIcon: Icon(Icons.settings),
-              label: 'Settings',
-            ),
-          ],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.06),
+            blurRadius: 12,
+            offset: const Offset(0, -4),
+          ),
+        ],
+      ),
+      child: SafeArea(
+        top: false,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(vertical: 6),
+          child: Row(
+            children: List.generate(tabs.length, (i) {
+              final tab = tabs[i];
+              final isActive = i == currentIndex;
+              return Expanded(
+                child: GestureDetector(
+                  onTap: () => onTap(i),
+                  behavior: HitTestBehavior.opaque,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 200),
+                    curve: Curves.easeOutCubic,
+                    padding: const EdgeInsets.symmetric(vertical: 4),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        AnimatedContainer(
+                          duration: const Duration(milliseconds: 200),
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 5),
+                          decoration: BoxDecoration(
+                            color: isActive ? AppColors.brandLight : Colors.transparent,
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Icon(
+                            isActive ? tab.activeIcon : tab.icon,
+                            color: isActive ? AppColors.brand : AppColors.textTertiary,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          tab.label,
+                          style: TextStyle(
+                            fontSize: 10.5,
+                            fontWeight: isActive ? FontWeight.w700 : FontWeight.w400,
+                            color: isActive ? AppColors.brand : AppColors.textTertiary,
+                            letterSpacing: 0.1,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              );
+            }),
+          ),
         ),
       ),
     );

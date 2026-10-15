@@ -173,9 +173,18 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
     final isEdit = widget.chargeToEdit != null;
     final payers = widget.controller.payers;
 
-    // Calculate live net fee
-    final gross = CurrencyFormatter.parseToPaise(_grossController.text);
-    final disc = CurrencyFormatter.parseToPaise(_discountController.text);
+    // Calculate live net fee — safe: returns 0 for empty or invalid input
+    int safePaise(String text) {
+      if (text.trim().isEmpty) return 0;
+      try {
+        return CurrencyFormatter.parseToPaise(text);
+      } catch (_) {
+        return 0;
+      }
+    }
+
+    final gross = safePaise(_grossController.text);
+    final disc = safePaise(_discountController.text);
     final net = (gross - disc).clamp(0, gross);
 
     return Scaffold(
@@ -184,7 +193,7 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
         title: Text(
           isEdit ? 'Edit Fee Installment' : 'New Fee Installment',
           style: const TextStyle(
-            color: AppColors.navyDark,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -199,7 +208,7 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
                 : const Text(
                     'Save',
                     style: TextStyle(
-                      color: AppColors.primaryTealDark,
+                      color: AppColors.brand,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
@@ -222,7 +231,7 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: AppColors.slate,
+                color: AppColors.textSecondary,
                 letterSpacing: 0.6,
               ),
             ),
@@ -260,7 +269,7 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: AppColors.slate,
+                color: AppColors.textSecondary,
                 letterSpacing: 0.6,
               ),
             ),
@@ -310,7 +319,7 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: AppColors.slate,
+                color: AppColors.textSecondary,
                 letterSpacing: 0.6,
               ),
             ),
@@ -361,14 +370,14 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
                 children: [
                   const Text(
                     'Net Fee Payable:',
-                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.navyDark),
+                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.bold, color: AppColors.textPrimary),
                   ),
                   Text(
                     CurrencyFormatter.formatPaise(net),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.primaryTealDark,
+                      color: AppColors.brand,
                     ),
                   ),
                 ],
@@ -382,7 +391,7 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
               style: TextStyle(
                 fontSize: 12,
                 fontWeight: FontWeight.bold,
-                color: AppColors.slate,
+                color: AppColors.textSecondary,
                 letterSpacing: 0.6,
               ),
             ),
@@ -398,7 +407,7 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
                       decoration: _inputDecoration('Due Date *', Icons.calendar_today_outlined),
                       child: Text(
                         CurrencyFormatter.formatDisplayDate(CurrencyFormatter.toYmd(_selectedDueDate)),
-                        style: const TextStyle(fontSize: 15, color: AppColors.navyDark),
+                        style: const TextStyle(fontSize: 15, color: AppColors.textPrimary),
                       ),
                     ),
                   ),
@@ -422,7 +431,7 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
             ElevatedButton(
               onPressed: _isSaving ? null : _submit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryTealDark,
+                backgroundColor: AppColors.brand,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 elevation: 0,
@@ -448,8 +457,8 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
     return InputDecoration(
       labelText: label,
       hintText: hint,
-      hintStyle: const TextStyle(fontSize: 13, color: AppColors.slateLight),
-      prefixIcon: Icon(icon, color: AppColors.slate),
+      hintStyle: const TextStyle(fontSize: 13, color: AppColors.textTertiary),
+      prefixIcon: Icon(icon, color: AppColors.textSecondary),
       filled: true,
       fillColor: AppColors.surface,
       border: OutlineInputBorder(
@@ -462,7 +471,7 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: AppColors.primaryTeal, width: 2),
+        borderSide: const BorderSide(color: AppColors.brand, width: 2),
       ),
     );
   }

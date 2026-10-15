@@ -254,7 +254,7 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
         title: Text(
           isEdit ? 'Edit Payment Entry' : 'Record Fee Payment',
           style: const TextStyle(
-            color: AppColors.navyDark,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -269,7 +269,7 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                 : const Text(
                     'Save',
                     style: TextStyle(
-                      color: AppColors.primaryTealDark,
+                      color: AppColors.brand,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
@@ -329,12 +329,12 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                         children: [
                           Text(
                             _selectedCharge?.payerName ?? 'Student',
-                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.navyDark),
+                            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14, color: AppColors.textPrimary),
                           ),
                           const SizedBox(height: 2),
                           Text(
                             _selectedCharge?.title ?? 'Fee Installment',
-                            style: const TextStyle(fontSize: 13, color: AppColors.slate),
+                            style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
                           ),
                           if (_selectedCharge != null) ...[
                             const SizedBox(height: 4),
@@ -378,7 +378,7 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                       decoration: _inputDecoration('Date Paid *', Icons.calendar_today_outlined),
                       child: Text(
                         CurrencyFormatter.formatDisplayDate(CurrencyFormatter.toYmd(_selectedPaidDate)),
-                        style: const TextStyle(fontSize: 15, color: AppColors.navyDark),
+                        style: const TextStyle(fontSize: 15, color: AppColors.textPrimary),
                       ),
                     ),
                   ),
@@ -424,7 +424,7 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                   ElevatedButton(
                     onPressed: _isSaving ? null : _submit,
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.primaryTealDark,
+                      backgroundColor: AppColors.brand,
                       padding: const EdgeInsets.symmetric(vertical: 14),
                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                       elevation: 0,
@@ -449,7 +449,7 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
   InputDecoration _inputDecoration(String label, IconData icon) {
     return InputDecoration(
       labelText: label,
-      prefixIcon: Icon(icon, color: AppColors.slate),
+      prefixIcon: Icon(icon, color: AppColors.textSecondary),
       filled: true,
       fillColor: AppColors.surface,
       border: OutlineInputBorder(
@@ -462,7 +462,7 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: AppColors.primaryTeal, width: 2),
+        borderSide: const BorderSide(color: AppColors.brand, width: 2),
       ),
     );
   }

@@ -25,7 +25,7 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
       title: 'Register Students & Contacts',
       subtitle: 'Add learners, parent contact numbers, and course/batch details',
       icon: Icons.school_outlined,
-      accentColor: AppColors.primaryTealDark,
+      accentColor: AppColors.brand,
       description:
           'Start by adding each student with their legal name, course or class (e.g. "Class 10 Science" or "NEET Morning"), and parent/guardian phone number for fee communication. You can also save roll numbers or admission remarks.',
       bulletPoints: [
@@ -70,7 +70,7 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
       title: 'Monitor Academy Dues & Totals',
       subtitle: 'Stay in complete financial control directly on your device',
       icon: Icons.analytics_outlined,
-      accentColor: AppColors.navyDark,
+      accentColor: AppColors.textPrimary,
       description:
           'The Academy Dashboard provides an instant, accurate picture of your finances: total fees raised, total collected into your vault, pending dues, and overdue installments. All records remain 100% private and encrypted on this device.',
       bulletPoints: [
@@ -119,7 +119,7 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
         elevation: 0,
         leading: _currentPage > 0
             ? IconButton(
-                icon: const Icon(Icons.arrow_back, color: AppColors.navyDark),
+                icon: const Icon(Icons.arrow_back, color: AppColors.textPrimary),
                 onPressed: () {
                   _pageController.previousPage(
                     duration: const Duration(milliseconds: 300),
@@ -131,7 +131,7 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
         title: const Text(
           'Academy Workflow Guide',
           style: TextStyle(
-            color: AppColors.navyDark,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -142,7 +142,7 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
             child: Text(
               isLast ? 'Done' : 'Skip',
               style: const TextStyle(
-                color: AppColors.slate,
+                color: AppColors.textSecondary,
                 fontWeight: FontWeight.w600,
                 fontSize: 15,
               ),
@@ -213,7 +213,7 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
                                   style: const TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.bold,
-                                    color: AppColors.navyDark,
+                                    color: AppColors.textPrimary,
                                     height: 1.25,
                                   ),
                                 ),
@@ -222,7 +222,7 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
                                   s.subtitle,
                                   style: const TextStyle(
                                     fontSize: 13,
-                                    color: AppColors.slate,
+                                    color: AppColors.textSecondary,
                                     height: 1.35,
                                   ),
                                 ),
@@ -245,7 +245,7 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
                           s.description,
                           style: const TextStyle(
                             fontSize: 14,
-                            color: AppColors.navyDark,
+                            color: AppColors.textPrimary,
                             height: 1.5,
                           ),
                         ),
@@ -268,7 +268,7 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
                               style: TextStyle(
                                 fontSize: 13,
                                 fontWeight: FontWeight.bold,
-                                color: AppColors.navyDark,
+                                color: AppColors.textPrimary,
                               ),
                             ),
                             const SizedBox(height: 10),
@@ -289,7 +289,7 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
                                         bp,
                                         style: const TextStyle(
                                           fontSize: 13,
-                                          color: AppColors.navyDark,
+                                          color: AppColors.textPrimary,
                                           fontWeight: FontWeight.w500,
                                         ),
                                       ),
@@ -307,9 +307,9 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
                       Container(
                         padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
                         decoration: BoxDecoration(
-                          color: AppColors.primaryTealLight.withValues(alpha: 0.5),
+                          color: AppColors.brandLight.withValues(alpha: 0.5),
                           borderRadius: BorderRadius.circular(10),
-                          border: Border.all(color: AppColors.primaryTealDark.withValues(alpha: 0.2)),
+                          border: Border.all(color: AppColors.brand.withValues(alpha: 0.2)),
                         ),
                         child: Row(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -317,7 +317,7 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
                             const Icon(
                               Icons.lightbulb_outline,
                               size: 18,
-                              color: AppColors.primaryTealDark,
+                              color: AppColors.brand,
                             ),
                             const SizedBox(width: 10),
                             Expanded(
@@ -325,7 +325,7 @@ class _AcademyWalkthroughScreenState extends State<AcademyWalkthroughScreen> {
                                 s.quickTip,
                                 style: const TextStyle(
                                   fontSize: 12.5,
-                                  color: AppColors.navyDark,
+                                  color: AppColors.textPrimary,
                                   fontWeight: FontWeight.w500,
                                 ),
                               ),

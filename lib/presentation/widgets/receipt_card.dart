@@ -68,7 +68,7 @@ class ReceiptCard extends StatelessWidget {
                 Text(
                   businessName.toUpperCase(),
                   style: const TextStyle(
-                    color: AppColors.navyDark,
+                    color: AppColors.textPrimary,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     letterSpacing: 0.8,
@@ -79,7 +79,7 @@ class ReceiptCard extends StatelessWidget {
                 const Text(
                   'FEE PAYMENT RECEIPT',
                   style: TextStyle(
-                    color: AppColors.slate,
+                    color: AppColors.textSecondary,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -88,7 +88,7 @@ class ReceiptCard extends StatelessWidget {
                 Text(
                   'Receipt #${payment.receiptNumber}',
                   style: const TextStyle(
-                    color: AppColors.primaryTealDark,
+                    color: AppColors.brand,
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
                   ),
@@ -133,7 +133,7 @@ class ReceiptCard extends StatelessWidget {
                     const Text(
                       'AMOUNT PAID',
                       style: TextStyle(
-                        color: AppColors.navyDark,
+                        color: AppColors.textPrimary,
                         fontSize: 15,
                         fontWeight: FontWeight.bold,
                       ),
@@ -141,7 +141,7 @@ class ReceiptCard extends StatelessWidget {
                     Text(
                       CurrencyFormatter.formatPaise(payment.amountPaise),
                       style: const TextStyle(
-                        color: AppColors.primaryTealDark,
+                        color: AppColors.brand,
                         fontSize: 22,
                         fontWeight: FontWeight.bold,
                       ),
@@ -159,7 +159,7 @@ class ReceiptCard extends StatelessWidget {
                       const Text(
                         'Remaining Due on Fee',
                         style: TextStyle(
-                          color: AppColors.slate,
+                          color: AppColors.textSecondary,
                           fontSize: 13,
                         ),
                       ),
@@ -192,8 +192,8 @@ class ReceiptCard extends StatelessWidget {
                   if (onEdit != null)
                     TextButton.icon(
                       onPressed: onEdit,
-                      icon: const Icon(Icons.edit_outlined, size: 16, color: AppColors.slate),
-                      label: const Text('Edit Entry', style: TextStyle(color: AppColors.slate)),
+                      icon: const Icon(Icons.edit_outlined, size: 16, color: AppColors.textSecondary),
+                      label: const Text('Edit Entry', style: TextStyle(color: AppColors.textSecondary)),
                     ),
                   if (onDelete != null)
                     TextButton.icon(
@@ -218,7 +218,7 @@ class ReceiptCard extends StatelessWidget {
         Text(
           label,
           style: const TextStyle(
-            color: AppColors.slate,
+            color: AppColors.textSecondary,
             fontSize: 13,
           ),
         ),
@@ -228,7 +228,7 @@ class ReceiptCard extends StatelessWidget {
             value,
             textAlign: TextAlign.end,
             style: TextStyle(
-              color: AppColors.navyDark,
+              color: AppColors.textPrimary,
               fontSize: 14,
               fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
             ),

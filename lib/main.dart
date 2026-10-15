@@ -135,17 +135,91 @@ class _FeesVaultAppState extends State<FeesVaultApp> with WidgetsBindingObserver
         useMaterial3: true,
         scaffoldBackgroundColor: AppColors.background,
         colorScheme: ColorScheme.fromSeed(
-          seedColor: AppColors.primaryTealDark,
-          primary: AppColors.primaryTealDark,
+          seedColor: AppColors.brand,
+          primary: AppColors.brand,
+          onPrimary: Colors.white,
+          secondary: AppColors.brandDark,
           surface: AppColors.surface,
-          onSurface: AppColors.navyDark,
+          onSurface: AppColors.textPrimary,
         ),
-        fontFamily: null, // System bundled font
+        fontFamily: 'Roboto',
         appBarTheme: const AppBarTheme(
           backgroundColor: AppColors.surface,
-          foregroundColor: AppColors.navyDark,
+          foregroundColor: AppColors.textPrimary,
           elevation: 0,
           scrolledUnderElevation: 0,
+          centerTitle: false,
+          titleTextStyle: TextStyle(
+            color: AppColors.textPrimary,
+            fontWeight: FontWeight.w700,
+            fontSize: 20,
+          ),
+        ),
+        cardTheme: CardThemeData(
+          color: AppColors.surface,
+          elevation: 0,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+            side: BorderSide(color: AppColors.divider),
+          ),
+          margin: EdgeInsets.zero,
+        ),
+        inputDecorationTheme: InputDecorationTheme(
+          filled: true,
+          fillColor: AppColors.surface,
+          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            borderSide: BorderSide(color: AppColors.divider),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            borderSide: BorderSide(color: AppColors.divider),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            borderSide: BorderSide(color: AppColors.brand, width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            borderSide: BorderSide(color: AppColors.overdueRed),
+          ),
+          labelStyle: TextStyle(color: AppColors.textSecondary, fontSize: 14),
+          hintStyle: TextStyle(color: AppColors.textTertiary, fontSize: 14),
+        ),
+        elevatedButtonTheme: ElevatedButtonThemeData(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: AppColors.brand,
+            foregroundColor: Colors.white,
+            elevation: 0,
+            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+            ),
+            textStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+          ),
+        ),
+        floatingActionButtonTheme: const FloatingActionButtonThemeData(
+          backgroundColor: AppColors.brand,
+          foregroundColor: Colors.white,
+          elevation: 4,
+        ),
+        chipTheme: ChipThemeData(
+          backgroundColor: AppColors.surfaceSubtle,
+          selectedColor: AppColors.brandLight,
+          labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(8)),
+          ),
+          side: BorderSide.none,
+        ),
+        dividerTheme: const DividerThemeData(
+          color: AppColors.divider,
+          thickness: 1,
+          space: 1,
+        ),
+        snackBarTheme: const SnackBarThemeData(
+          behavior: SnackBarBehavior.floating,
         ),
       ),
       home: ListenableBuilder(

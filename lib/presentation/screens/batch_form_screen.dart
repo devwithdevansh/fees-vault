@@ -131,7 +131,7 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.navyDark,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 8),
@@ -139,7 +139,7 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                         'Batches group your students by class or course. You can set standard fees once and charge all students in this batch.',
                         style: TextStyle(
                           fontSize: 13,
-                          color: AppColors.slate,
+                          color: AppColors.textSecondary,
                           height: 1.4,
                         ),
                       ),
@@ -150,7 +150,7 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.navyDark,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -180,7 +180,7 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                                   Container(
                                     padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
                                     decoration: BoxDecoration(
-                                      color: AppColors.primaryTealLight,
+                                      color: AppColors.brandLight,
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                     child: const Text(
@@ -188,7 +188,7 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                                       style: TextStyle(
                                         fontSize: 11,
                                         fontWeight: FontWeight.w600,
-                                        color: AppColors.primaryTealDark,
+                                        color: AppColors.brand,
                                       ),
                                     ),
                                   ),
@@ -208,7 +208,7 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.navyDark,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -243,7 +243,7 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.navyDark,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -272,7 +272,7 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                 ElevatedButton(
                   onPressed: _isSaving ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryTealDark,
+                    backgroundColor: AppColors.brand,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),

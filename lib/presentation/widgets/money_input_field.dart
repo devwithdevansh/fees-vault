@@ -32,7 +32,7 @@ class MoneyInputField extends StatelessWidget {
         helperText: helperText,
         prefixText: '₹ ',
         prefixStyle: const TextStyle(
-          color: AppColors.navyDark,
+          color: AppColors.textPrimary,
           fontWeight: FontWeight.bold,
           fontSize: 16,
         ),
@@ -48,7 +48,7 @@ class MoneyInputField extends StatelessWidget {
         ),
         focusedBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(10),
-          borderSide: const BorderSide(color: AppColors.primaryTeal, width: 2),
+          borderSide: const BorderSide(color: AppColors.brand, width: 2),
         ),
       ),
       validator: (value) {

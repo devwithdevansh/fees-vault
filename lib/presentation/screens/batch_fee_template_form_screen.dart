@@ -153,13 +153,13 @@ class _BatchFeeTemplateFormScreenState extends State<BatchFeeTemplateFormScreen>
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.w600,
-                          color: AppColors.navyDark,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
                       const Text(
                         'This fee obligation will be applied to students enrolled in this batch.',
-                        style: TextStyle(fontSize: 13, color: AppColors.slate),
+                        style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
                       ),
                       const SizedBox(height: 16),
                       // Title
@@ -168,7 +168,7 @@ class _BatchFeeTemplateFormScreenState extends State<BatchFeeTemplateFormScreen>
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.navyDark,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -203,7 +203,7 @@ class _BatchFeeTemplateFormScreenState extends State<BatchFeeTemplateFormScreen>
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.navyDark,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -244,7 +244,7 @@ class _BatchFeeTemplateFormScreenState extends State<BatchFeeTemplateFormScreen>
                         style: TextStyle(
                           fontSize: 13,
                           fontWeight: FontWeight.w500,
-                          color: AppColors.navyDark,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       const SizedBox(height: 6),
@@ -254,7 +254,7 @@ class _BatchFeeTemplateFormScreenState extends State<BatchFeeTemplateFormScreen>
                         onTap: _pickDueDate,
                         decoration: InputDecoration(
                           hintText: 'YYYY-MM-DD',
-                          suffixIcon: const Icon(Icons.calendar_today, size: 20, color: AppColors.slate),
+                          suffixIcon: const Icon(Icons.calendar_today, size: 20, color: AppColors.textSecondary),
                           filled: true,
                           fillColor: Colors.white,
                           contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
@@ -275,7 +275,7 @@ class _BatchFeeTemplateFormScreenState extends State<BatchFeeTemplateFormScreen>
                 ElevatedButton(
                   onPressed: _isSaving ? null : _submit,
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryTealDark,
+                    backgroundColor: AppColors.brand,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),

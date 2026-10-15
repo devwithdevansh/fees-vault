@@ -26,7 +26,7 @@ class OnboardingScreen extends StatelessWidget {
               const Icon(
                 Icons.shield_outlined,
                 size: 56,
-                color: AppColors.primaryTealDark,
+                color: AppColors.brand,
               ),
               const SizedBox(height: 16),
               const Text(
@@ -34,7 +34,7 @@ class OnboardingScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.navyDark,
+                  color: AppColors.textPrimary,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -44,7 +44,7 @@ class OnboardingScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w500,
-                  color: AppColors.slate,
+                  color: AppColors.textSecondary,
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -95,18 +95,18 @@ class OnboardingScreen extends StatelessWidget {
                     ),
                   );
                 },
-                icon: const Icon(Icons.menu_book_outlined, color: AppColors.primaryTealDark, size: 20),
+                icon: const Icon(Icons.menu_book_outlined, color: AppColors.brand, size: 20),
                 label: const Text(
                   'How to Use FeesVault (Academy Guide)',
                   style: TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.primaryTealDark,
+                    color: AppColors.brand,
                   ),
                 ),
                 style: OutlinedButton.styleFrom(
                   padding: const EdgeInsets.symmetric(vertical: 12),
-                  side: const BorderSide(color: AppColors.primaryTealDark),
+                  side: const BorderSide(color: AppColors.brand),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -116,7 +116,7 @@ class OnboardingScreen extends StatelessWidget {
               ElevatedButton(
                 onPressed: () => controller.acknowledgeOnboarding(),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryTealDark,
+                  backgroundColor: AppColors.brand,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -161,7 +161,7 @@ class OnboardingScreen extends StatelessWidget {
           Icon(
             icon,
             size: 24,
-            color: isWarning ? AppColors.unpaidAmber : AppColors.primaryTealDark,
+            color: isWarning ? AppColors.unpaidAmber : AppColors.brand,
           ),
           const SizedBox(width: 14),
           Expanded(
@@ -173,7 +173,7 @@ class OnboardingScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: isWarning ? AppColors.unpaidAmber : AppColors.navyDark,
+                    color: isWarning ? AppColors.unpaidAmber : AppColors.textPrimary,
                   ),
                 ),
                 const SizedBox(height: 4),
@@ -181,7 +181,7 @@ class OnboardingScreen extends StatelessWidget {
                   description,
                   style: const TextStyle(
                     fontSize: 13,
-                    color: AppColors.slate,
+                    color: AppColors.textSecondary,
                     height: 1.35,
                   ),
                 ),

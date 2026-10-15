@@ -48,7 +48,7 @@ class SettingsScreen extends StatelessWidget {
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryTealDark),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.brand),
             onPressed: () {
               if (formKey.currentState!.validate()) {
                 Navigator.pop(ctx, textController.text.trim());
@@ -86,7 +86,7 @@ class SettingsScreen extends StatelessWidget {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.navyDark,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ),
@@ -95,20 +95,20 @@ class SettingsScreen extends StatelessWidget {
                   return ListTile(
                     leading: Icon(
                       ay.isCurrent ? Icons.check_circle : Icons.radio_button_unchecked,
-                      color: ay.isCurrent ? AppColors.primaryTealDark : AppColors.slate,
+                      color: ay.isCurrent ? AppColors.brand : AppColors.textSecondary,
                     ),
                     title: Text(
                       ay.name,
                       style: TextStyle(
                         fontWeight: ay.isCurrent ? FontWeight.bold : FontWeight.normal,
-                        color: AppColors.navyDark,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     trailing: ay.isCurrent
                         ? Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: AppColors.primaryTealLight,
+                              color: AppColors.brandLight,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: const Text(
@@ -116,7 +116,7 @@ class SettingsScreen extends StatelessWidget {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.primaryTealDark,
+                                color: AppColors.brand,
                               ),
                             ),
                           )
@@ -131,12 +131,12 @@ class SettingsScreen extends StatelessWidget {
                 }),
                 const Divider(color: AppColors.divider),
                 ListTile(
-                  leading: const Icon(Icons.add_circle_outline, color: AppColors.primaryTealDark),
+                  leading: const Icon(Icons.add_circle_outline, color: AppColors.brand),
                   title: const Text(
                     'Add Academic Year',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: AppColors.primaryTealDark,
+                      color: AppColors.brand,
                     ),
                   ),
                   onTap: () {
@@ -186,7 +186,7 @@ class SettingsScreen extends StatelessWidget {
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryTealDark),
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.brand),
               onPressed: () async {
                 final name = textCtrl.text.trim();
                 if (name.isNotEmpty) {
@@ -217,7 +217,7 @@ class SettingsScreen extends StatelessWidget {
         title: const Text(
           'Settings & Vault Security',
           style: TextStyle(
-            color: AppColors.navyDark,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
@@ -240,10 +240,10 @@ class SettingsScreen extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.all(10),
                   decoration: BoxDecoration(
-                    color: AppColors.primaryTealLight,
+                    color: AppColors.brandLight,
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: const Icon(Icons.menu_book_outlined, color: AppColors.primaryTealDark),
+                  child: const Icon(Icons.menu_book_outlined, color: AppColors.brand),
                 ),
                 const SizedBox(width: 14),
                 const Expanded(
@@ -256,7 +256,7 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       Text(
                         'Step-by-step walkthrough of student fee workflows',
-                        style: TextStyle(fontSize: 12, color: AppColors.slate),
+                        style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                       ),
                     ],
                   ),
@@ -271,7 +271,7 @@ class SettingsScreen extends StatelessWidget {
                     );
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryTealDark,
+                    backgroundColor: AppColors.brand,
                     elevation: 0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
@@ -293,7 +293,7 @@ class SettingsScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.slate,
+                    color: AppColors.textSecondary,
                     letterSpacing: 0.6,
                   ),
                 ),
@@ -306,14 +306,14 @@ class SettingsScreen extends StatelessWidget {
                       color: AppColors.surfaceSubtle,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.school, color: AppColors.navyDark),
+                    child: const Icon(Icons.school, color: AppColors.textPrimary),
                   ),
                   title: Text(
                     controller.businessName,
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   subtitle: const Text('Tap to change academy receipt header'),
-                  trailing: const Icon(Icons.chevron_right, color: AppColors.slate),
+                  trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
                   onTap: () => _editBusinessName(context),
                 ),
                 const Divider(color: AppColors.divider),
@@ -322,24 +322,24 @@ class SettingsScreen extends StatelessWidget {
                   leading: Container(
                     padding: const EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryTealLight,
+                      color: AppColors.brandLight,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.calendar_month, color: AppColors.primaryTealDark),
+                    child: const Icon(Icons.calendar_month, color: AppColors.brand),
                   ),
                   title: Text(
                     'Active Year: ${controller.currentAcademicYear?.name ?? "2026-2027"}',
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
                   ),
                   subtitle: const Text('Manage academic cycles & switch active year'),
-                  trailing: const Icon(Icons.chevron_right, color: AppColors.slate),
+                  trailing: const Icon(Icons.chevron_right, color: AppColors.textSecondary),
                   onTap: () => _manageAcademicYears(context),
                 ),
                 const Divider(color: AppColors.divider),
                 const Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Currency', style: TextStyle(color: AppColors.slate, fontSize: 14)),
+                    Text('Currency', style: TextStyle(color: AppColors.textSecondary, fontSize: 14)),
                     Text('INR (₹) • Indian Rupee', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14)),
                   ],
                 ),
@@ -372,7 +372,7 @@ class SettingsScreen extends StatelessWidget {
                       ),
                       Text(
                         'Closes database and requires passcode/Face ID',
-                        style: TextStyle(fontSize: 12, color: AppColors.slate),
+                        style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
                       ),
                     ],
                   ),
@@ -380,7 +380,7 @@ class SettingsScreen extends StatelessWidget {
                 ElevatedButton(
                   onPressed: () => authController.lock(),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.navyDark,
+                    backgroundColor: AppColors.textPrimary,
                     elevation: 0,
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
                   ),
@@ -399,14 +399,14 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.security, size: 18, color: AppColors.primaryTealDark),
+                    Icon(Icons.security, size: 18, color: AppColors.brand),
                     SizedBox(width: 8),
                     Text(
                       'VAULT SECURITY ATTRIBUTES',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.navyDark,
+                        color: AppColors.textPrimary,
                         letterSpacing: 0.6,
                       ),
                     ),
@@ -465,14 +465,14 @@ class SettingsScreen extends StatelessWidget {
               children: [
                 const Row(
                   children: [
-                    Icon(Icons.info_outline, size: 18, color: AppColors.slate),
+                    Icon(Icons.info_outline, size: 18, color: AppColors.textSecondary),
                     SizedBox(width: 8),
                     Text(
                       'DATA RETENTION & RECOVERY BOUNDARY',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.slate,
+                        color: AppColors.textSecondary,
                         letterSpacing: 0.6,
                       ),
                     ),
@@ -487,7 +487,7 @@ class SettingsScreen extends StatelessWidget {
                   '• Before client production use, a separate offline encrypted backup feature may be commissioned.',
                   style: TextStyle(
                     fontSize: 13,
-                    color: AppColors.slate,
+                    color: AppColors.textSecondary,
                     height: 1.45,
                   ),
                 ),
@@ -507,7 +507,7 @@ class SettingsScreen extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.slate,
+                    color: AppColors.textSecondary,
                     letterSpacing: 0.6,
                   ),
                 ),
@@ -542,8 +542,8 @@ class SettingsScreen extends StatelessWidget {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.navyDark)),
-              Text(value, style: const TextStyle(fontSize: 12, color: AppColors.slate)),
+              Text(title, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textPrimary)),
+              Text(value, style: const TextStyle(fontSize: 12, color: AppColors.textSecondary)),
             ],
           ),
         ),
@@ -555,8 +555,8 @@ class SettingsScreen extends StatelessWidget {
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
-        Text(label, style: const TextStyle(color: AppColors.slate, fontSize: 13)),
-        Text(value, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.navyDark)),
+        Text(label, style: const TextStyle(color: AppColors.textSecondary, fontSize: 13)),
+        Text(value, style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 13, color: AppColors.textPrimary)),
       ],
     );
   }

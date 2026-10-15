@@ -59,7 +59,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
         title: const Text(
           'Receipts & Payments',
           style: TextStyle(
-            color: AppColors.navyDark,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 20,
           ),
@@ -68,7 +68,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.payments_outlined, color: AppColors.primaryTealDark),
+            icon: const Icon(Icons.payments_outlined, color: AppColors.brand),
             tooltip: 'Record Payment',
             onPressed: () async {
               if (!hasStudents) {
@@ -114,7 +114,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
           );
           await _loadPayments();
         },
-        backgroundColor: AppColors.primaryTealDark,
+        backgroundColor: AppColors.brand,
         icon: const Icon(Icons.add, color: Colors.white, size: 20),
         label: const Text(
           'Record Payment',
@@ -149,7 +149,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
           Expanded(
             child: RefreshIndicator(
               onRefresh: _loadPayments,
-              color: AppColors.primaryTealDark,
+              color: AppColors.brand,
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
                   : _payments.isEmpty
@@ -162,7 +162,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
                                 Icon(
                                   Icons.receipt_long_outlined,
                                   size: 48,
-                                  color: AppColors.slate.withValues(alpha: 0.6),
+                                  color: AppColors.textSecondary.withValues(alpha: 0.6),
                                 ),
                                 const SizedBox(height: 12),
                                 Text(
@@ -170,7 +170,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
                                       ? 'No Fee Payments Recorded'
                                       : 'No payments found for $_selectedMethod.',
                                   style: const TextStyle(
-                                    color: AppColors.navyDark,
+                                    color: AppColors.textPrimary,
                                     fontSize: 16,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -181,7 +181,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
                                   _selectedMethod == 'All'
                                       ? 'Record fee payments received via Cash, UPI, or Bank Transfer to generate official receipts.'
                                       : 'Try selecting "All" to view all payment receipts.',
-                                  style: const TextStyle(color: AppColors.slate, fontSize: 13, height: 1.4),
+                                  style: const TextStyle(color: AppColors.textSecondary, fontSize: 13, height: 1.4),
                                   textAlign: TextAlign.center,
                                 ),
                                 if (_selectedMethod == 'All') ...[
@@ -211,7 +211,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
                                       style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                                     ),
                                     style: ElevatedButton.styleFrom(
-                                      backgroundColor: AppColors.primaryTealDark,
+                                      backgroundColor: AppColors.brand,
                                       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                                       elevation: 0,
                                     ),
@@ -241,9 +241,9 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
     return ChoiceChip(
       label: Text(label),
       selected: isSelected,
-      selectedColor: AppColors.primaryTealLight,
+      selectedColor: AppColors.brandLight,
       labelStyle: TextStyle(
-        color: isSelected ? AppColors.primaryTealDark : AppColors.slate,
+        color: isSelected ? AppColors.brand : AppColors.textSecondary,
         fontWeight: FontWeight.w600,
         fontSize: 13,
       ),
@@ -294,7 +294,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.navyDark,
+                            color: AppColors.textPrimary,
                           ),
                           overflow: TextOverflow.ellipsis,
                         ),
@@ -315,12 +315,12 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
                   const SizedBox(height: 2),
                   Text(
                     '${pm.chargeTitle ?? "Fee"} • Receipt #${pm.receiptNumber}',
-                    style: const TextStyle(fontSize: 12.5, color: AppColors.slate),
+                    style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '${pm.method} • ${CurrencyFormatter.formatDisplayDate(pm.paidDate)}',
-                    style: const TextStyle(fontSize: 11.5, color: AppColors.slateLight),
+                    style: const TextStyle(fontSize: 11.5, color: AppColors.textTertiary),
                   ),
                 ],
               ),

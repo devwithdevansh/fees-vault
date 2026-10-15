@@ -33,12 +33,12 @@ class ContextualHelpButton extends StatelessWidget {
                   Container(
                     padding: const EdgeInsets.all(8),
                     decoration: BoxDecoration(
-                      color: AppColors.primaryTealLight,
+                      color: AppColors.brandLight,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Icon(
                       Icons.help_outline,
-                      color: AppColors.primaryTealDark,
+                      color: AppColors.brand,
                       size: 20,
                     ),
                   ),
@@ -49,12 +49,12 @@ class ContextualHelpButton extends StatelessWidget {
                       style: const TextStyle(
                         fontSize: 18,
                         fontWeight: FontWeight.bold,
-                        color: AppColors.navyDark,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.close, size: 20, color: AppColors.slate),
+                    icon: const Icon(Icons.close, size: 20, color: AppColors.textSecondary),
                     onPressed: () => Navigator.pop(ctx),
                   ),
                 ],
@@ -65,7 +65,7 @@ class ContextualHelpButton extends StatelessWidget {
                 style: const TextStyle(
                   fontSize: 14,
                   height: 1.45,
-                  color: AppColors.navyDark,
+                  color: AppColors.textPrimary,
                 ),
               ),
               if (example != null) ...[
@@ -86,7 +86,7 @@ class ContextualHelpButton extends StatelessWidget {
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.slate,
+                          color: AppColors.textSecondary,
                         ),
                       ),
                       const SizedBox(height: 4),
@@ -94,7 +94,7 @@ class ContextualHelpButton extends StatelessWidget {
                         example!,
                         style: const TextStyle(
                           fontSize: 13,
-                          color: AppColors.navyDark,
+                          color: AppColors.textPrimary,
                           fontWeight: FontWeight.w500,
                         ),
                       ),
@@ -108,7 +108,7 @@ class ContextualHelpButton extends StatelessWidget {
                 child: ElevatedButton(
                   onPressed: () => Navigator.pop(ctx),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryTealDark,
+                    backgroundColor: AppColors.brand,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(10),
                     ),
@@ -137,7 +137,7 @@ class ContextualHelpButton extends StatelessWidget {
           child: Icon(
             Icons.info_outline,
             size: 16,
-            color: AppColors.slate,
+            color: AppColors.textSecondary,
           ),
         ),
       ),

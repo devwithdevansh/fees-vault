@@ -103,7 +103,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
             child: const Text('Cancel'),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryTealDark),
+            style: ElevatedButton.styleFrom(backgroundColor: AppColors.brand),
             onPressed: () => Navigator.pop(ctx, true),
             child: const Text('Confirm & Charge', style: TextStyle(color: Colors.white)),
           ),
@@ -218,7 +218,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
   Widget build(BuildContext context) {
     if (_isLoading) {
       return const Scaffold(
-        body: Center(child: CircularProgressIndicator(color: AppColors.primaryTealDark)),
+        body: Center(child: CircularProgressIndicator(color: AppColors.brand)),
       );
     }
 
@@ -271,7 +271,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
                         Container(
                           padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryTealLight,
+                            color: AppColors.brandLight,
                             borderRadius: BorderRadius.circular(6),
                           ),
                           child: Text(
@@ -279,7 +279,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
                             style: const TextStyle(
                               fontSize: 12,
                               fontWeight: FontWeight.w600,
-                              color: AppColors.primaryTealDark,
+                              color: AppColors.brand,
                             ),
                           ),
                         ),
@@ -288,7 +288,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
                           style: const TextStyle(
                             fontSize: 13,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.navyDark,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                       ],
@@ -297,7 +297,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
                       const SizedBox(height: 8),
                       Text(
                         b.notes!,
-                        style: const TextStyle(fontSize: 13, color: AppColors.slate),
+                        style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
                       ),
                     ],
                     const Divider(height: 24, color: AppColors.divider),
@@ -307,12 +307,12 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
                         _metricCol(
                           'Standard Fee',
                           CurrencyFormatter.formatPaise(b.standardBatchFeePaise),
-                          AppColors.primaryTealDark,
+                          AppColors.brand,
                         ),
                         _metricCol(
                           'Total Billed',
                           CurrencyFormatter.formatPaise(b.totalFeePaise),
-                          AppColors.navyDark,
+                          AppColors.textPrimary,
                         ),
                         _metricCol(
                           'Collected',
@@ -322,7 +322,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
                         _metricCol(
                           'Pending',
                           CurrencyFormatter.formatPaise(b.totalOutstandingPaise),
-                          b.totalOutstandingPaise > 0 ? AppColors.overdueRed : AppColors.slate,
+                          b.totalOutstandingPaise > 0 ? AppColors.overdueRed : AppColors.textSecondary,
                         ),
                       ],
                     ),
@@ -336,9 +336,9 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
               color: AppColors.surface,
               child: TabBar(
                 controller: _tabController,
-                indicatorColor: AppColors.primaryTealDark,
-                labelColor: AppColors.primaryTealDark,
-                unselectedLabelColor: AppColors.slate,
+                indicatorColor: AppColors.brand,
+                labelColor: AppColors.brand,
+                unselectedLabelColor: AppColors.textSecondary,
                 tabs: [
                   Tab(
                     icon: const Icon(Icons.account_balance_wallet_outlined, size: 20),
@@ -388,7 +388,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
                     style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Colors.white),
                   ),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.primaryTealDark,
+                    backgroundColor: AppColors.brand,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   ),
@@ -404,7 +404,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label, style: const TextStyle(fontSize: 11, color: AppColors.slate)),
+        Text(label, style: const TextStyle(fontSize: 11, color: AppColors.textSecondary)),
         const SizedBox(height: 2),
         Text(
           value,
@@ -422,17 +422,17 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.receipt_outlined, size: 48, color: AppColors.slate),
+              const Icon(Icons.receipt_outlined, size: 48, color: AppColors.textSecondary),
               const SizedBox(height: 12),
               const Text(
                 'No Fee Installments Defined',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.navyDark),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
               ),
               const SizedBox(height: 6),
               const Text(
                 'Define standard installments once (e.g. Admission Fee, Term 1 Tuition). Then charge all students with one tap.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, color: AppColors.slate),
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
               ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
@@ -450,7 +450,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
                 },
                 icon: const Icon(Icons.add, color: Colors.white),
                 label: const Text('Add First Installment', style: TextStyle(color: Colors.white)),
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryTealDark),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.brand),
               ),
             ],
           ),
@@ -466,7 +466,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
           children: [
             const Text(
               'Standard Installments',
-              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.navyDark),
+              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
             ),
             TextButton.icon(
               onPressed: () async {
@@ -497,10 +497,10 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
                     width: 40,
                     height: 40,
                     decoration: BoxDecoration(
-                      color: AppColors.primaryTealLight,
+                      color: AppColors.brandLight,
                       borderRadius: BorderRadius.circular(8),
                     ),
-                    child: const Icon(Icons.payment, color: AppColors.primaryTealDark, size: 20),
+                    child: const Icon(Icons.payment, color: AppColors.brand, size: 20),
                   ),
                   const SizedBox(width: 14),
                   Expanded(
@@ -512,14 +512,14 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
                           style: const TextStyle(
                             fontSize: 15,
                             fontWeight: FontWeight.w600,
-                            color: AppColors.navyDark,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                         const SizedBox(height: 3),
                         if (template.defaultDueDate != null)
                           Text(
                             'Due: ${CurrencyFormatter.formatDisplayDate(template.defaultDueDate!)}',
-                            style: const TextStyle(fontSize: 12, color: AppColors.slate),
+                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                           ),
                       ],
                     ),
@@ -529,11 +529,11 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.navyDark,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                   IconButton(
-                    icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.slate),
+                    icon: const Icon(Icons.delete_outline, size: 20, color: AppColors.textSecondary),
                     onPressed: () => _deleteTemplate(template),
                   ),
                 ],
@@ -553,17 +553,17 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(Icons.school_outlined, size: 48, color: AppColors.slate),
+              const Icon(Icons.school_outlined, size: 48, color: AppColors.textSecondary),
               const SizedBox(height: 12),
               const Text(
                 'No Students in this Batch',
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.navyDark),
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
               ),
               const SizedBox(height: 6),
               const Text(
                 'Enroll students into this batch to track their fees and payments.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, color: AppColors.slate),
+                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
               ),
               const SizedBox(height: 16),
               ElevatedButton.icon(
@@ -581,7 +581,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
                 },
                 icon: const Icon(Icons.person_add, color: Colors.white),
                 label: const Text('Enroll First Student', style: TextStyle(color: Colors.white)),
-                style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryTealDark),
+                style: ElevatedButton.styleFrom(backgroundColor: AppColors.brand),
               ),
             ],
           ),
@@ -597,7 +597,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
           children: [
             Text(
               '${_students.length} Enrolled Student(s)',
-              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.navyDark),
+              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
             ),
             TextButton.icon(
               onPressed: () async {
@@ -642,10 +642,10 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
                 children: [
                   CircleAvatar(
                     radius: 20,
-                    backgroundColor: AppColors.primaryTealLight,
+                    backgroundColor: AppColors.brandLight,
                     child: Text(
                       student.name.isNotEmpty ? student.name[0].toUpperCase() : '?',
-                      style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.primaryTealDark),
+                      style: const TextStyle(fontWeight: FontWeight.bold, color: AppColors.brand),
                     ),
                   ),
                   const SizedBox(width: 12),
@@ -655,20 +655,20 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
                       children: [
                         Text(
                           student.name,
-                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.navyDark),
+                          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                         ),
                         const SizedBox(height: 3),
                         if (student.phone != null)
                           Text(
                             '📞 ${student.phone}',
-                            style: const TextStyle(fontSize: 12, color: AppColors.slate),
+                            style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                           ),
                         const SizedBox(height: 2),
                         Text(
                           hasNoCharges
                               ? 'No fee charges yet'
                               : 'Paid: ${CurrencyFormatter.formatPaise(student.totalPaidPaise)} / ${CurrencyFormatter.formatPaise(student.totalNetPaise)}',
-                          style: const TextStyle(fontSize: 12, color: AppColors.slate),
+                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                         ),
                       ],
                     ),
@@ -676,7 +676,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
                   if (hasNoCharges && b.feeTemplates.isNotEmpty)
                     TextButton(
                       style: TextButton.styleFrom(
-                        foregroundColor: AppColors.primaryTealDark,
+                        foregroundColor: AppColors.brand,
                         padding: const EdgeInsets.symmetric(horizontal: 10),
                       ),
                       onPressed: () async {
@@ -708,12 +708,12 @@ class _BatchDetailScreenState extends State<BatchDetailScreen> with SingleTicker
                   else
                     const StatusBadge(
                       label: 'Unassigned',
-                      textColor: AppColors.slate,
+                      textColor: AppColors.textSecondary,
                       backgroundColor: AppColors.surfaceSubtle,
                       icon: Icons.info_outline,
                     ),
                   const SizedBox(width: 4),
-                  const Icon(Icons.chevron_right, color: AppColors.slate, size: 20),
+                  const Icon(Icons.chevron_right, color: AppColors.textSecondary, size: 20),
                 ],
               ),
             ),

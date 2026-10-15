@@ -51,7 +51,7 @@ class _BatchesScreenState extends State<BatchesScreen> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.navyDark,
+                      color: AppColors.textPrimary,
                     ),
                   ),
                 ),
@@ -61,20 +61,20 @@ class _BatchesScreenState extends State<BatchesScreen> {
                   return ListTile(
                     leading: Icon(
                       isSelected ? Icons.check_circle : Icons.radio_button_unchecked,
-                      color: isSelected ? AppColors.primaryTealDark : AppColors.slate,
+                      color: isSelected ? AppColors.brand : AppColors.textSecondary,
                     ),
                     title: Text(
                       ay.name,
                       style: TextStyle(
                         fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
-                        color: AppColors.navyDark,
+                        color: AppColors.textPrimary,
                       ),
                     ),
                     trailing: ay.isCurrent
                         ? Container(
                             padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                             decoration: BoxDecoration(
-                              color: AppColors.primaryTealLight,
+                              color: AppColors.brandLight,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: const Text(
@@ -82,7 +82,7 @@ class _BatchesScreenState extends State<BatchesScreen> {
                               style: TextStyle(
                                 fontSize: 11,
                                 fontWeight: FontWeight.w600,
-                                color: AppColors.primaryTealDark,
+                                color: AppColors.brand,
                               ),
                             ),
                           )
@@ -95,12 +95,12 @@ class _BatchesScreenState extends State<BatchesScreen> {
                 }),
                 const Divider(color: AppColors.divider),
                 ListTile(
-                  leading: const Icon(Icons.add_circle_outline, color: AppColors.primaryTealDark),
+                  leading: const Icon(Icons.add_circle_outline, color: AppColors.brand),
                   title: const Text(
                     'Add Academic Year',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      color: AppColors.primaryTealDark,
+                      color: AppColors.brand,
                     ),
                   ),
                   onTap: () {
@@ -150,7 +150,7 @@ class _BatchesScreenState extends State<BatchesScreen> {
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.primaryTealDark),
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.brand),
               onPressed: () async {
                 final name = textCtrl.text.trim();
                 if (name.isNotEmpty) {
@@ -197,16 +197,16 @@ class _BatchesScreenState extends State<BatchesScreen> {
               Padding(
                 padding: const EdgeInsets.only(right: 12),
                 child: ActionChip(
-                  avatar: const Icon(Icons.calendar_month, size: 16, color: AppColors.primaryTealDark),
+                  avatar: const Icon(Icons.calendar_month, size: 16, color: AppColors.brand),
                   label: Text(
                     currentYear,
                     style: const TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.primaryTealDark,
+                      color: AppColors.brand,
                     ),
                   ),
-                  backgroundColor: AppColors.primaryTealLight,
+                  backgroundColor: AppColors.brandLight,
                   side: BorderSide.none,
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
                   onPressed: _showAcademicYearSelector,
@@ -216,7 +216,7 @@ class _BatchesScreenState extends State<BatchesScreen> {
           ),
           floatingActionButton: FloatingActionButton.extended(
             heroTag: 'add_batch_fab',
-            backgroundColor: AppColors.primaryTealDark,
+            backgroundColor: AppColors.brand,
             foregroundColor: Colors.white,
             icon: const Icon(Icons.add),
             label: const Text('New Batch', style: TextStyle(fontWeight: FontWeight.w600)),
@@ -240,7 +240,7 @@ class _BatchesScreenState extends State<BatchesScreen> {
                       controller: _searchController,
                       decoration: InputDecoration(
                         hintText: 'Search batches or courses...',
-                        prefixIcon: const Icon(Icons.search, color: AppColors.slate),
+                        prefixIcon: const Icon(Icons.search, color: AppColors.textSecondary),
                         filled: true,
                         fillColor: Colors.white,
                         contentPadding: const EdgeInsets.symmetric(vertical: 10),
@@ -292,10 +292,10 @@ class _BatchesScreenState extends State<BatchesScreen> {
               width: 80,
               height: 80,
               decoration: BoxDecoration(
-                color: AppColors.primaryTealLight,
+                color: AppColors.brandLight,
                 shape: BoxShape.circle,
               ),
-              child: const Icon(Icons.groups_outlined, size: 40, color: AppColors.primaryTealDark),
+              child: const Icon(Icons.groups_outlined, size: 40, color: AppColors.brand),
             ),
             const SizedBox(height: 20),
             Text(
@@ -303,7 +303,7 @@ class _BatchesScreenState extends State<BatchesScreen> {
               style: const TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.bold,
-                color: AppColors.navyDark,
+                color: AppColors.textPrimary,
               ),
             ),
             const SizedBox(height: 8),
@@ -316,7 +316,7 @@ class _BatchesScreenState extends State<BatchesScreen> {
               textAlign: TextAlign.center,
               style: TextStyle(
                 fontSize: 14,
-                color: AppColors.slate,
+                color: AppColors.textSecondary,
                 height: 1.5,
               ),
             ),
@@ -333,7 +333,7 @@ class _BatchesScreenState extends State<BatchesScreen> {
               icon: const Icon(Icons.add, color: Colors.white),
               label: const Text('Create First Batch', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryTealDark,
+                backgroundColor: AppColors.brand,
                 padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
               ),
@@ -377,7 +377,7 @@ class _BatchesScreenState extends State<BatchesScreen> {
                         style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.navyDark,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       if (batch.notes != null && batch.notes!.isNotEmpty) ...[
@@ -386,13 +386,13 @@ class _BatchesScreenState extends State<BatchesScreen> {
                           batch.notes!,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(fontSize: 12, color: AppColors.slate),
+                          style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                         ),
                       ],
                     ],
                   ),
                 ),
-                const Icon(Icons.chevron_right, color: AppColors.slate),
+                const Icon(Icons.chevron_right, color: AppColors.textSecondary),
               ],
             ),
             const Divider(height: 20, color: AppColors.divider),
@@ -401,23 +401,23 @@ class _BatchesScreenState extends State<BatchesScreen> {
               children: [
                 Row(
                   children: [
-                    const Icon(Icons.people_outline, size: 16, color: AppColors.slate),
+                    const Icon(Icons.people_outline, size: 16, color: AppColors.textSecondary),
                     const SizedBox(width: 4),
                     Text(
                       '${batch.studentCount} student${batch.studentCount == 1 ? '' : 's'}',
-                      style: const TextStyle(fontSize: 13, color: AppColors.navyDark, fontWeight: FontWeight.w500),
+                      style: const TextStyle(fontSize: 13, color: AppColors.textPrimary, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),
                 Row(
                   children: [
-                    const Icon(Icons.receipt_long_outlined, size: 16, color: AppColors.slate),
+                    const Icon(Icons.receipt_long_outlined, size: 16, color: AppColors.textSecondary),
                     const SizedBox(width: 4),
                     Text(
                       batch.feeTemplates.isNotEmpty
                           ? '${CurrencyFormatter.formatPaise(batch.standardBatchFeePaise)} / student'
                           : 'No fee setup yet',
-                      style: const TextStyle(fontSize: 13, color: AppColors.navyDark, fontWeight: FontWeight.w500),
+                      style: const TextStyle(fontSize: 13, color: AppColors.textPrimary, fontWeight: FontWeight.w500),
                     ),
                   ],
                 ),

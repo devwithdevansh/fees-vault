@@ -166,7 +166,7 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
         title: Text(
           isEdit ? 'Edit Student Details' : 'Register New Student',
           style: const TextStyle(
-            color: AppColors.navyDark,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -185,7 +185,7 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
                 : const Text(
                     'Save',
                     style: TextStyle(
-                      color: AppColors.primaryTealDark,
+                      color: AppColors.brand,
                       fontWeight: FontWeight.bold,
                       fontSize: 16,
                     ),
@@ -210,7 +210,7 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.slate,
+                    color: AppColors.textSecondary,
                     letterSpacing: 0.6,
                   ),
                 ),
@@ -264,7 +264,7 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
                   ),
                   const SizedBox(width: 8),
                   IconButton(
-                    icon: const Icon(Icons.add_circle_outline, color: AppColors.primaryTealDark),
+                    icon: const Icon(Icons.add_circle_outline, color: AppColors.brand),
                     tooltip: 'Create New Batch',
                     onPressed: () async {
                       await Navigator.push(
@@ -283,12 +283,12 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
               AppCard(
                 child: Row(
                   children: [
-                    const Icon(Icons.info_outline, color: AppColors.primaryTealDark),
+                    const Icon(Icons.info_outline, color: AppColors.brand),
                     const SizedBox(width: 12),
                     const Expanded(
                       child: Text(
                         'No batches created yet. You can create a batch to configure standard fees.',
-                        style: TextStyle(fontSize: 13, color: AppColors.navyDark),
+                        style: TextStyle(fontSize: 13, color: AppColors.textPrimary),
                       ),
                     ),
                     TextButton(
@@ -312,20 +312,20 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
             // If a batch is selected and we are creating a new student: Auto-charge banner!
             if (!isEdit && selectedBatch != null) ...[
               AppCard(
-                backgroundColor: AppColors.primaryTealLight.withValues(alpha: 0.4),
+                backgroundColor: AppColors.brandLight.withValues(alpha: 0.4),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
                       children: [
-                        const Icon(Icons.bolt, color: AppColors.primaryTealDark, size: 20),
+                        const Icon(Icons.bolt, color: AppColors.brand, size: 20),
                         const SizedBox(width: 8),
                         Text(
                           'Batch Fee Structure: ${CurrencyFormatter.formatPaise(selectedBatch.standardBatchFeePaise)}',
                           style: const TextStyle(
                             fontSize: 14,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.navyDark,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                       ],
@@ -335,7 +335,7 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
                       selectedBatch.feeTemplates.isNotEmpty
                           ? '${selectedBatch.feeTemplates.length} standard installment(s) configured'
                           : 'No standard installments configured in this batch yet',
-                      style: const TextStyle(fontSize: 12, color: AppColors.slate),
+                      style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                     ),
                     if (selectedBatch.feeTemplates.isNotEmpty) ...[
                       const Divider(height: 16, color: AppColors.divider),
@@ -344,14 +344,14 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
                         dense: true,
                         title: const Text(
                           'Charge batch fee structure immediately',
-                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.navyDark),
+                          style: TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.textPrimary),
                         ),
                         subtitle: const Text(
                           'Creates standard fee obligations automatically for this student',
-                          style: TextStyle(fontSize: 11, color: AppColors.slate),
+                          style: TextStyle(fontSize: 11, color: AppColors.textSecondary),
                         ),
                         value: _applyBatchFees,
-                        activeThumbColor: AppColors.primaryTealDark,
+                        activeThumbColor: AppColors.brand,
                         onChanged: (val) => setState(() => _applyBatchFees = val),
                       ),
                       if (_applyBatchFees) ...[
@@ -386,7 +386,7 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.slate,
+                    color: AppColors.textSecondary,
                     letterSpacing: 0.6,
                   ),
                 ),
@@ -419,7 +419,7 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
             ElevatedButton(
               onPressed: _isSaving ? null : _submit,
               style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.primaryTealDark,
+                backgroundColor: AppColors.brand,
                 padding: const EdgeInsets.symmetric(vertical: 14),
                 shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                 elevation: 0,
@@ -453,8 +453,8 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
     return InputDecoration(
       labelText: label,
       hintText: hint,
-      hintStyle: const TextStyle(fontSize: 13, color: AppColors.slateLight),
-      prefixIcon: Icon(icon, color: AppColors.slate),
+      hintStyle: const TextStyle(fontSize: 13, color: AppColors.textTertiary),
+      prefixIcon: Icon(icon, color: AppColors.textSecondary),
       filled: true,
       fillColor: AppColors.surface,
       border: OutlineInputBorder(
@@ -467,7 +467,7 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: AppColors.primaryTeal, width: 2),
+        borderSide: const BorderSide(color: AppColors.brand, width: 2),
       ),
     );
   }

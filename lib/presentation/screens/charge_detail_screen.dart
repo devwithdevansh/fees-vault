@@ -127,7 +127,7 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
         title: Text(
           ch.title,
           style: const TextStyle(
-            color: AppColors.navyDark,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -136,7 +136,7 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
         elevation: 0,
         actions: [
           IconButton(
-            icon: const Icon(Icons.edit_outlined, color: AppColors.slate),
+            icon: const Icon(Icons.edit_outlined, color: AppColors.textSecondary),
             tooltip: 'Edit Fee Installment',
             onPressed: () async {
               await Navigator.push(
@@ -164,7 +164,7 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
       ),
       body: RefreshIndicator(
         onRefresh: _loadDetails,
-        color: AppColors.primaryTealDark,
+        color: AppColors.brand,
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
@@ -183,7 +183,7 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.navyDark,
+                            color: AppColors.textPrimary,
                           ),
                         ),
                       ),
@@ -196,14 +196,14 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                     style: const TextStyle(
                       fontSize: 15,
                       fontWeight: FontWeight.w600,
-                      color: AppColors.primaryTealDark,
+                      color: AppColors.brand,
                     ),
                   ),
                   if (ch.period != null && ch.period!.isNotEmpty) ...[
                     const SizedBox(height: 4),
                     Text(
                       'Academic Year: ${ch.period!}',
-                      style: const TextStyle(fontSize: 13, color: AppColors.slate),
+                      style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
                     ),
                   ],
                   const SizedBox(height: 6),
@@ -212,7 +212,7 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                     style: TextStyle(
                       fontSize: 13,
                       fontWeight: FontWeight.w500,
-                      color: ch.isOverdue ? AppColors.overdueRed : AppColors.slate,
+                      color: ch.isOverdue ? AppColors.overdueRed : AppColors.textSecondary,
                     ),
                   ),
                   if (ch.notes != null && ch.notes!.isNotEmpty) ...[
@@ -226,7 +226,7 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                       ),
                       child: Text(
                         ch.notes!,
-                        style: const TextStyle(fontSize: 12.5, color: AppColors.slate),
+                        style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary),
                       ),
                     ),
                   ],
@@ -246,7 +246,7 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                     style: TextStyle(
                       fontSize: 12,
                       fontWeight: FontWeight.bold,
-                      color: AppColors.slate,
+                      color: AppColors.textSecondary,
                       letterSpacing: 0.6,
                     ),
                   ),
@@ -305,7 +305,7 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                   style: const TextStyle(fontSize: 15, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.primaryTealDark,
+                  backgroundColor: AppColors.brand,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                   elevation: 0,
@@ -323,13 +323,13 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                   style: TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.bold,
-                    color: AppColors.slate,
+                    color: AppColors.textSecondary,
                     letterSpacing: 0.6,
                   ),
                 ),
                 Text(
                   '${_payments.length} receipt(s)',
-                  style: const TextStyle(fontSize: 12, color: AppColors.slate),
+                  style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                 ),
               ],
             ),
@@ -341,7 +341,7 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                 child: Center(
                   child: Text(
                     'No payments recorded against this fee installment yet.',
-                    style: TextStyle(color: AppColors.slate, fontSize: 13),
+                    style: TextStyle(color: AppColors.textSecondary, fontSize: 13),
                   ),
                 ),
               )
@@ -363,7 +363,7 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
           label,
           style: TextStyle(
             fontSize: 13.5,
-            color: isBold ? AppColors.navyDark : AppColors.slate,
+            color: isBold ? AppColors.textPrimary : AppColors.textSecondary,
             fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
           ),
         ),
@@ -372,7 +372,7 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
           style: TextStyle(
             fontSize: isBold ? 15 : 13.5,
             fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
-            color: valueColor ?? (isBold ? AppColors.navyDark : AppColors.navyDark),
+            color: valueColor ?? (isBold ? AppColors.textPrimary : AppColors.textPrimary),
           ),
         ),
       ],
@@ -418,7 +418,7 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                         style: const TextStyle(
                           fontSize: 14,
                           fontWeight: FontWeight.bold,
-                          color: AppColors.navyDark,
+                          color: AppColors.textPrimary,
                         ),
                       ),
                       if (pm.isEdited) ...[
@@ -437,7 +437,7 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
                   const SizedBox(height: 2),
                   Text(
                     '${pm.method} • ${CurrencyFormatter.formatDisplayDate(pm.paidDate)}',
-                    style: const TextStyle(fontSize: 12, color: AppColors.slate),
+                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                   ),
                 ],
               ),

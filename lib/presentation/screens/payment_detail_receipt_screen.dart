@@ -72,7 +72,7 @@ class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen>
                 'Deleting Receipt #${_payment!.receiptNumber} will restore '
                 '${CurrencyFormatter.formatPaise(_payment!.amountPaise)} to the outstanding dues. '
                 'This action is permanently recorded in the local audit history.',
-                style: const TextStyle(fontSize: 13, color: AppColors.slate),
+                style: const TextStyle(fontSize: 13, color: AppColors.textSecondary),
               ),
               const SizedBox(height: 14),
               TextFormField(
@@ -123,7 +123,7 @@ class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen>
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
               content: Text('Receipt #$receiptNum voided. $restoredAmount restored to fee balance.'),
-              backgroundColor: AppColors.navyDark,
+              backgroundColor: AppColors.textPrimary,
               duration: const Duration(seconds: 4),
             ),
           );
@@ -155,7 +155,7 @@ class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen>
         body: const Center(
           child: Text(
             'This payment record has been deleted or does not exist.',
-            style: TextStyle(color: AppColors.slate),
+            style: TextStyle(color: AppColors.textSecondary),
           ),
         ),
       );
@@ -169,7 +169,7 @@ class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen>
         title: Text(
           'Receipt #${pm.receiptNumber}',
           style: const TextStyle(
-            color: AppColors.navyDark,
+            color: AppColors.textPrimary,
             fontWeight: FontWeight.bold,
             fontSize: 18,
           ),
@@ -183,7 +183,7 @@ class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen>
       ),
       body: RefreshIndicator(
         onRefresh: _loadDetails,
-        color: AppColors.primaryTealDark,
+        color: AppColors.brand,
         child: ListView(
           padding: const EdgeInsets.all(20),
           children: [
@@ -213,7 +213,7 @@ class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen>
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.slate,
+                  color: AppColors.textSecondary,
                   letterSpacing: 0.6,
                 ),
               ),
@@ -239,12 +239,12 @@ class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen>
                             style: const TextStyle(
                               fontSize: 11,
                               fontWeight: FontWeight.bold,
-                              color: AppColors.primaryTealDark,
+                              color: AppColors.brand,
                             ),
                           ),
                           Text(
                             '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year} ${dt.hour}:${dt.minute.toString().padLeft(2, '0')}',
-                            style: const TextStyle(fontSize: 11, color: AppColors.slateLight),
+                            style: const TextStyle(fontSize: 11, color: AppColors.textTertiary),
                           ),
                         ],
                       ),
@@ -252,7 +252,7 @@ class _PaymentDetailReceiptScreenState extends State<PaymentDetailReceiptScreen>
                         const SizedBox(height: 4),
                         Text(
                           'Reason: ${ev.reason!}',
-                          style: const TextStyle(fontSize: 13, color: AppColors.navyDark),
+                          style: const TextStyle(fontSize: 13, color: AppColors.textPrimary),
                         ),
                       ],
                     ],

@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/formatters/currency_formatter.dart';
 import '../../data/models/charge.dart';
 import '../../data/models/payment.dart';
 import '../controllers/vault_controller.dart';
-import '../widgets/app_card.dart';
 import '../widgets/status_badge.dart';
 import 'batch_form_screen.dart';
 import 'charge_detail_screen.dart';
@@ -14,637 +14,882 @@ import 'payment_detail_receipt_screen.dart';
 import 'payment_form_screen.dart';
 import 'walkthrough_screen.dart';
 
-/// FeesVault Academy Dashboard displaying independently aggregated financial totals,
-/// overdue installment alerts, recent receipts, and primary academy actions.
+/// FeesVault Dashboard — premium redesign with gradient header,
+/// status metric cards, overdue alerts, and recent activity.
 class DashboardScreen extends StatelessWidget {
   final VaultController controller;
 
-  const DashboardScreen({
-    super.key,
-    required this.controller,
-  });
+  const DashboardScreen({super.key, required this.controller});
 
   @override
   Widget build(BuildContext context) {
     final s = controller.summary;
     final hasStudents = controller.payers.isNotEmpty;
+    final overdueCount = controller.overdueCharges.length;
 
     return Scaffold(
       backgroundColor: AppColors.background,
-      appBar: AppBar(
-        title: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text(
-              controller.businessName,
-              style: const TextStyle(
-                color: AppColors.navyDark,
-                fontWeight: FontWeight.bold,
-                fontSize: 18,
-              ),
-            ),
-            const Text(
-              'Academy Fee Vault • Offline & Encrypted',
-              style: TextStyle(
-                color: AppColors.slate,
-                fontSize: 12,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-          ],
-        ),
-        backgroundColor: AppColors.surface,
-        elevation: 0,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.help_outline, color: AppColors.primaryTealDark),
-            tooltip: 'Academy Workflow Guide',
-            onPressed: () {
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (_) => const AcademyWalkthroughScreen(),
-                ),
-              );
-            },
-          ),
-        ],
-        bottom: const PreferredSize(
-          preferredSize: Size.fromHeight(1),
-          child: Divider(height: 1, color: AppColors.divider),
-        ),
-      ),
       body: RefreshIndicator(
         onRefresh: () => controller.refreshAll(),
-        color: AppColors.primaryTealDark,
-        child: ListView(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
-          children: [
-            // Quick Action Buttons Row
-            Row(
-              children: [
-                Expanded(
-                  child: _quickActionButton(
-                    icon: Icons.groups_outlined,
-                    label: 'New Batch',
-                    onTap: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => BatchFormScreen(controller: controller),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: _quickActionButton(
-                    icon: Icons.person_add_alt_1_outlined,
-                    label: 'Add Student',
-                    onTap: () async {
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => PayerFormScreen(controller: controller),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: _quickActionButton(
-                    icon: Icons.request_quote_outlined,
-                    label: 'Custom Fee',
-                    onTap: () async {
-                      if (!hasStudents) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Please register a student before creating a fee installment.'),
-                            backgroundColor: AppColors.primaryTealDark,
-                          ),
-                        );
-                        return;
-                      }
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => ChargeFormScreen(controller: controller),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-                const SizedBox(width: 6),
-                Expanded(
-                  child: _quickActionButton(
-                    icon: Icons.payments_outlined,
-                    label: 'Payment',
-                    isPrimary: true,
-                    onTap: () async {
-                      if (!hasStudents) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Register a student and fee installment before recording payments.'),
-                            backgroundColor: AppColors.primaryTealDark,
-                          ),
-                        );
-                        return;
-                      }
-                      await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => PaymentFormScreen(controller: controller),
-                        ),
-                      );
-                    },
-                  ),
-                ),
-              ],
+        color: AppColors.brand,
+        child: CustomScrollView(
+          slivers: [
+            // ── Premium Gradient Header ────────────────────────────────────
+            SliverToBoxAdapter(
+              child: _DashboardHeader(
+                controller: controller,
+                hasStudents: hasStudents,
+                overdueCount: overdueCount,
+              ),
             ),
-            const SizedBox(height: 20),
 
-            // First-run Academy Guidance Banner if no students exist
-            if (!hasStudents) ...[
-              Container(
-                padding: const EdgeInsets.all(18),
-                decoration: BoxDecoration(
-                  color: AppColors.surface,
-                  borderRadius: BorderRadius.circular(14),
-                  border: Border.all(color: AppColors.primaryTealLight),
-                  boxShadow: [
-                    BoxShadow(
-                      color: AppColors.primaryTealDark.withValues(alpha: 0.05),
-                      blurRadius: 10,
-                      offset: const Offset(0, 4),
+            // ── Quick Actions ─────────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+                child: _QuickActions(controller: controller, hasStudents: hasStudents),
+              ),
+            ),
+
+            // ── Onboarding Card (first run) ────────────────────────────────
+            if (!hasStudents)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.fromLTRB(16, 20, 16, 0),
+                  child: _OnboardingCard(controller: controller),
+                ),
+              ),
+
+            // ── Financial Metrics ─────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+                child: _SectionTitle('FINANCIAL OVERVIEW'),
+              ),
+            ),
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 10, 16, 0),
+                child: _MetricsGrid(s: s),
+              ),
+            ),
+
+            // ── This Month ───────────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 0),
+                child: _MonthCard(s: s),
+              ),
+            ),
+
+            // ── Overdue Installments ──────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 10),
+                child: Row(
+                  children: [
+                    _SectionTitle('OVERDUE INSTALLMENTS'),
+                    if (overdueCount > 0) ...[
+                      const Spacer(),
+                      _OverdueBadge(count: overdueCount),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+
+            if (controller.overdueCharges.isEmpty)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: _EmptyStateCard(
+                    icon: Icons.check_circle_outline_rounded,
+                    iconColor: AppColors.settledGreen,
+                    title: 'All Clear',
+                    subtitle: 'No overdue fee installments.',
+                  ),
+                ),
+              )
+            else
+              SliverList.separated(
+                itemCount: controller.overdueCharges.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 8),
+                itemBuilder: (ctx, i) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: _OverdueTile(
+                    ch: controller.overdueCharges[i],
+                    controller: controller,
+                  ),
+                ),
+              ),
+
+            // ── Recent Receipts ───────────────────────────────────────────
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(16, 24, 16, 10),
+                child: Row(
+                  children: [
+                    _SectionTitle('RECENT RECEIPTS'),
+                    const Spacer(),
+                    Text(
+                      '${controller.recentPayments.length} logged',
+                      style: const TextStyle(fontSize: 12, color: AppColors.textTertiary),
                     ),
                   ],
                 ),
+              ),
+            ),
+
+            if (controller.recentPayments.isEmpty)
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: _EmptyStateCard(
+                    icon: Icons.receipt_long_outlined,
+                    title: 'No Receipts Yet',
+                    subtitle: 'Payments recorded will appear here.',
+                  ),
+                ),
+              )
+            else
+              SliverList.separated(
+                itemCount: controller.recentPayments.length,
+                separatorBuilder: (_, _) => const SizedBox(height: 8),
+                itemBuilder: (ctx, i) => Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: _ReceiptTile(
+                    pm: controller.recentPayments[i],
+                    controller: controller,
+                  ),
+                ),
+              ),
+
+            const SliverToBoxAdapter(child: SizedBox(height: 32)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Header with gradient background
+// ─────────────────────────────────────────────────────────────────────────────
+class _DashboardHeader extends StatelessWidget {
+  final VaultController controller;
+  final bool hasStudents;
+  final int overdueCount;
+
+  const _DashboardHeader({
+    required this.controller,
+    required this.hasStudents,
+    required this.overdueCount,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    final topPadding = MediaQuery.of(context).padding.top;
+    return Container(
+      decoration: const BoxDecoration(gradient: AppColors.headerGradient),
+      padding: EdgeInsets.fromLTRB(20, topPadding + 16, 20, 24),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Row(
-                      children: [
-                        Container(
-                          padding: const EdgeInsets.all(8),
-                          decoration: BoxDecoration(
-                            color: AppColors.primaryTealLight,
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: const Icon(
-                            Icons.school_outlined,
-                            color: AppColors.primaryTealDark,
-                            size: 22,
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        const Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Welcome to FeesVault Academy',
-                                style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.bold,
-                                  color: AppColors.navyDark,
-                                ),
-                              ),
-                              SizedBox(height: 2),
-                              Text(
-                                'Get started in 3 simple steps',
-                                style: TextStyle(fontSize: 12, color: AppColors.slate),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    const Text(
-                      '1. Create a Batch (e.g. Class 10) with standard fees.\n'
-                      '2. Enroll students with parent contact and assign to batch.\n'
-                      '3. Automatically charge fees and record receipts.',
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: AppColors.navyDark,
-                        height: 1.5,
+                    Text(
+                      controller.businessName,
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.w800,
+                        fontSize: 22,
+                        letterSpacing: -0.3,
                       ),
                     ),
-                    const SizedBox(height: 16),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: ElevatedButton.icon(
-                            onPressed: () async {
-                              await Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (_) => PayerFormScreen(controller: controller),
-                                ),
-                              );
-                            },
-                            icon: const Icon(Icons.person_add_alt_1_outlined, size: 16, color: Colors.white),
-                            label: const Text('Add First Student', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: AppColors.primaryTealDark,
-                              padding: const EdgeInsets.symmetric(vertical: 10),
-                              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                              elevation: 0,
-                            ),
-                          ),
-                        ),
-                        const SizedBox(width: 10),
-                        OutlinedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => const AcademyWalkthroughScreen(),
-                              ),
-                            );
-                          },
-                          style: OutlinedButton.styleFrom(
-                            side: const BorderSide(color: AppColors.divider),
-                            padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 12),
-                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
-                          ),
-                          child: const Text('View Guide', style: TextStyle(color: AppColors.navyDark, fontSize: 13)),
-                        ),
-                      ],
+                    const SizedBox(height: 3),
+                    const Text(
+                      'FeesVault • Offline & Encrypted',
+                      style: TextStyle(
+                        color: Color(0xFFB0B8FF),
+                        fontSize: 12.5,
+                        fontWeight: FontWeight.w400,
+                      ),
                     ),
                   ],
                 ),
               ),
-              const SizedBox(height: 20),
+              // Help button
+              GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AcademyWalkthroughScreen()),
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.all(9),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: const Icon(Icons.help_outline_rounded, color: Colors.white, size: 20),
+                ),
+              ),
             ],
-
-            // Section: All-Time Financial Overview
-            const Text(
-              'ALL-TIME ACADEMY OVERVIEW',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: AppColors.slate,
-                letterSpacing: 0.6,
-              ),
-            ),
-            const SizedBox(height: 10),
-
-            // Metric Cards Grid
-            Row(
-              children: [
-                Expanded(
-                  child: _metricCard(
-                    context: context,
-                    title: 'Total Fees Raised',
-                    amountPaise: s.totalNetFeesPaise,
-                    color: AppColors.navyDark,
-                    subtitle: '${s.totalChargesCount} installments assigned',
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _metricCard(
-                    context: context,
-                    title: 'Total Collected',
-                    amountPaise: s.totalCollectedPaise,
-                    color: AppColors.settledGreen,
-                    subtitle: 'Paid into academy vault',
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              children: [
-                Expanded(
-                  child: _metricCard(
-                    context: context,
-                    title: 'Outstanding Dues',
-                    amountPaise: s.totalOutstandingPaise,
-                    color: s.totalOutstandingPaise > 0 ? AppColors.unpaidAmber : AppColors.slate,
-                    subtitle: 'Pending collection',
-                  ),
-                ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _metricCard(
-                    context: context,
-                    title: 'Overdue Fees',
-                    amountPaise: s.totalOverduePaise,
-                    color: s.totalOverduePaise > 0 ? AppColors.overdueRed : AppColors.slate,
-                    subtitle: '${s.overdueChargesCount} overdue installments',
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 20),
-
-            // Section: Current Month Breakdown
-            const Text(
-              'THIS MONTH BREAKDOWN',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: AppColors.slate,
-                letterSpacing: 0.6,
-              ),
-            ),
-            const SizedBox(height: 10),
-            AppCard(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Row(
+          ),
+          const SizedBox(height: 20),
+          // Hero outstanding amount
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.end,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Fees Due This Month', style: TextStyle(color: AppColors.slate, fontSize: 12)),
-                        const SizedBox(height: 4),
-                        Text(
-                          CurrencyFormatter.formatPaise(s.monthNetFeesPaise),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.navyDark,
-                          ),
-                        ),
-                      ],
-                    ),
+                  const Text(
+                    'Total Outstanding',
+                    style: TextStyle(color: Color(0xFFB0B8FF), fontSize: 12, fontWeight: FontWeight.w500),
                   ),
-                  Container(width: 1, height: 36, color: AppColors.divider),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text('Collected This Month', style: TextStyle(color: AppColors.slate, fontSize: 12)),
-                        const SizedBox(height: 4),
-                        Text(
-                          CurrencyFormatter.formatPaise(s.monthCollectedPaise),
-                          style: const TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.bold,
-                            color: AppColors.settledGreen,
-                          ),
-                        ),
-                      ],
+                  const SizedBox(height: 4),
+                  TweenAnimationBuilder<double>(
+                    tween: Tween(
+                      begin: 0,
+                      end: controller.summary.totalOutstandingPaise.toDouble(),
+                    ),
+                    duration: const Duration(milliseconds: 800),
+                    curve: Curves.easeOutCubic,
+                    builder: (_, v, _) => Text(
+                      CurrencyFormatter.formatPaise(v.round()),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 30,
+                        fontWeight: FontWeight.w800,
+                        letterSpacing: -0.5,
+                      ),
                     ),
                   ),
                 ],
               ),
-            ),
-            const SizedBox(height: 24),
-
-            // Section: Overdue Installments
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'OVERDUE INSTALLMENTS',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.slate,
-                    letterSpacing: 0.6,
+              const Spacer(),
+              if (overdueCount > 0)
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: AppColors.overdueRed.withValues(alpha: 0.9),
+                    borderRadius: BorderRadius.circular(20),
                   ),
-                ),
-                if (controller.overdueCharges.isNotEmpty)
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-                    decoration: BoxDecoration(
-                      color: AppColors.overdueRedBg,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Text(
-                      '${controller.overdueCharges.length} overdue',
-                      style: const TextStyle(
-                        fontSize: 11,
-                        color: AppColors.overdueRed,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            const SizedBox(height: 10),
-
-            if (controller.overdueCharges.isEmpty)
-              AppCard(
-                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-                child: Center(
-                  child: Column(
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.check_circle_outline, color: AppColors.settledGreen.withValues(alpha: 0.8), size: 36),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'No Overdue Installments',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.navyDark,
+                      const Icon(Icons.warning_amber_rounded, color: Colors.white, size: 14),
+                      const SizedBox(width: 4),
+                      Text(
+                        '$overdueCount overdue',
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
                         ),
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'All student fees are up to date or upcoming.',
-                        style: TextStyle(fontSize: 12, color: AppColors.slate),
                       ),
                     ],
                   ),
                 ),
-              )
-            else
-              ...controller.overdueCharges.map((ch) => _overdueChargeTile(context, ch)),
-
-            const SizedBox(height: 24),
-
-            // Section: Recent Receipts
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'RECENT RECEIPTS',
-                  style: TextStyle(
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.slate,
-                    letterSpacing: 0.6,
-                  ),
-                ),
-                Text(
-                  '${controller.recentPayments.length} logged',
-                  style: const TextStyle(fontSize: 12, color: AppColors.slate),
-                ),
-              ],
-            ),
-            const SizedBox(height: 10),
-
-            if (controller.recentPayments.isEmpty)
-              AppCard(
-                padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
-                child: Center(
-                  child: Column(
-                    children: [
-                      const Icon(Icons.receipt_long_outlined, color: AppColors.slate, size: 36),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'No Fee Receipts Yet',
-                        style: TextStyle(
-                          fontSize: 14,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.navyDark,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Payments recorded against student fees will appear here.',
-                        style: TextStyle(fontSize: 12, color: AppColors.slate),
-                      ),
-                    ],
-                  ),
-                ),
-              )
-            else
-              ...controller.recentPayments.map((pm) => _paymentTile(context, pm)),
-
-            const SizedBox(height: 30),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _quickActionButton({
-    required IconData icon,
-    required String label,
-    required VoidCallback onTap,
-    bool isPrimary = false,
-  }) {
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(10),
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 12),
-        decoration: BoxDecoration(
-          color: isPrimary ? AppColors.primaryTealDark : AppColors.surface,
-          borderRadius: BorderRadius.circular(10),
-          border: Border.all(
-            color: isPrimary ? AppColors.primaryTealDark : AppColors.divider,
-          ),
-          boxShadow: isPrimary
-              ? [
-                  BoxShadow(
-                    color: AppColors.primaryTealDark.withValues(alpha: 0.2),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ]
-              : null,
-        ),
-        child: Column(
-          children: [
-            Icon(
-              icon,
-              size: 20,
-              color: isPrimary ? Colors.white : AppColors.navyDark,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.w600,
-                color: isPrimary ? Colors.white : AppColors.navyDark,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-
-  Widget _metricCard({
-    required BuildContext context,
-    required String title,
-    required int amountPaise,
-    required Color color,
-    required String subtitle,
-  }) {
-    final disableAnimations = MediaQuery.of(context).disableAnimations;
-
-    return AppCard(
-      padding: const EdgeInsets.all(14),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            title,
-            style: const TextStyle(
-              fontSize: 12,
-              color: AppColors.slate,
-              fontWeight: FontWeight.w500,
-            ),
-          ),
-          const SizedBox(height: 6),
-          if (disableAnimations)
-            Text(
-              CurrencyFormatter.formatPaise(amountPaise),
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: color,
-              ),
-            )
-          else
-            TweenAnimationBuilder<double>(
-              tween: Tween<double>(begin: 0, end: amountPaise.toDouble()),
-              duration: const Duration(milliseconds: 650),
-              curve: Curves.easeOutCubic,
-              builder: (ctx, value, _) {
-                return Text(
-                  CurrencyFormatter.formatPaise(value.round()),
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                );
-              },
-            ),
-          const SizedBox(height: 4),
-          Text(
-            subtitle,
-            style: const TextStyle(
-              fontSize: 11,
-              color: AppColors.slateLight,
-            ),
+            ],
           ),
         ],
       ),
     );
   }
+}
 
-  Widget _overdueChargeTile(BuildContext context, Charge ch) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: AppCard(
-        onTap: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => ChargeDetailScreen(
-                chargeId: ch.id,
-                controller: controller,
+// ─────────────────────────────────────────────────────────────────────────────
+// Quick Action buttons
+// ─────────────────────────────────────────────────────────────────────────────
+class _QuickActions extends StatelessWidget {
+  final VaultController controller;
+  final bool hasStudents;
+
+  const _QuickActions({required this.controller, required this.hasStudents});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      children: [
+        _ActionChip(
+          icon: Icons.layers_rounded,
+          label: 'New Batch',
+          onTap: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => BatchFormScreen(controller: controller)),
+            );
+          },
+        ),
+        const SizedBox(width: 8),
+        _ActionChip(
+          icon: Icons.person_add_rounded,
+          label: 'Student',
+          onTap: () async {
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => PayerFormScreen(controller: controller)),
+            );
+          },
+        ),
+        const SizedBox(width: 8),
+        _ActionChip(
+          icon: Icons.receipt_rounded,
+          label: 'Custom Fee',
+          onTap: () async {
+            if (!hasStudents) {
+              _showNeedStudentSnack(context);
+              return;
+            }
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => ChargeFormScreen(controller: controller)),
+            );
+          },
+        ),
+        const SizedBox(width: 8),
+        _ActionChip(
+          icon: Icons.payments_rounded,
+          label: 'Payment',
+          isPrimary: true,
+          onTap: () async {
+            if (!hasStudents) {
+              _showNeedStudentSnack(context);
+              return;
+            }
+            await Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => PaymentFormScreen(controller: controller)),
+            );
+          },
+        ),
+      ],
+    );
+  }
+
+  void _showNeedStudentSnack(BuildContext context) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Add a student first before recording fees or payments.'),
+      ),
+    );
+  }
+}
+
+class _ActionChip extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+  final bool isPrimary;
+
+  const _ActionChip({
+    required this.icon,
+    required this.label,
+    required this.onTap,
+    this.isPrimary = false,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: GestureDetector(
+        onTap: () {
+          HapticFeedback.lightImpact();
+          onTap();
+        },
+        child: AnimatedContainer(
+          duration: const Duration(milliseconds: 150),
+          padding: const EdgeInsets.symmetric(vertical: 12),
+          decoration: BoxDecoration(
+            gradient: isPrimary ? AppColors.brandGradient : null,
+            color: isPrimary ? null : AppColors.surface,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(
+              color: isPrimary ? Colors.transparent : AppColors.divider,
+            ),
+            boxShadow: isPrimary
+                ? [
+                    BoxShadow(
+                      color: AppColors.brand.withValues(alpha: 0.3),
+                      blurRadius: 10,
+                      offset: const Offset(0, 4),
+                    )
+                  ]
+                : null,
+          ),
+          child: Column(
+            children: [
+              Icon(
+                icon,
+                size: 20,
+                color: isPrimary ? Colors.white : AppColors.brand,
+              ),
+              const SizedBox(height: 4),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                  color: isPrimary ? Colors.white : AppColors.textPrimary,
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Onboarding first-run card
+// ─────────────────────────────────────────────────────────────────────────────
+class _OnboardingCard extends StatelessWidget {
+  final VaultController controller;
+  const _OnboardingCard({required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: AppColors.brandLight,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: AppColors.brandMid),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Container(
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: AppColors.brand,
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: const Icon(Icons.school_rounded, color: Colors.white, size: 20),
+              ),
+              const SizedBox(width: 12),
+              const Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Welcome to FeesVault',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textPrimary,
+                      ),
+                    ),
+                    SizedBox(height: 2),
+                    Text(
+                      'Get started in 3 steps',
+                      style: TextStyle(fontSize: 12, color: AppColors.textSecondary),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          _StepRow(number: '1', text: 'Create a Batch (e.g. Class 10) with fee structure'),
+          const SizedBox(height: 8),
+          _StepRow(number: '2', text: 'Enroll students with parent contact'),
+          const SizedBox(height: 8),
+          _StepRow(number: '3', text: 'Auto-charge fees & record receipts'),
+          const SizedBox(height: 18),
+          Row(
+            children: [
+              Expanded(
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => PayerFormScreen(controller: controller)),
+                    );
+                  },
+                  icon: const Icon(Icons.person_add_rounded, size: 16),
+                  label: const Text('Add First Student'),
+                ),
+              ),
+              const SizedBox(width: 10),
+              OutlinedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const AcademyWalkthroughScreen()),
+                  );
+                },
+                child: const Text('View Guide'),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _StepRow extends StatelessWidget {
+  final String number;
+  final String text;
+  const _StepRow({required this.number, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Container(
+          width: 20,
+          height: 20,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: AppColors.brand,
+            shape: BoxShape.circle,
+          ),
+          child: Text(
+            number,
+            style: const TextStyle(color: Colors.white, fontSize: 11, fontWeight: FontWeight.w700),
+          ),
+        ),
+        const SizedBox(width: 10),
+        Expanded(
+          child: Text(
+            text,
+            style: const TextStyle(fontSize: 13, color: AppColors.textSecondary, height: 1.4),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Metrics grid
+// ─────────────────────────────────────────────────────────────────────────────
+class _MetricsGrid extends StatelessWidget {
+  final dynamic s;
+  const _MetricsGrid({required this.s});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      children: [
+        Row(
+          children: [
+            Expanded(
+              child: _MetricCard(
+                title: 'Total Raised',
+                amountPaise: s.totalNetFeesPaise,
+                color: AppColors.textPrimary,
+                iconColor: AppColors.brand,
+                icon: Icons.trending_up_rounded,
+                subtitle: '${s.totalChargesCount} installments',
               ),
             ),
-          );
-        },
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _MetricCard(
+                title: 'Collected',
+                amountPaise: s.totalCollectedPaise,
+                color: AppColors.settledGreen,
+                iconColor: AppColors.settledGreen,
+                icon: Icons.check_circle_rounded,
+                subtitle: 'Into vault',
+                bgColor: AppColors.settledGreenBg,
+              ),
+            ),
+          ],
+        ),
+        const SizedBox(height: 12),
+        Row(
+          children: [
+            Expanded(
+              child: _MetricCard(
+                title: 'Outstanding',
+                amountPaise: s.totalOutstandingPaise,
+                color: s.totalOutstandingPaise > 0 ? AppColors.unpaidAmber : AppColors.textTertiary,
+                iconColor: AppColors.unpaidAmber,
+                icon: Icons.pending_actions_rounded,
+                subtitle: 'Pending collection',
+                bgColor: s.totalOutstandingPaise > 0 ? AppColors.unpaidAmberBg : null,
+              ),
+            ),
+            const SizedBox(width: 12),
+            Expanded(
+              child: _MetricCard(
+                title: 'Overdue',
+                amountPaise: s.totalOverduePaise,
+                color: s.totalOverduePaise > 0 ? AppColors.overdueRed : AppColors.textTertiary,
+                iconColor: AppColors.overdueRed,
+                icon: Icons.warning_rounded,
+                subtitle: '${s.overdueChargesCount} overdue',
+                bgColor: s.totalOverduePaise > 0 ? AppColors.overdueRedBg : null,
+              ),
+            ),
+          ],
+        ),
+      ],
+    );
+  }
+}
+
+class _MetricCard extends StatelessWidget {
+  final String title;
+  final int amountPaise;
+  final Color color;
+  final Color iconColor;
+  final IconData icon;
+  final String subtitle;
+  final Color? bgColor;
+
+  const _MetricCard({
+    required this.title,
+    required this.amountPaise,
+    required this.color,
+    required this.iconColor,
+    required this.icon,
+    required this.subtitle,
+    this.bgColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: bgColor ?? AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 16, color: iconColor),
+              const SizedBox(width: 6),
+              Expanded(
+                child: Text(
+                  title,
+                  style: TextStyle(
+                    fontSize: 11.5,
+                    color: AppColors.textSecondary,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 8),
+          TweenAnimationBuilder<double>(
+            tween: Tween(begin: 0, end: amountPaise.toDouble()),
+            duration: const Duration(milliseconds: 700),
+            curve: Curves.easeOutCubic,
+            builder: (_, v, _) => Text(
+              CurrencyFormatter.formatPaise(v.round()),
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w800,
+                color: color,
+                letterSpacing: -0.3,
+              ),
+            ),
+          ),
+          const SizedBox(height: 3),
+          Text(
+            subtitle,
+            style: const TextStyle(fontSize: 10.5, color: AppColors.textTertiary),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// This Month card
+// ─────────────────────────────────────────────────────────────────────────────
+class _MonthCard extends StatelessWidget {
+  final dynamic s;
+  const _MonthCard({required this.s});
+
+  @override
+  Widget build(BuildContext context) {
+    final now = DateTime.now();
+    final month = [
+      'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+      'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec',
+    ][now.month - 1];
+
+    return Container(
+      padding: const EdgeInsets.all(18),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              const Icon(Icons.calendar_month_rounded, size: 15, color: AppColors.brand),
+              const SizedBox(width: 6),
+              Text(
+                'THIS MONTH  •  $month ${now.year}',
+                style: const TextStyle(
+                  fontSize: 11,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textSecondary,
+                  letterSpacing: 0.5,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 14),
+          Row(
+            children: [
+              Expanded(
+                child: _MonthStat(
+                  label: 'Dues This Month',
+                  paise: s.monthNetFeesPaise,
+                  color: AppColors.textPrimary,
+                ),
+              ),
+              Container(width: 1, height: 44, color: AppColors.divider),
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.only(left: 16),
+                  child: _MonthStat(
+                    label: 'Collected',
+                    paise: s.monthCollectedPaise,
+                    color: AppColors.settledGreen,
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+class _MonthStat extends StatelessWidget {
+  final String label;
+  final int paise;
+  final Color color;
+  const _MonthStat({required this.label, required this.paise, required this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label, style: const TextStyle(fontSize: 11.5, color: AppColors.textTertiary)),
+        const SizedBox(height: 4),
+        Text(
+          CurrencyFormatter.formatPaise(paise),
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: color, letterSpacing: -0.2),
+        ),
+      ],
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Section title
+// ─────────────────────────────────────────────────────────────────────────────
+class _SectionTitle extends StatelessWidget {
+  final String text;
+  const _SectionTitle(this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Text(
+      text,
+      style: const TextStyle(
+        fontSize: 11,
+        fontWeight: FontWeight.w700,
+        color: AppColors.textTertiary,
+        letterSpacing: 0.8,
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Overdue badge
+// ─────────────────────────────────────────────────────────────────────────────
+class _OverdueBadge extends StatelessWidget {
+  final int count;
+  const _OverdueBadge({required this.count});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 3),
+      decoration: BoxDecoration(
+        color: AppColors.overdueRedBg,
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Text(
+        '$count overdue',
+        style: const TextStyle(fontSize: 11, color: AppColors.overdueRed, fontWeight: FontWeight.w700),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Overdue charge tile
+// ─────────────────────────────────────────────────────────────────────────────
+class _OverdueTile extends StatelessWidget {
+  final Charge ch;
+  final VaultController controller;
+  const _OverdueTile({required this.ch, required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ChargeDetailScreen(chargeId: ch.id, controller: controller),
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.overdueRedBg),
+        ),
         child: Row(
           children: [
+            Container(
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: AppColors.overdueRedBg,
+                borderRadius: BorderRadius.circular(10),
+              ),
+              child: const Icon(Icons.warning_amber_rounded, color: AppColors.overdueRed, size: 18),
+            ),
+            const SizedBox(width: 12),
             Expanded(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -652,15 +897,13 @@ class DashboardScreen extends StatelessWidget {
                   Text(
                     ch.payerName ?? 'Student',
                     style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.navyDark,
+                      fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '${ch.title} • Due ${CurrencyFormatter.formatDisplayDate(ch.dueDate)}',
-                    style: const TextStyle(fontSize: 12, color: AppColors.slate),
+                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -671,12 +914,10 @@ class DashboardScreen extends StatelessWidget {
                 Text(
                   CurrencyFormatter.formatPaise(ch.outstandingPaise),
                   style: const TextStyle(
-                    fontSize: 15,
-                    fontWeight: FontWeight.bold,
-                    color: AppColors.overdueRed,
+                    fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.overdueRed,
                   ),
                 ),
-                const SizedBox(height: 2),
+                const SizedBox(height: 3),
                 StatusBadge.fromChargeStatus(ch.status),
               ],
             ),
@@ -685,32 +926,43 @@ class DashboardScreen extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _paymentTile(BuildContext context, Payment pm) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8),
-      child: AppCard(
-        onTap: () async {
-          await Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => PaymentDetailReceiptScreen(
-                paymentId: pm.id,
-                controller: controller,
-              ),
-            ),
-          );
-        },
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+// ─────────────────────────────────────────────────────────────────────────────
+// Receipt tile
+// ─────────────────────────────────────────────────────────────────────────────
+class _ReceiptTile extends StatelessWidget {
+  final Payment pm;
+  final VaultController controller;
+  const _ReceiptTile({required this.pm, required this.controller});
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => PaymentDetailReceiptScreen(paymentId: pm.id, controller: controller),
+          ),
+        );
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        decoration: BoxDecoration(
+          color: AppColors.surface,
+          borderRadius: BorderRadius.circular(14),
+          border: Border.all(color: AppColors.divider),
+        ),
         child: Row(
           children: [
             Container(
               padding: const EdgeInsets.all(8),
               decoration: BoxDecoration(
                 color: AppColors.settledGreenBg,
-                borderRadius: BorderRadius.circular(8),
+                borderRadius: BorderRadius.circular(10),
               ),
-              child: const Icon(Icons.receipt_long, color: AppColors.settledGreen, size: 20),
+              child: const Icon(Icons.receipt_long_rounded, color: AppColors.settledGreen, size: 18),
             ),
             const SizedBox(width: 12),
             Expanded(
@@ -720,15 +972,13 @@ class DashboardScreen extends StatelessWidget {
                   Text(
                     pm.payerName ?? 'Student',
                     style: const TextStyle(
-                      fontSize: 14,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.navyDark,
+                      fontSize: 14, fontWeight: FontWeight.w700, color: AppColors.textPrimary,
                     ),
                   ),
                   const SizedBox(height: 2),
                   Text(
                     '#${pm.receiptNumber} • ${pm.method} • ${CurrencyFormatter.formatDisplayDate(pm.paidDate)}',
-                    style: const TextStyle(fontSize: 12, color: AppColors.slate),
+                    style: const TextStyle(fontSize: 12, color: AppColors.textSecondary),
                   ),
                 ],
               ),
@@ -736,13 +986,56 @@ class DashboardScreen extends StatelessWidget {
             Text(
               CurrencyFormatter.formatPaise(pm.amountPaise),
               style: const TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.bold,
-                color: AppColors.settledGreen,
+                fontSize: 15, fontWeight: FontWeight.w800, color: AppColors.settledGreen,
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Generic empty state card
+// ─────────────────────────────────────────────────────────────────────────────
+class _EmptyStateCard extends StatelessWidget {
+  final IconData icon;
+  final String title;
+  final String subtitle;
+  final Color? iconColor;
+
+  const _EmptyStateCard({
+    required this.icon,
+    required this.title,
+    required this.subtitle,
+    this.iconColor,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.symmetric(vertical: 28, horizontal: 20),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(14),
+        border: Border.all(color: AppColors.divider),
+      ),
+      child: Column(
+        children: [
+          Icon(icon, size: 36, color: (iconColor ?? AppColors.textTertiary).withValues(alpha: 0.7)),
+          const SizedBox(height: 10),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w700, color: AppColors.textPrimary),
+          ),
+          const SizedBox(height: 4),
+          Text(
+            subtitle,
+            style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary, height: 1.4),
+            textAlign: TextAlign.center,
+          ),
+        ],
       ),
     );
   }
