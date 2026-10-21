@@ -476,7 +476,9 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
               ),
               const SizedBox(height: 14),
               // Stats row
-              Row(
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
                 children: [
                   Container(
                     padding: const EdgeInsets.symmetric(
@@ -496,7 +498,6 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
                       ),
                     ),
                   ),
-                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
@@ -526,14 +527,17 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
         const SizedBox(height: 16),
 
         // Filter chips (All / Pending / Paid)
-        Row(
-          children: [
-            _filterChip('all', 'All (${monthCharges.length})'),
-            const SizedBox(width: 8),
-            _filterChip('pending', 'Pending ($pendingCount)'),
-            const SizedBox(width: 8),
-            _filterChip('paid', 'Paid ($settledCount)'),
-          ],
+        SingleChildScrollView(
+          scrollDirection: Axis.horizontal,
+          child: Row(
+            children: [
+              _filterChip('all', 'All (${monthCharges.length})'),
+              const SizedBox(width: 8),
+              _filterChip('pending', 'Pending ($pendingCount)'),
+              const SizedBox(width: 8),
+              _filterChip('paid', 'Paid ($settledCount)'),
+            ],
+          ),
         ),
 
         const SizedBox(height: 12),
@@ -628,56 +632,56 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
                         ),
                         const SizedBox(height: 3),
                         if (isSettled)
-                          Row(
-                            children: [
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 6,
-                                  vertical: 2,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: AppColors.settledGreenBg,
-                                  borderRadius: BorderRadius.circular(6),
-                                ),
-                                child: Text(
-                                  'PAID ${CurrencyFormatter.formatPaise(charge.paidPaise)}',
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.w800,
-                                    color: AppColors.settledGreenDark,
-                                  ),
-                                ),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 6,
+                              vertical: 2,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.settledGreenBg,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            child: Text(
+                              'PAID ${CurrencyFormatter.formatPaise(charge.paidPaise)}',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.settledGreenDark,
                               ),
-                            ],
+                            ),
                           )
                         else
-                          Row(
-                            children: [
-                              Text(
-                                '${CurrencyFormatter.formatPaise(charge.outstandingPaise)} due',
-                                style: TextStyle(
-                                  fontSize: 12.5,
-                                  fontWeight: FontWeight.w700,
-                                  color: charge.isOverdue
-                                      ? AppColors.overdueRed
-                                      : AppColors.textSecondary,
-                                ),
+                          Text.rich(
+                            TextSpan(
+                              text:
+                                  '${CurrencyFormatter.formatPaise(charge.outstandingPaise)} due',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w700,
+                                color: charge.isOverdue
+                                    ? AppColors.overdueRed
+                                    : AppColors.textSecondary,
                               ),
-                              const SizedBox(width: 6),
-                              Text(
-                                '· Due ${CurrencyFormatter.formatDisplayDate(charge.dueDate)}',
-                                style: const TextStyle(
-                                  fontSize: 11.5,
-                                  color: AppColors.textTertiary,
+                              children: [
+                                TextSpan(
+                                  text:
+                                      ' · Due ${CurrencyFormatter.formatDisplayDate(charge.dueDate)}',
+                                  style: const TextStyle(
+                                    fontSize: 11,
+                                    fontWeight: FontWeight.normal,
+                                    color: AppColors.textTertiary,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
                           ),
                       ],
                     ),
                   ),
 
-                  const SizedBox(width: 10),
+                  const SizedBox(width: 8),
 
                   // Action: 1-Tap Quick Collect or View Receipt
                   if (!isSettled)
@@ -692,9 +696,11 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
                           backgroundColor: Colors.transparent,
                           shadowColor: Colors.transparent,
                           padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
+                            horizontal: 10,
                             vertical: 8,
                           ),
+                          minimumSize: Size.zero,
+                          tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(10),
                           ),
@@ -709,12 +715,15 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
                               color: Colors.white,
                             ),
                             const SizedBox(width: 3),
-                            Text(
-                              'Collect ${CurrencyFormatter.formatPaise(charge.outstandingPaise)}',
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 12,
+                            FittedBox(
+                              fit: BoxFit.scaleDown,
+                              child: Text(
+                                'Collect ${CurrencyFormatter.formatPaise(charge.outstandingPaise)}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.w700,
+                                  fontSize: 12,
+                                ),
                               ),
                             ),
                           ],
