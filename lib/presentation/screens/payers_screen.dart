@@ -1177,182 +1177,201 @@ class _StudentCard extends StatelessWidget {
           ),
           child: Padding(
             padding: const EdgeInsets.all(16),
-            child: Row(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Gradient avatar
-                Container(
-                  width: 50,
-                  height: 50,
-                  alignment: Alignment.center,
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: gradientColors,
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
+                // ── Top Row: Avatar + Name/Batch + Balance/Status ────────────
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Gradient avatar
+                    Container(
+                      width: 46,
+                      height: 46,
+                      alignment: Alignment.center,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: gradientColors,
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Text(
+                        initials,
+                        style: TextStyle(
+                          fontWeight: FontWeight.w800,
+                          fontSize: 16,
+                          color: isArchived
+                              ? AppColors.archivedGray
+                              : Colors.white,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
                     ),
-                    borderRadius: BorderRadius.circular(15),
-                  ),
-                  child: Text(
-                    initials,
-                    style: TextStyle(
-                      fontWeight: FontWeight.w800,
-                      fontSize: 17,
-                      color: isArchived ? AppColors.archivedGray : Colors.white,
-                      letterSpacing: -0.3,
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 14),
+                    const SizedBox(width: 12),
 
-                // Name + metadata
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
+                    // Name + Batch (Expanded to prevent any horizontal overflow)
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Flexible(
-                            child: Text(
-                              student.name,
-                              style: const TextStyle(
-                                fontSize: 15.5,
-                                fontWeight: FontWeight.w700,
-                                color: AppColors.textPrimary,
-                                letterSpacing: -0.2,
+                          Row(
+                            children: [
+                              Expanded(
+                                child: Text(
+                                  student.name,
+                                  style: const TextStyle(
+                                    fontSize: 15.5,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.textPrimary,
+                                    letterSpacing: -0.2,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
                               ),
-                              overflow: TextOverflow.ellipsis,
-                            ),
+                              if (isArchived) ...[
+                                const SizedBox(width: 6),
+                                StatusBadge.archived(),
+                              ],
+                            ],
                           ),
-                          if (isArchived) ...[
-                            const SizedBox(width: 6),
-                            StatusBadge.archived(),
+                          if (student.batch != null &&
+                              student.batch!.isNotEmpty) ...[
+                            const SizedBox(height: 4),
+                            Row(
+                              children: [
+                                const Icon(
+                                  Icons.school_outlined,
+                                  size: 13,
+                                  color: AppColors.brand,
+                                ),
+                                const SizedBox(width: 4),
+                                Expanded(
+                                  child: Text(
+                                    student.batch!,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w600,
+                                      color: AppColors.brand,
+                                    ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ),
+                              ],
+                            ),
                           ],
                         ],
                       ),
-                      const SizedBox(height: 6),
-                      Wrap(
-                        spacing: 6,
-                        runSpacing: 4,
-                        crossAxisAlignment: WrapCrossAlignment.center,
+                    ),
+                    const SizedBox(width: 12),
+
+                    // Balance + status
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.end,
+                      children: [
+                        Text(
+                          CurrencyFormatter.formatPaise(
+                            student.totalOutstandingPaise,
+                          ),
+                          style: TextStyle(
+                            fontSize: 15.5,
+                            fontWeight: FontWeight.w800,
+                            color: hasOutstanding
+                                ? AppColors.unpaidAmber
+                                : AppColors.settledGreen,
+                            letterSpacing: -0.3,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 8,
+                            vertical: 2.5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: hasOutstanding
+                                ? AppColors.unpaidAmberBg
+                                : AppColors.settledGreenBg,
+                            borderRadius: BorderRadius.circular(6),
+                          ),
+                          child: Text(
+                            hasOutstanding ? 'Due' : 'Clear',
+                            style: TextStyle(
+                              fontSize: 10.5,
+                              fontWeight: FontWeight.w700,
+                              color: hasOutstanding
+                                  ? AppColors.unpaidAmber
+                                  : AppColors.settledGreen,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+
+                // ── Bottom Metadata Row: Divider + Phone + Installments ─────
+                if ((student.phone != null && student.phone!.isNotEmpty) ||
+                    student.chargeCount > 0) ...[
+                  const SizedBox(height: 12),
+                  const Divider(height: 1, color: AppColors.divider),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      if (student.phone != null && student.phone!.isNotEmpty)
+                        Expanded(
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.phone_outlined,
+                                size: 13,
+                                color: AppColors.textTertiary,
+                              ),
+                              const SizedBox(width: 5),
+                              Expanded(
+                                child: Text(
+                                  student.phone!,
+                                  style: const TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w500,
+                                    color: AppColors.textSecondary,
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          if (student.batch != null &&
-                              student.batch!.isNotEmpty)
-                            _Tag(
-                              label: student.batch!,
-                              color: AppColors.brand,
-                              bg: AppColors.brandLight,
-                            ),
-                          if (student.phone != null &&
-                              student.phone!.isNotEmpty)
-                            _Tag(
-                              label: student.phone!,
-                              color: AppColors.textSecondary,
-                              bg: AppColors.surfaceSubtle,
-                              icon: Icons.phone_outlined,
-                            ),
-                          _Tag(
-                            label: '${student.chargeCount} installments',
+                          const Icon(
+                            Icons.receipt_long_outlined,
+                            size: 13,
                             color: AppColors.textTertiary,
-                            bg: AppColors.surfaceSubtle,
+                          ),
+                          const SizedBox(width: 4),
+                          Text(
+                            '${student.chargeCount} installments',
+                            style: const TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w500,
+                              color: AppColors.textTertiary,
+                            ),
                           ),
                         ],
                       ),
                     ],
                   ),
-                ),
-                const SizedBox(width: 12),
-
-                // Balance + status
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.end,
-                  children: [
-                    Text(
-                      CurrencyFormatter.formatPaise(
-                        student.totalOutstandingPaise,
-                      ),
-                      style: TextStyle(
-                        fontSize: 15.5,
-                        fontWeight: FontWeight.w800,
-                        color: hasOutstanding
-                            ? AppColors.unpaidAmber
-                            : AppColors.settledGreen,
-                        letterSpacing: -0.3,
-                      ),
-                    ),
-                    const SizedBox(height: 5),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 8,
-                        vertical: 3,
-                      ),
-                      decoration: BoxDecoration(
-                        color: hasOutstanding
-                            ? AppColors.unpaidAmberBg
-                            : AppColors.settledGreenBg,
-                        borderRadius: BorderRadius.circular(7),
-                      ),
-                      child: Text(
-                        hasOutstanding ? 'Due' : 'Clear',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w700,
-                          color: hasOutstanding
-                              ? AppColors.unpaidAmber
-                              : AppColors.settledGreen,
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
+                ],
               ],
             ),
           ),
         ),
-      ),
-    );
-  }
-}
-
-// ─────────────────────────────────────────────────────────────────────────────
-// Compact tag chip
-// ─────────────────────────────────────────────────────────────────────────────
-class _Tag extends StatelessWidget {
-  final String label;
-  final Color color;
-  final Color bg;
-  final IconData? icon;
-
-  const _Tag({
-    required this.label,
-    required this.color,
-    required this.bg,
-    this.icon,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 3),
-      decoration: BoxDecoration(
-        color: bg,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (icon != null) ...[
-            Icon(icon, size: 10, color: color),
-            const SizedBox(width: 3),
-          ],
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              fontWeight: FontWeight.w600,
-              color: color,
-            ),
-          ),
-        ],
       ),
     );
   }
