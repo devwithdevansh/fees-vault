@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_constants.dart';
+import '../../core/security/vault_backup_service.dart';
 import '../../data/database/app_database.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/vault_controller.dart';
@@ -21,6 +23,702 @@ class SettingsScreen extends StatelessWidget {
     required this.authController,
     required this.database,
   });
+
+  void _showExportBackupSheet(BuildContext context) {
+    final passwordCtrl = TextEditingController();
+    final confirmCtrl = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    bool isGenerating = false;
+    String? generatedArmored;
+    String? savedFilePath;
+    String? errorMessage;
+    bool obscurePassword = true;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) {
+          return Container(
+            decoration: const BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: SafeArea(
+              top: false,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  24,
+                  16,
+                  24,
+                  MediaQuery.of(ctx).viewInsets.bottom + 24,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: AppColors.divider,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppColors.brandLight,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.lock_outline_rounded,
+                            color: AppColors.brand,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Export Encrypted Backup',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                'AES-256 encrypted tuition records',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    if (generatedArmored == null) ...[
+                      const Text(
+                        'Set a password to protect your backup. You will need this exact password whenever you restore your data.',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                          height: 1.45,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Form(
+                        key: formKey,
+                        child: Column(
+                          children: [
+                            TextFormField(
+                              controller: passwordCtrl,
+                              obscureText: obscurePassword,
+                              decoration: InputDecoration(
+                                labelText: 'Backup Password *',
+                                hintText: 'At least 4 characters',
+                                prefixIcon: const Icon(Icons.key_rounded, size: 20),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    obscurePassword ? Icons.visibility_off : Icons.visibility,
+                                    size: 20,
+                                  ),
+                                  onPressed: () => setSheetState(() => obscurePassword = !obscurePassword),
+                                ),
+                              ),
+                              validator: (val) {
+                                if (val == null || val.trim().length < 4) {
+                                  return 'Password must be at least 4 characters';
+                                }
+                                return null;
+                              },
+                            ),
+                            const SizedBox(height: 12),
+                            TextFormField(
+                              controller: confirmCtrl,
+                              obscureText: obscurePassword,
+                              decoration: const InputDecoration(
+                                labelText: 'Confirm Password *',
+                                prefixIcon: Icon(Icons.check_circle_outline, size: 20),
+                              ),
+                              validator: (val) {
+                                if (val != passwordCtrl.text) {
+                                  return 'Passwords do not match';
+                                }
+                                return null;
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (errorMessage != null) ...[
+                        const SizedBox(height: 12),
+                        Text(
+                          errorMessage!,
+                          style: const TextStyle(color: AppColors.overdueRed, fontSize: 13),
+                        ),
+                      ],
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: isGenerating
+                              ? null
+                              : () async {
+                                  if (!formKey.currentState!.validate()) return;
+                                  setSheetState(() {
+                                    isGenerating = true;
+                                    errorMessage = null;
+                                  });
+                                  try {
+                                    final armored = await VaultBackupService.createEncryptedBackup(
+                                      controller: controller,
+                                      passphrase: passwordCtrl.text.trim(),
+                                    );
+                                    final file = await VaultBackupService.saveBackupToFile(armored);
+                                    setSheetState(() {
+                                      generatedArmored = armored;
+                                      savedFilePath = file.path;
+                                      isGenerating = false;
+                                    });
+                                  } catch (e) {
+                                    setSheetState(() {
+                                      errorMessage = e.toString();
+                                      isGenerating = false;
+                                    });
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.brand,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: isGenerating
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : const Text(
+                                  'Encrypt & Generate Backup',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ] else ...[
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: AppColors.settledGreenBg,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.settledGreenMid),
+                        ),
+                        child: Row(
+                          children: [
+                            const Icon(Icons.check_circle_rounded, color: AppColors.settledGreen, size: 24),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  const Text(
+                                    'Encrypted Backup Ready!',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.textPrimary,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 2),
+                                  Text(
+                                    'Saved to ${savedFilePath != null ? savedFilePath!.split(Platform.pathSeparator).last : "device storage"}',
+                                    style: const TextStyle(fontSize: 11.5, color: AppColors.textSecondary),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      const Text(
+                        'Copy the code below and paste it into your notes, email, or WhatsApp. You can paste this code anytime to restore everything.',
+                        style: TextStyle(fontSize: 12.5, color: AppColors.textSecondary, height: 1.4),
+                      ),
+                      const SizedBox(height: 10),
+                      Container(
+                        height: 110,
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.surfaceSubtle,
+                          borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: AppColors.divider),
+                        ),
+                        child: SingleChildScrollView(
+                          child: Text(
+                            generatedArmored!,
+                            style: const TextStyle(
+                              fontFamily: 'monospace',
+                              fontSize: 11,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton.icon(
+                              onPressed: () {
+                                Clipboard.setData(ClipboardData(text: generatedArmored!));
+                                HapticFeedback.lightImpact();
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('✓ Copied encrypted backup code to clipboard!'),
+                                    backgroundColor: AppColors.settledGreen,
+                                  ),
+                                );
+                              },
+                              icon: const Icon(Icons.copy_rounded, size: 18, color: AppColors.brand),
+                              label: const Text('Copy Code', style: TextStyle(color: AppColors.brand, fontWeight: FontWeight.bold)),
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: AppColors.brandMid),
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: ElevatedButton(
+                              onPressed: () => Navigator.pop(ctx),
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.brand,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                              child: const Text('Done', style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold)),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  void _showRestoreBackupSheet(BuildContext context) {
+    final codeCtrl = TextEditingController();
+    final passwordCtrl = TextEditingController();
+    final formKey = GlobalKey<FormState>();
+    bool isVerifying = false;
+    bool isRestoring = false;
+    String? errorMessage;
+    Map<String, dynamic>? verifiedPayload;
+    bool obscurePassword = true;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (ctx) => StatefulBuilder(
+        builder: (ctx, setSheetState) {
+          final counts = verifiedPayload?['metadata']?['counts'] as Map<String, dynamic>?;
+
+          return Container(
+            decoration: const BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+            ),
+            child: SafeArea(
+              top: false,
+              child: SingleChildScrollView(
+                padding: EdgeInsets.fromLTRB(
+                  24,
+                  16,
+                  24,
+                  MediaQuery.of(ctx).viewInsets.bottom + 24,
+                ),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Center(
+                      child: Container(
+                        width: 40,
+                        height: 4,
+                        decoration: BoxDecoration(
+                          color: AppColors.divider,
+                          borderRadius: BorderRadius.circular(2),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 18),
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppColors.partialBlueBg,
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.restore_page_outlined,
+                            color: AppColors.partialBlue,
+                            size: 22,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Restore from Backup',
+                                style: TextStyle(
+                                  fontSize: 18,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.textPrimary,
+                                ),
+                              ),
+                              SizedBox(height: 2),
+                              Text(
+                                'Paste encrypted code to recover vault',
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    if (verifiedPayload == null) ...[
+                      const Text(
+                        'Paste the encrypted backup code and enter the password you created when exporting.',
+                        style: TextStyle(
+                          fontSize: 13,
+                          color: AppColors.textSecondary,
+                          height: 1.45,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Form(
+                        key: formKey,
+                        child: Column(
+                          children: [
+                            Stack(
+                              children: [
+                                TextFormField(
+                                  controller: codeCtrl,
+                                  maxLines: 4,
+                                  decoration: InputDecoration(
+                                    labelText: 'Paste Encrypted Backup Code *',
+                                    hintText: 'FEESVAULT-BACKUP-V1::...::END',
+                                    alignLabelWithHint: true,
+                                    border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                  ),
+                                  style: const TextStyle(fontSize: 11, fontFamily: 'monospace'),
+                                  validator: (val) {
+                                    if (val == null || val.trim().isEmpty) {
+                                      return 'Please paste the backup code';
+                                    }
+                                    return null;
+                                  },
+                                ),
+                                Positioned(
+                                  right: 8,
+                                  top: 8,
+                                  child: TextButton.icon(
+                                    onPressed: () async {
+                                      final clipData = await Clipboard.getData(Clipboard.kTextPlain);
+                                      if (clipData?.text != null && clipData!.text!.isNotEmpty) {
+                                        codeCtrl.text = clipData.text!.trim();
+                                        setSheetState(() {});
+                                      }
+                                    },
+                                    icon: const Icon(Icons.paste_rounded, size: 16, color: AppColors.brand),
+                                    label: const Text('Paste', style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold, color: AppColors.brand)),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            const SizedBox(height: 14),
+                            TextFormField(
+                              controller: passwordCtrl,
+                              obscureText: obscurePassword,
+                              decoration: InputDecoration(
+                                labelText: 'Backup Password *',
+                                prefixIcon: const Icon(Icons.key_rounded, size: 20),
+                                suffixIcon: IconButton(
+                                  icon: Icon(
+                                    obscurePassword ? Icons.visibility_off : Icons.visibility,
+                                    size: 20,
+                                  ),
+                                  onPressed: () => setSheetState(() => obscurePassword = !obscurePassword),
+                                ),
+                              ),
+                              validator: (val) {
+                                if (val == null || val.trim().isEmpty) {
+                                  return 'Please enter the backup password';
+                                }
+                                return null;
+                              },
+                            ),
+                          ],
+                        ),
+                      ),
+                      if (errorMessage != null) ...[
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppColors.overdueRedBg,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: AppColors.overdueRedMid),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(Icons.error_outline_rounded, color: AppColors.overdueRed, size: 18),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  errorMessage!,
+                                  style: const TextStyle(color: AppColors.overdueRed, fontSize: 12.5),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                      const SizedBox(height: 20),
+                      SizedBox(
+                        width: double.infinity,
+                        height: 48,
+                        child: ElevatedButton(
+                          onPressed: isVerifying
+                              ? null
+                              : () {
+                                  if (!formKey.currentState!.validate()) return;
+                                  setSheetState(() {
+                                    isVerifying = true;
+                                    errorMessage = null;
+                                  });
+                                  try {
+                                    final payload = VaultBackupService.verifyAndDecryptBackup(
+                                      armoredBackup: codeCtrl.text.trim(),
+                                      passphrase: passwordCtrl.text.trim(),
+                                    );
+                                    setSheetState(() {
+                                      verifiedPayload = payload;
+                                      isVerifying = false;
+                                    });
+                                  } catch (e) {
+                                    setSheetState(() {
+                                      errorMessage = e.toString().replaceFirst('FormatException: ', '');
+                                      isVerifying = false;
+                                    });
+                                  }
+                                },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.brand,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          child: isVerifying
+                              ? const SizedBox(
+                                  width: 22,
+                                  height: 22,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2.5,
+                                  ),
+                                )
+                              : const Text(
+                                  'Verify & Preview Backup',
+                                  style: TextStyle(
+                                    fontSize: 15,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                        ),
+                      ),
+                    ] else ...[
+                      // Verification success card
+                      Container(
+                        padding: const EdgeInsets.all(14),
+                        decoration: BoxDecoration(
+                          color: AppColors.settledGreenBg,
+                          borderRadius: BorderRadius.circular(14),
+                          border: Border.all(color: AppColors.settledGreenMid),
+                        ),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Row(
+                              children: [
+                                Icon(Icons.verified_rounded, color: AppColors.settledGreen, size: 22),
+                                SizedBox(width: 8),
+                                Text(
+                                  'Backup Verified Successfully',
+                                  style: TextStyle(fontWeight: FontWeight.bold, color: AppColors.textPrimary, fontSize: 14),
+                                ),
+                              ],
+                            ),
+                            const Divider(color: AppColors.settledGreenMid, height: 18),
+                            _backupStatRow('Classes / Batches', '${counts?['batches'] ?? 0}'),
+                            _backupStatRow('Students Enrolled', '${counts?['students'] ?? 0}'),
+                            _backupStatRow('Fee Installments', '${counts?['charges'] ?? 0}'),
+                            _backupStatRow('Payment Receipts', '${counts?['payments'] ?? 0}'),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 14),
+                      Container(
+                        padding: const EdgeInsets.all(12),
+                        decoration: BoxDecoration(
+                          color: AppColors.overdueRedBg,
+                          borderRadius: BorderRadius.circular(10),
+                          border: Border.all(color: AppColors.overdueRedMid),
+                        ),
+                        child: const Row(
+                          children: [
+                            Icon(Icons.warning_amber_rounded, color: AppColors.overdueRed, size: 18),
+                            SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                'Restoring will replace your current records with this backup.',
+                                style: TextStyle(color: AppColors.overdueRed, fontSize: 12, fontWeight: FontWeight.w600),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 20),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: OutlinedButton(
+                              onPressed: () => setSheetState(() => verifiedPayload = null),
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(color: AppColors.divider),
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                              child: const Text('Back'),
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            flex: 2,
+                            child: ElevatedButton(
+                              onPressed: isRestoring
+                                  ? null
+                                  : () async {
+                                      setSheetState(() => isRestoring = true);
+                                      try {
+                                        final res = await VaultBackupService.restoreBackupIntoVault(
+                                          controller: controller,
+                                          decryptedPayload: verifiedPayload!,
+                                        );
+                                        if (context.mounted) {
+                                          Navigator.pop(ctx);
+                                          ScaffoldMessenger.of(context).showSnackBar(
+                                            SnackBar(
+                                              content: Text(
+                                                '✓ Restored ${res['students']} students, ${res['batches']} classes, and ${res['payments']} receipts!',
+                                                style: const TextStyle(fontWeight: FontWeight.bold),
+                                              ),
+                                              backgroundColor: AppColors.settledGreen,
+                                              behavior: SnackBarBehavior.floating,
+                                            ),
+                                          );
+                                        }
+                                      } catch (e) {
+                                        setSheetState(() {
+                                          errorMessage = 'Restore failed: $e';
+                                          isRestoring = false;
+                                        });
+                                      }
+                                    },
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor: AppColors.settledGreen,
+                                padding: const EdgeInsets.symmetric(vertical: 12),
+                                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                              ),
+                              child: isRestoring
+                                  ? const SizedBox(
+                                      width: 22,
+                                      height: 22,
+                                      child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2.5),
+                                    )
+                                  : const Text(
+                                      'Restore Vault Now',
+                                      style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                    ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _backupStatRow(String label, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Text(label, style: const TextStyle(fontSize: 12.5, color: AppColors.textSecondary)),
+          Text(value, style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w800, color: AppColors.textPrimary)),
+        ],
+      ),
+    );
+  }
 
   Future<void> _confirmClearAllData(BuildContext context) async {
     final confirmed = await showDialog<bool>(
@@ -725,6 +1423,62 @@ class SettingsScreen extends StatelessWidget {
                 builder: (context) => _SettingsCard(
                   child: Column(
                     children: [
+                      _SettingsTile(
+                        icon: Icons.cloud_upload_outlined,
+                        iconColor: AppColors.brand,
+                        iconBg: AppColors.brandLight,
+                        title: 'Export Encrypted Backup',
+                        subtitle:
+                            'Safeguard records with password-protected AES-256 backup',
+                        trailing: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.brandLight,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'Backup',
+                            style: TextStyle(
+                              color: AppColors.brand,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        onTap: () => _showExportBackupSheet(context),
+                      ),
+                      const _SettingsDivider(),
+                      _SettingsTile(
+                        icon: Icons.cloud_download_outlined,
+                        iconColor: AppColors.partialBlue,
+                        iconBg: AppColors.partialBlueBg,
+                        title: 'Restore from Backup',
+                        subtitle:
+                            'Paste backup code to recover students, fees & receipts',
+                        trailing: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 5,
+                          ),
+                          decoration: BoxDecoration(
+                            color: AppColors.partialBlueBg,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Text(
+                            'Restore',
+                            style: TextStyle(
+                              color: AppColors.partialBlue,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 12,
+                            ),
+                          ),
+                        ),
+                        onTap: () => _showRestoreBackupSheet(context),
+                      ),
+                      const _SettingsDivider(),
                       _SettingsTile(
                         icon: Icons.delete_outline_rounded,
                         iconColor: AppColors.overdueRed,
