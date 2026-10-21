@@ -448,21 +448,30 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
                 indicatorColor: AppColors.brand,
                 labelColor: AppColors.brand,
                 unselectedLabelColor: AppColors.textSecondary,
+                labelStyle: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w700,
+                ),
+                unselectedLabelStyle: const TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+                labelPadding: const EdgeInsets.symmetric(horizontal: 4),
                 tabs: [
                   const Tab(
-                    icon: Icon(Icons.menu_book_rounded, size: 20),
-                    text: 'Fees Register',
+                    icon: Icon(Icons.menu_book_rounded, size: 18),
+                    text: 'Register',
                   ),
                   Tab(
-                    icon: const Icon(Icons.people_outline, size: 20),
+                    icon: const Icon(Icons.people_outline, size: 18),
                     text: 'Students (${_students.length})',
                   ),
                   Tab(
                     icon: const Icon(
                       Icons.account_balance_wallet_outlined,
-                      size: 20,
+                      size: 18,
                     ),
-                    text: 'Fee Structure (${b.feeTemplates.length})',
+                    text: 'Schedule (${b.feeTemplates.length})',
                   ),
                 ],
               ),
@@ -555,30 +564,35 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
 
   Widget _metricCol(String label, String value, Color color) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 6),
+      padding: const EdgeInsets.symmetric(horizontal: 2),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 13.5,
-              fontWeight: FontWeight.w800,
-              color: color,
-              letterSpacing: -0.2,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              value,
+              style: TextStyle(
+                fontSize: 13.5,
+                fontWeight: FontWeight.w800,
+                color: color,
+                letterSpacing: -0.2,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
-            overflow: TextOverflow.ellipsis,
           ),
           const SizedBox(height: 3),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 10.5,
-              color: Colors.white.withValues(alpha: 0.6),
-              fontWeight: FontWeight.w500,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            child: Text(
+              label,
+              style: TextStyle(
+                fontSize: 10.5,
+                color: Colors.white.withValues(alpha: 0.7),
+                fontWeight: FontWeight.w500,
+              ),
+              textAlign: TextAlign.center,
             ),
-            textAlign: TextAlign.center,
           ),
         ],
       ),
@@ -669,25 +683,34 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
       padding: const EdgeInsets.all(16),
       children: [
         Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            const Text(
-              'Standard Fee Schedule',
-              style: TextStyle(
-                fontSize: 15,
-                fontWeight: FontWeight.w700,
-                color: AppColors.textPrimary,
+            const Expanded(
+              child: Text(
+                'Standard Fee Schedule',
+                style: TextStyle(
+                  fontSize: 14.5,
+                  fontWeight: FontWeight.w700,
+                  color: AppColors.textPrimary,
+                ),
               ),
             ),
             TextButton.icon(
               onPressed: _openMonthlyFeeGenerator,
+              style: TextButton.styleFrom(
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 10,
+                  vertical: 4,
+                ),
+                minimumSize: Size.zero,
+                tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+              ),
               icon: const Icon(
                 Icons.bolt_rounded,
                 size: 16,
                 color: AppColors.brand,
               ),
               label: const Text(
-                '⚡ Re-generate Schedule',
+                'Re-generate',
                 style: TextStyle(
                   color: AppColors.brand,
                   fontWeight: FontWeight.w700,
