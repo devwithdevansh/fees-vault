@@ -31,7 +31,10 @@ class MockPlatformSecurityService extends PlatformSecurityService {
 
 class MockAuthServiceNoLock extends AuthService {
   @override
-  Future<bool> authenticate({String reason = ''}) async {
+  Future<bool> authenticate({
+    String reason = '',
+    bool biometricOnly = false,
+  }) async {
     throw DeviceLockNotEnrolledException(
       'No screen lock is set up on this device.',
       'No credentials enrolled',
@@ -61,6 +64,8 @@ void main() {
     );
 
     expect(find.text('FeesVault is Locked'), findsOneWidget);
+    expect(find.text('Unlock with Face ID'), findsOneWidget);
+    expect(find.byIcon(Icons.face_rounded), findsOneWidget);
     expect(find.text('Unlock with Device Passcode'), findsOneWidget);
   });
 

@@ -4,7 +4,7 @@ import 'package:local_auth/local_auth.dart';
 import '../errors/app_exceptions.dart';
 
 /// Local authentication service wrapping local_auth.
-/// Supports Face ID, Touch ID, and device passcode fallback.
+/// Supports Face ID (Android & iOS), Touch ID / Fingerprint, and device passcode fallback.
 class AuthService {
   final LocalAuthentication _localAuth;
 
@@ -22,18 +22,50 @@ class AuthService {
     }
   }
 
-  /// Prompts user for system authentication (Face ID / Touch ID / Passcode).
+  /// Returns the list of enrolled biometrics on this device.
+  Future<List<BiometricType>> getAvailableBiometrics() async {
+    try {
+      return await _localAuth.getAvailableBiometrics();
+    } catch (e) {
+      debugPrint('[FeesVault] Error retrieving biometrics: $e');
+      return [];
+    }
+  }
+
+  /// Checks if Face ID / Face recognition is enrolled.
+  Future<bool> hasFaceBiometrics() async {
+    try {
+      final biometrics = await getAvailableBiometrics();
+      return biometrics.contains(BiometricType.face);
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Checks if any biometric (Face, Fingerprint, Iris, etc.) is enrolled.
+  Future<bool> hasBiometrics() async {
+    try {
+      final canCheck = await _localAuth.canCheckBiometrics;
+      final biometrics = await getAvailableBiometrics();
+      return canCheck && biometrics.isNotEmpty;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Prompts user for system authentication (Face ID / Fingerprint / Passcode).
   /// Allows device passcode fallback per specification.
   Future<bool> authenticate({
     String reason = 'Unlock FeesVault to access fee records',
+    bool biometricOnly = false,
   }) async {
     try {
       debugPrint(
-        '[FeesVault] Requesting system authentication (biometric + passcode fallback)...',
+        '[FeesVault] Requesting system authentication (biometricOnly=$biometricOnly)...',
       );
       final result = await _localAuth.authenticate(
         localizedReason: reason,
-        biometricOnly: false, // Allows device passcode fallback!
+        biometricOnly: biometricOnly,
       );
       debugPrint('[FeesVault] System authentication result: $result');
       return result;

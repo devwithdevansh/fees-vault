@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:local_auth/local_auth.dart';
 import '../../core/errors/app_exceptions.dart';
 import '../../core/security/auth_service.dart';
 import '../../core/security/platform_security_service.dart';
@@ -19,6 +20,9 @@ class AuthController extends ChangeNotifier {
   String? _errorMessage;
   bool _isAuthenticatingSheet = false;
   bool _isDeviceLockMissing = false;
+  bool _hasFaceBiometrics = false;
+  bool _hasBiometrics = false;
+  List<BiometricType> _availableBiometrics = [];
 
   AuthController({
     required this.authService,
@@ -27,6 +31,7 @@ class AuthController extends ChangeNotifier {
   }) : platformSecurityService =
            platformSecurityService ?? PlatformSecurityService() {
     this.platformSecurityService.setScreenshotCallback(_onScreenshotDetected);
+    checkBiometrics();
   }
 
   AuthStatus get status => _status;
@@ -35,6 +40,21 @@ class AuthController extends ChangeNotifier {
   bool get isObscured => _isObscured || isLocked;
   String? get errorMessage => _errorMessage;
   bool get isDeviceLockMissing => _isDeviceLockMissing;
+  bool get hasFaceBiometrics => _hasFaceBiometrics;
+  bool get hasBiometrics => _hasBiometrics;
+  List<BiometricType> get availableBiometrics => _availableBiometrics;
+
+  /// Checks what biometrics are available on the current device.
+  Future<void> checkBiometrics() async {
+    try {
+      final biometrics = await authService.getAvailableBiometrics();
+      _availableBiometrics = biometrics;
+      _hasFaceBiometrics = biometrics.contains(BiometricType.face);
+      _hasBiometrics =
+          biometrics.isNotEmpty || await authService.hasBiometrics();
+      notifyListeners();
+    } catch (_) {}
+  }
 
   void _onScreenshotDetected() {
     debugPrint(
@@ -50,7 +70,10 @@ class AuthController extends ChangeNotifier {
 
   /// Attempts to authenticate user using system biometrics / device passcode fallback
   /// and opens the encrypted database.
-  Future<bool> unlock() async {
+  Future<bool> unlock({
+    bool biometricOnly = false,
+    String? reason,
+  }) async {
     if (_status == AuthStatus.unlocked) return true;
     if (_status == AuthStatus.failedClosed) return false;
 
@@ -63,7 +86,8 @@ class AuthController extends ChangeNotifier {
     try {
       debugPrint('[FeesVault] AuthController: Starting unlock sequence...');
       final authenticated = await authService.authenticate(
-        reason: 'Authenticate to access FeesVault records',
+        reason: reason ?? 'Authenticate to access FeesVault records',
+        biometricOnly: biometricOnly,
       );
 
       _isAuthenticatingSheet = false;
