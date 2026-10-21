@@ -389,8 +389,10 @@ class _FeesVaultAppState extends State<FeesVaultApp>
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
           backgroundColor: AppColors.brand,
           foregroundColor: Colors.white,
-          elevation: 0,
-          shape: CircleBorder(),
+          elevation: 4,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.all(Radius.circular(16)),
+          ),
         ),
         chipTheme: ChipThemeData(
           backgroundColor: AppColors.surfaceSubtle,

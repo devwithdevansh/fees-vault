@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/formatters/currency_formatter.dart';
 import '../../data/models/batch.dart';
@@ -312,24 +313,53 @@ class _BatchesScreenState extends State<BatchesScreen> {
           ),
           floatingActionButton: batches.isEmpty
               ? null
-              : FloatingActionButton.extended(
-                  heroTag: 'add_batch_fab',
-                  backgroundColor: AppColors.brand,
-                  foregroundColor: Colors.white,
-                  icon: const Icon(Icons.add_rounded),
-                  label: const Text(
-                    'New Batch',
-                    style: TextStyle(fontWeight: FontWeight.w700),
+              : Container(
+                  decoration: BoxDecoration(
+                    gradient: AppColors.brandGradient,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: AppColors.brandGlow,
                   ),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) =>
-                            BatchFormScreen(controller: widget.controller),
+                  child: Material(
+                    color: Colors.transparent,
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(16),
+                      onTap: () async {
+                        HapticFeedback.lightImpact();
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                BatchFormScreen(controller: widget.controller),
+                          ),
+                        );
+                      },
+                      child: const Padding(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 14,
+                        ),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.add_rounded,
+                              color: Colors.white,
+                              size: 20,
+                            ),
+                            SizedBox(width: 8),
+                            Text(
+                              'New Batch',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontWeight: FontWeight.w700,
+                                fontSize: 14,
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
-                    );
-                  },
+                    ),
+                  ),
                 ),
           body: SafeArea(
             child: Column(
