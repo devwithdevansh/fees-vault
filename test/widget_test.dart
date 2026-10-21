@@ -6,6 +6,7 @@ import 'package:fees_vault/core/security/key_storage_service.dart';
 import 'package:fees_vault/core/security/platform_security_service.dart';
 import 'package:fees_vault/data/database/app_database.dart';
 import 'package:fees_vault/presentation/controllers/auth_controller.dart';
+import 'package:fees_vault/presentation/screens/developer_key_screen.dart';
 import 'package:fees_vault/presentation/screens/lock_screen.dart';
 
 class MockPlatformSecurityService extends PlatformSecurityService {
@@ -123,5 +124,16 @@ void main() {
 
     expect(authController.isLocked, isTrue);
     expect(authController.isObscured, isTrue);
+  });
+
+  test('DeveloperKeyScreen key validation logic', () {
+    expect(DeveloperKeyScreen.isValidKey('FEES-VAULT-DEV-KEY'), isTrue);
+    expect(DeveloperKeyScreen.isValidKey('fees-vault-dev-key'), isTrue);
+    expect(DeveloperKeyScreen.isValidKey('feesvaultdevkey'), isTrue);
+    expect(DeveloperKeyScreen.isValidKey('VAULT-DEV-2026'), isTrue);
+    expect(DeveloperKeyScreen.isValidKey('FEEVAULT-KEY-2026'), isTrue);
+    expect(DeveloperKeyScreen.isValidKey('dev_key_2026'), isTrue);
+    expect(DeveloperKeyScreen.isValidKey('wrong-key-123'), isFalse);
+    expect(DeveloperKeyScreen.isValidKey(''), isFalse);
   });
 }

@@ -1192,73 +1192,49 @@ class SettingsScreen extends StatelessWidget {
               _SectionLabel(label: 'HELP & RESOURCES'),
               const SizedBox(height: 10),
               _SettingsCard(
-                child: Row(
-                  children: [
-                    Container(
-                      padding: const EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        color: AppColors.brandLight,
-                        borderRadius: BorderRadius.circular(11),
-                      ),
-                      child: const Icon(
-                        Icons.menu_book_rounded,
-                        color: AppColors.brand,
-                        size: 20,
+                child: Builder(
+                  builder: (context) => _SettingsTile(
+                    icon: Icons.menu_book_rounded,
+                    iconColor: AppColors.brand,
+                    iconBg: AppColors.brandLight,
+                    title: 'Academy User Guide',
+                    subtitle: 'Step-by-step walkthrough for fee management',
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => const AcademyWalkthroughScreen(),
                       ),
                     ),
-                    const SizedBox(width: 14),
-                    const Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                    trailing: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
+                      ),
+                      decoration: BoxDecoration(
+                        color: AppColors.brandLight,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
-                            'Academy User Guide',
+                            'View',
                             style: TextStyle(
+                              color: AppColors.brand,
+                              fontSize: 12,
                               fontWeight: FontWeight.w700,
-                              fontSize: 14.5,
-                              color: AppColors.textPrimary,
                             ),
                           ),
-                          SizedBox(height: 2),
-                          Text(
-                            'Step-by-step walkthrough for fee management',
-                            style: TextStyle(
-                              fontSize: 12.5,
-                              color: AppColors.textTertiary,
-                            ),
+                          SizedBox(width: 4),
+                          Icon(
+                            Icons.arrow_forward_rounded,
+                            size: 13,
+                            color: AppColors.brand,
                           ),
                         ],
                       ),
                     ),
-                    Builder(
-                      builder: (context) => GestureDetector(
-                        onTap: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => const AcademyWalkthroughScreen(),
-                          ),
-                        ),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 12,
-                            vertical: 7,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: AppColors.brandGradient,
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                          child: const Text(
-                            'View',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 12.5,
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                  ],
+                  ),
                 ),
               ),
 
@@ -1406,6 +1382,14 @@ class SettingsScreen extends StatelessWidget {
                       'Remote Network Access',
                       'Disabled (Offline Architecture)',
                       isGood: true,
+                    ),
+                    const _SettingsDivider(),
+                    _statusItem(
+                      'Developer License',
+                      controller.isDeveloperActivated
+                          ? 'Authorized (Device Licensed)'
+                          : 'Pending Authorization',
+                      isGood: controller.isDeveloperActivated,
                     ),
                   ],
                 ),

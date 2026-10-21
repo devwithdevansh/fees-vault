@@ -43,6 +43,7 @@ class VaultController extends ChangeNotifier {
 
   String _businessName = AppConstants.appDisplayName;
   bool _onboardingDone = false;
+  bool _isDeveloperActivated = false;
   bool _isLoading = false;
   String? _errorMessage;
 
@@ -71,6 +72,7 @@ class VaultController extends ChangeNotifier {
   String? get selectedAcademicYearFilter => _selectedAcademicYearFilter;
   String get businessName => _businessName;
   bool get onboardingDone => _onboardingDone;
+  bool get isDeveloperActivated => _isDeveloperActivated;
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
@@ -87,6 +89,12 @@ class VaultController extends ChangeNotifier {
         AppConstants.settingBusinessName,
         defaultValue: AppConstants.appDisplayName,
       );
+      final devAct = await settingsRepo.getSetting(
+        AppConstants.settingDeveloperActivated,
+        defaultValue: 'false',
+      );
+      _isDeveloperActivated = (devAct == 'true');
+
       final onb = await settingsRepo.getSetting(
         AppConstants.settingOnboardingDone,
         defaultValue: 'false',
@@ -140,6 +148,16 @@ class VaultController extends ChangeNotifier {
   Future<void> acknowledgeOnboarding() async {
     await settingsRepo.setSetting(AppConstants.settingOnboardingDone, 'true');
     _onboardingDone = true;
+    notifyListeners();
+  }
+
+  /// Records one-time developer key authorization
+  Future<void> acknowledgeDeveloperKey() async {
+    await settingsRepo.setSetting(
+      AppConstants.settingDeveloperActivated,
+      'true',
+    );
+    _isDeveloperActivated = true;
     notifyListeners();
   }
 

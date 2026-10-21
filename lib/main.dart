@@ -15,6 +15,7 @@ import 'data/repositories/payment_repository.dart';
 import 'data/repositories/settings_repository.dart';
 import 'presentation/controllers/auth_controller.dart';
 import 'presentation/controllers/vault_controller.dart';
+import 'presentation/screens/developer_key_screen.dart';
 import 'presentation/screens/lock_screen.dart';
 import 'presentation/screens/main_scaffold.dart';
 import 'presentation/screens/onboarding_screen.dart';
@@ -457,12 +458,17 @@ class _FeesVaultAppState extends State<FeesVaultApp>
             return LockScreen(authController: widget.authController);
           }
 
-          // 2. If first-run onboarding has not been acknowledged
+          // 2. If one-time developer key has not been authorized
+          if (!widget.vaultController.isDeveloperActivated) {
+            return DeveloperKeyScreen(controller: widget.vaultController);
+          }
+
+          // 3. If first-run onboarding has not been acknowledged
           if (!widget.vaultController.onboardingDone) {
             return OnboardingScreen(controller: widget.vaultController);
           }
 
-          // 3. Authenticated root scaffold
+          // 4. Authenticated root scaffold
           return MainScaffold(
             controller: widget.vaultController,
             authController: widget.authController,
