@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_constants.dart';
 import '../../data/database/app_database.dart';
-import '../../data/seeds/demo_data_seeder.dart';
 import '../controllers/auth_controller.dart';
 import '../controllers/vault_controller.dart';
 import 'walkthrough_screen.dart';
@@ -22,137 +21,6 @@ class SettingsScreen extends StatelessWidget {
     required this.authController,
     required this.database,
   });
-
-  Future<void> _confirmResetAndSeedMonthlyData(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
-          children: [
-            Icon(
-              Icons.calendar_month_rounded,
-              color: AppColors.brand,
-              size: 24,
-            ),
-            SizedBox(width: 10),
-            Expanded(
-              child: Text(
-                'Reset & Seed Monthly Tuition Data?',
-                style: TextStyle(fontSize: 16.5, fontWeight: FontWeight.w700),
-              ),
-            ),
-          ],
-        ),
-        content: const Text(
-          'This will safely clear existing test records and populate your encrypted database with a complete 12-month tuition fee system:\n\n'
-          '• 5 Classes (Class 9 to 12 & Commerce)\n'
-          '• 12 Monthly Tuition Cycles (April 2026 to March 2027)\n'
-          '• Standard Due Dates on 10th of every month\n'
-          '• Realistic timeline payments up to October 2026\n'
-          '• 50 Students with phone numbers and roll numbers',
-          style: TextStyle(
-            height: 1.5,
-            fontSize: 13,
-            color: AppColors.textSecondary,
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.brand,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-            ),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Reset & Load 12-Month Data'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true) return;
-    if (!context.mounted) return;
-
-    // Show loading progress
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => PopScope(
-        canPop: false,
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: AppColors.cardShadow,
-            ),
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(
-                  strokeWidth: 3,
-                  color: AppColors.brand,
-                ),
-                SizedBox(height: 16),
-                Text(
-                  'Setting up Tuition Demo Data...',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14.5,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Creating 12 monthly fee cycles & receipts',
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    color: AppColors.textTertiary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-
-    try {
-      final results = await DemoDataSeeder.seed(controller, clearFirst: true);
-      if (context.mounted) {
-        Navigator.pop(context); // Dismiss loading dialog
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: AppColors.settledGreen,
-            content: Text(
-              '✓ Loaded ${results['students']} students across ${results['batches']} classes with 12-month schedules!',
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        Navigator.pop(context); // Dismiss loading dialog
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: AppColors.overdueRed,
-            content: Text('Failed to load demo data: $e'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    }
-  }
 
   Future<void> _confirmClearAllData(BuildContext context) async {
     final confirmed = await showDialog<bool>(
@@ -206,7 +74,7 @@ class SettingsScreen extends StatelessWidget {
     if (!context.mounted) return;
 
     try {
-      await DemoDataSeeder.clearVaultData(controller);
+      await controller.clearAllVaultData();
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -846,49 +714,20 @@ class SettingsScreen extends StatelessWidget {
 
               const SizedBox(height: 24),
 
-              // ── DEMO & TESTING DATA ─────────────────────────────────
-              _SectionLabel(label: 'DEMO DATA & SAMPLE SYSTEM'),
+              // ── DATA MANAGEMENT ─────────────────────────────────
+              _SectionLabel(label: 'DATA MANAGEMENT'),
               const SizedBox(height: 10),
               Builder(
                 builder: (context) => _SettingsCard(
                   child: Column(
                     children: [
                       _SettingsTile(
-                        icon: Icons.calendar_month_rounded,
-                        iconColor: AppColors.brand,
-                        iconBg: AppColors.brandLight,
-                        title: 'Reset & Seed Monthly Tuition Data',
-                        subtitle:
-                            'Safely replace data with 12-month tuition fee schedules',
-                        trailing: Container(
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 11,
-                            vertical: 6,
-                          ),
-                          decoration: BoxDecoration(
-                            gradient: AppColors.brandGradient,
-                            borderRadius: BorderRadius.circular(9),
-                            boxShadow: AppColors.brandGlow,
-                          ),
-                          child: const Text(
-                            'Load Demo',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontWeight: FontWeight.w700,
-                              fontSize: 12,
-                            ),
-                          ),
-                        ),
-                        onTap: () => _confirmResetAndSeedMonthlyData(context),
-                      ),
-                      const _SettingsDivider(),
-                      _SettingsTile(
                         icon: Icons.delete_outline_rounded,
                         iconColor: AppColors.overdueRed,
                         iconBg: AppColors.overdueRedBg,
-                        title: 'Clear All Vault Data',
+                        title: 'Clear All Vault Records',
                         subtitle:
-                            'Safely wipe all test records back to a clean slate',
+                            'Permanently erase all students, classes, and receipts',
                         trailing: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 10,

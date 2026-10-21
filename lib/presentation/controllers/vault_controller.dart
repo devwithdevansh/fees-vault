@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart' show ConflictAlgorithm;
 import '../../core/constants/app_constants.dart';
 import '../../core/errors/app_exceptions.dart';
 import '../../data/models/academic_year.dart';
@@ -519,5 +520,24 @@ class VaultController extends ChangeNotifier {
     } finally {
       _inFlightOperations.remove(opKey);
     }
+  }
+
+  /// Safely wipes all student records, batches, charges, and payments in strict
+  /// reverse-dependency order. Resets monotonic receipt counter to 1000.
+  Future<void> clearAllVaultData() async {
+    final db = payerRepo.dbManager.database;
+    await db.transaction((txn) async {
+      await txn.delete('payments');
+      await txn.delete('audit_events');
+      await txn.delete('charges');
+      await txn.delete('batch_fee_templates');
+      await txn.delete('payers');
+      await txn.delete('batches');
+      await txn.insert('settings', {
+        'key': AppConstants.settingReceiptCounter,
+        'value': '1000',
+      }, conflictAlgorithm: ConflictAlgorithm.replace);
+    });
+    await refreshAll();
   }
 }

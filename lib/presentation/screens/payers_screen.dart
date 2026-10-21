@@ -3,7 +3,6 @@ import 'package:flutter/services.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/formatters/currency_formatter.dart';
 import '../../data/models/payer.dart';
-import '../../data/seeds/demo_data_seeder.dart';
 import '../controllers/vault_controller.dart';
 import '../widgets/status_badge.dart';
 import 'payer_detail_screen.dart';
@@ -588,119 +587,6 @@ class _StudentListState extends State<_StudentList> {
     }
   }
 
-  Future<void> _seedDemoData(BuildContext context) async {
-    final confirmed = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-        title: const Row(
-          children: [
-            Icon(Icons.science_rounded, color: AppColors.brand, size: 24),
-            SizedBox(width: 10),
-            Text('Load 50 Demo Students?',
-                style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700)),
-          ],
-        ),
-        content: const Text(
-          'This will populate your encrypted vault with 50 realistic student records across 5 academic batches with varied fees, discounts, and payment receipts.\n\n'
-          'This allows you to visually test all screens, filters, status indicators, and metrics on your phone.',
-          style: TextStyle(
-              height: 1.5, fontSize: 13.5, color: AppColors.textSecondary),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(
-              backgroundColor: AppColors.brand,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10)),
-            ),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Load 50 Students'),
-          ),
-        ],
-      ),
-    );
-
-    if (confirmed != true) return;
-    if (!context.mounted) return;
-
-    showDialog(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => PopScope(
-        canPop: false,
-        child: Center(
-          child: Container(
-            padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
-            decoration: BoxDecoration(
-              color: AppColors.surface,
-              borderRadius: BorderRadius.circular(20),
-              boxShadow: AppColors.cardShadow,
-            ),
-            child: const Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                CircularProgressIndicator(
-                    strokeWidth: 3, color: AppColors.brand),
-                SizedBox(height: 16),
-                Text(
-                  'Generating 50 students...',
-                  style: TextStyle(
-                    fontWeight: FontWeight.w700,
-                    fontSize: 14.5,
-                    color: AppColors.textPrimary,
-                  ),
-                ),
-                SizedBox(height: 4),
-                Text(
-                  'Creating batches, charges & receipts',
-                  style: TextStyle(
-                    fontSize: 12.5,
-                    color: AppColors.textTertiary,
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-
-    try {
-      final results =
-          await DemoDataSeeder.seed(widget.controller, clearFirst: true);
-      if (context.mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: AppColors.settledGreen,
-            content: Text(
-              '✓ Seeded ${results['students']} students, ${results['charges']} charges, and ${results['payments']} receipts!',
-              style: const TextStyle(fontWeight: FontWeight.w600),
-            ),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    } catch (e) {
-      if (context.mounted) {
-        Navigator.pop(context);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            backgroundColor: AppColors.overdueRed,
-            content: Text('Failed to load demo data: $e'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-      }
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     if (widget.isEmpty) {
@@ -768,23 +654,6 @@ class _StudentListState extends State<_StudentList> {
                   },
                   icon: const Icon(Icons.person_add_rounded, size: 17),
                   label: const Text('Register First Student'),
-                ),
-                const SizedBox(height: 12),
-                OutlinedButton.icon(
-                  onPressed: () => _seedDemoData(context),
-                  icon: const Icon(Icons.science_rounded,
-                      size: 16, color: AppColors.brand),
-                  label: const Text('Load 50 Test Students',
-                      style: TextStyle(
-                          color: AppColors.brand,
-                          fontWeight: FontWeight.w600)),
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppColors.brandMid),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12)),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 11),
-                  ),
                 ),
               ],
             ],
