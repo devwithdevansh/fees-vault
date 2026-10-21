@@ -8,8 +8,8 @@ import '../controllers/vault_controller.dart';
 import '../widgets/app_card.dart';
 import '../widgets/quick_collect_sheet.dart';
 import '../widgets/status_badge.dart';
+import 'batch_detail_screen.dart';
 import 'charge_detail_screen.dart';
-import 'charge_form_screen.dart';
 import 'payer_form_screen.dart';
 
 /// Screen detailing a student's profile, financial overview, and linked fee installments.
@@ -68,6 +68,44 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
         });
       }
     } catch (_) {
+      if (mounted) setState(() => _isLoading = false);
+    }
+  }
+
+  Future<void> _applyBatchFeeSchedule() async {
+    if (_payer == null || _payerBatch == null) return;
+    if (_payerBatch!.feeTemplates.isEmpty) return;
+
+    setState(() => _isLoading = true);
+    try {
+      final created = await widget.controller.batchRepo.chargeBatchFeesToStudent(
+        payerId: _payer!.id,
+        batchId: _payerBatch!.id,
+        concessionPaise: 0,
+      );
+      await widget.controller.refreshAll();
+      await _loadPayerDetails();
+
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '✓ Applied ${created.length} fee installment(s) from ${_payerBatch!.name}!',
+            ),
+            backgroundColor: AppColors.settledGreen,
+          ),
+        );
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error applying batch fees: $e'),
+            backgroundColor: AppColors.overdueRed,
+          ),
+        );
+      }
+    } finally {
       if (mounted) setState(() => _isLoading = false);
     }
   }
@@ -585,28 +623,20 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                     letterSpacing: 0.6,
                   ),
                 ),
-                TextButton.icon(
-                  onPressed: () async {
-                    await Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => ChargeFormScreen(
-                          controller: widget.controller,
-                          initialPayerId: p.id,
-                        ),
+                if (_payerBatch != null &&
+                    _payerBatch!.feeTemplates.isNotEmpty &&
+                    _charges.length < _payerBatch!.feeTemplates.length)
+                  TextButton.icon(
+                    onPressed: _applyBatchFeeSchedule,
+                    icon: const Icon(Icons.sync, size: 16, color: AppColors.brand),
+                    label: const Text(
+                      'Apply Batch Fees',
+                      style: TextStyle(
+                        color: AppColors.brand,
+                        fontWeight: FontWeight.bold,
                       ),
-                    );
-                    await _loadPayerDetails();
-                  },
-                  icon: const Icon(Icons.add, size: 16, color: AppColors.brand),
-                  label: const Text(
-                    'Add Fee Installment',
-                    style: TextStyle(
-                      color: AppColors.brand,
-                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                ),
               ],
             ),
             const SizedBox(height: 8),
@@ -620,63 +650,138 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                 child: Center(
                   child: Column(
                     children: [
-                      const Icon(
-                        Icons.request_quote_outlined,
-                        size: 36,
-                        color: AppColors.textSecondary,
+                      Icon(
+                        _payerBatch != null &&
+                                _payerBatch!.feeTemplates.isNotEmpty
+                            ? Icons.calendar_month_outlined
+                            : Icons.school_outlined,
+                        size: 38,
+                        color: AppColors.brand,
                       ),
-                      const SizedBox(height: 8),
-                      const Text(
-                        'No Fee Installments Yet',
-                        style: TextStyle(
-                          fontSize: 14,
+                      const SizedBox(height: 10),
+                      Text(
+                        _payerBatch != null &&
+                                _payerBatch!.feeTemplates.isNotEmpty
+                            ? 'Batch Fee Schedule Available'
+                            : (_payerBatch != null
+                                ? 'No Fee Schedule for ${_payerBatch!.name}'
+                                : 'No Batch Assigned'),
+                        style: const TextStyle(
+                          fontSize: 15,
                           fontWeight: FontWeight.bold,
                           color: AppColors.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 4),
-                      const Text(
-                        'Add a course fee or installment with a due date to start recording payments.',
-                        style: TextStyle(
-                          fontSize: 12,
+                      const SizedBox(height: 6),
+                      Text(
+                        _payerBatch != null &&
+                                _payerBatch!.feeTemplates.isNotEmpty
+                            ? '${_payerBatch!.feeTemplates.length} monthly fee installments are ready to be applied from ${_payerBatch!.name}.'
+                            : (_payerBatch != null
+                                ? 'Fees are managed at the Batch level. Go to "${_payerBatch!.name}" to generate the monthly tuition schedule.'
+                                : 'Assign this student to a Batch (Class) to automatically apply monthly tuition fees.'),
+                        style: const TextStyle(
+                          fontSize: 12.5,
                           color: AppColors.textSecondary,
                         ),
                         textAlign: TextAlign.center,
                       ),
-                      const SizedBox(height: 14),
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => ChargeFormScreen(
-                                controller: widget.controller,
-                                initialPayerId: p.id,
-                              ),
+                      const SizedBox(height: 16),
+                      if (_payerBatch != null &&
+                          _payerBatch!.feeTemplates.isNotEmpty)
+                        ElevatedButton.icon(
+                          onPressed: _applyBatchFeeSchedule,
+                          icon: const Icon(Icons.bolt,
+                              size: 18, color: Colors.white),
+                          label: Text(
+                            'Apply ${_payerBatch!.name} Fees (${_payerBatch!.feeTemplates.length} Mos)',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
                             ),
-                          );
-                          await _loadPayerDetails();
-                        },
-                        icon: const Icon(
-                          Icons.add,
-                          size: 16,
-                          color: Colors.white,
-                        ),
-                        label: const Text(
-                          'Add Fee Installment',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.brand,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 0,
+                          ),
+                        )
+                      else if (_payerBatch != null)
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => BatchDetailScreen(
+                                  batchId: _payerBatch!.id,
+                                  controller: widget.controller,
+                                ),
+                              ),
+                            );
+                            await _loadPayerDetails();
+                          },
+                          icon: const Icon(Icons.arrow_forward,
+                              size: 16, color: Colors.white),
+                          label: Text(
+                            'Go to ${_payerBatch!.name}',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.brand,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 0,
+                          ),
+                        )
+                      else
+                        ElevatedButton.icon(
+                          onPressed: () async {
+                            await Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) => PayerFormScreen(
+                                  controller: widget.controller,
+                                  payerToEdit: p,
+                                ),
+                              ),
+                            );
+                            await _loadPayerDetails();
+                          },
+                          icon: const Icon(Icons.edit,
+                              size: 16, color: Colors.white),
+                          label: const Text(
+                            'Assign to Batch',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: AppColors.brand,
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            elevation: 0,
                           ),
                         ),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.brand,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          elevation: 0,
-                        ),
-                      ),
                     ],
                   ),
                 ),
