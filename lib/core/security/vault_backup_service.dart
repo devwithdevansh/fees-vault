@@ -5,6 +5,7 @@ import 'dart:typed_data';
 import 'package:crypto/crypto.dart';
 import 'package:encrypt/encrypt.dart' as enc;
 import 'package:path_provider/path_provider.dart';
+import 'package:sqflite_sqlcipher/sqflite.dart';
 import '../../presentation/controllers/vault_controller.dart';
 
 /// Provides offline, AES-256 encrypted backup export and restore capabilities.
@@ -102,12 +103,24 @@ class VaultBackupService {
     required String armoredBackup,
     required String passphrase,
   }) {
-    String cleanString = armoredBackup.trim();
-    if (cleanString.startsWith(backupHeader)) {
-      cleanString = cleanString.substring(backupHeader.length);
+    if (passphrase.trim().length < 4) {
+      throw const FormatException('Passphrase must be at least 4 characters long.');
     }
-    if (cleanString.endsWith(backupFooter)) {
-      cleanString = cleanString.substring(0, cleanString.length - backupFooter.length);
+
+    String cleanString = armoredBackup.trim();
+    if (cleanString.contains(backupHeader)) {
+      final startIndex = cleanString.indexOf(backupHeader) + backupHeader.length;
+      cleanString = cleanString.substring(startIndex);
+    }
+    if (cleanString.contains(backupFooter)) {
+      final endIndex = cleanString.lastIndexOf(backupFooter);
+      cleanString = cleanString.substring(0, endIndex);
+    }
+    // Remove all whitespace, line breaks, carriage returns, and tabs
+    cleanString = cleanString.replaceAll(RegExp(r'\s+'), '');
+
+    if (cleanString.isEmpty) {
+      throw const FormatException('Empty backup code. Please paste the complete encrypted backup.');
     }
 
     Map<String, dynamic> envelope;
@@ -120,13 +133,22 @@ class VaultBackupService {
       );
     }
 
-    final saltBytes = base64Decode(envelope['salt'] as String);
-    final ivBytes = base64Decode(envelope['iv'] as String);
-    final expectedMac = envelope['mac'] as String;
-    final ciphertextBase64 = envelope['data'] as String;
+    final saltBase64 = (envelope['salt'] as String?)?.replaceAll(RegExp(r'\s+'), '');
+    final ivBase64 = (envelope['iv'] as String?)?.replaceAll(RegExp(r'\s+'), '');
+    final expectedMac = (envelope['mac'] as String?)?.trim();
+    final ciphertextBase64 = (envelope['data'] as String?)?.replaceAll(RegExp(r'\s+'), '');
+
+    if (saltBase64 == null || ivBase64 == null || expectedMac == null || ciphertextBase64 == null) {
+      throw const FormatException(
+        'Corrupted backup structure. Essential security fields are missing.',
+      );
+    }
+
+    final saltBytes = base64Decode(saltBase64);
+    final ivBytes = base64Decode(ivBase64);
 
     // Derive key
-    final keyBytes = _deriveKey(passphrase, saltBytes);
+    final keyBytes = _deriveKey(passphrase.trim(), saltBytes);
 
     // Verify HMAC integrity
     final hmacKey = sha256.convert(keyBytes).bytes;
@@ -141,7 +163,7 @@ class VaultBackupService {
 
     if (computedMac != expectedMac) {
       throw const FormatException(
-        'Incorrect backup passphrase or corrupted backup data.',
+        'Incorrect backup password or corrupted backup data.',
       );
     }
 
@@ -159,13 +181,14 @@ class VaultBackupService {
       return payload;
     } catch (_) {
       throw const FormatException(
-        'Incorrect backup passphrase or corrupted backup data.',
+        'Incorrect backup password or corrupted backup data.',
       );
     }
   }
 
   /// Restores a verified decrypted backup payload into the encrypted vault database.
-  /// Executes atomically inside a single SQLite transaction.
+  /// Executes atomically inside a single SQLite transaction with full table clearing
+  /// and conflict resolution.
   static Future<Map<String, int>> restoreBackupIntoVault({
     required VaultController controller,
     required Map<String, dynamic> decryptedPayload,
@@ -186,52 +209,82 @@ class VaultBackupService {
     final payments = (data['payments'] as List? ?? []).cast<Map<String, dynamic>>();
 
     await db.transaction((txn) async {
-      // 1. Wipe existing records in strict reverse dependency order
+      // 1. Wipe existing records in strict reverse foreign key dependency order
       await txn.delete('payments');
       await txn.delete('audit_events');
       await txn.delete('charges');
       await txn.delete('batch_fee_templates');
       await txn.delete('payers');
       await txn.delete('batches');
+      await txn.delete('academic_years');
+      await txn.delete('settings');
 
-      // 2. Restore settings
+      // 2. Restore settings with conflict replacement
       for (final s in settings) {
-        await txn.insert('settings', s);
+        await txn.insert(
+          'settings',
+          s,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
       }
 
-      // 3. Restore academic years
+      // 3. Restore academic years with conflict replacement
       for (final ay in academicYears) {
-        await txn.insert('academic_years', ay);
+        await txn.insert(
+          'academic_years',
+          ay,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
       }
 
-      // 4. Restore batches
+      // 4. Restore batches with conflict replacement
       for (final b in batches) {
-        await txn.insert('batches', b);
+        await txn.insert(
+          'batches',
+          b,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
       }
 
-      // 5. Restore batch fee templates
+      // 5. Restore batch fee templates with conflict replacement
       for (final t in templates) {
-        await txn.insert('batch_fee_templates', t);
+        await txn.insert(
+          'batch_fee_templates',
+          t,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
       }
 
-      // 6. Restore payers (students)
+      // 6. Restore payers (students) with conflict replacement
       for (final p in payers) {
-        await txn.insert('payers', p);
+        await txn.insert(
+          'payers',
+          p,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
       }
 
-      // 7. Restore fee charges
+      // 7. Restore fee charges with conflict replacement
       for (final ch in charges) {
-        await txn.insert('charges', ch);
+        await txn.insert(
+          'charges',
+          ch,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
       }
 
-      // 8. Restore payments
+      // 8. Restore payments with conflict replacement
       for (final py in payments) {
-        await txn.insert('payments', py);
+        await txn.insert(
+          'payments',
+          py,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
       }
     });
 
-    // Refresh state
-    await controller.refreshAll();
+    // Full refresh of state across all screens
+    await controller.loadVaultData();
 
     return {
       'batches': batches.length,
@@ -250,18 +303,12 @@ class VaultBackupService {
     return file.writeAsString(armoredBackup, flush: true);
   }
 
-  /// Key derivation using multi-round SHA-256 with salt
+  /// Cryptographic Key Derivation using PBKDF2-like SHA256 iterations (10,000 rounds)
   static Uint8List _deriveKey(String passphrase, Uint8List salt) {
-    var digest = sha256.convert([
-      ...salt,
-      ...utf8.encode(passphrase),
-      ...salt,
-    ]).bytes;
-
-    for (int i = 0; i < 1000; i++) {
-      digest = sha256.convert([...digest, ...salt]).bytes;
+    var key = utf8.encode(passphrase) + salt;
+    for (int i = 0; i < 10000; i++) {
+      key = sha256.convert(key).bytes;
     }
-
-    return Uint8List.fromList(digest);
+    return Uint8List.fromList(key.sublist(0, 32));
   }
 }
