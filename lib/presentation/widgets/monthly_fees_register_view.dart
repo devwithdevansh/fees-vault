@@ -562,7 +562,6 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
             final isSettled = charge.isSettled;
             return Container(
               margin: const EdgeInsets.only(bottom: 10),
-              padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
                 color: AppColors.surface,
                 borderRadius: BorderRadius.circular(16),
@@ -575,111 +574,141 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
                 ),
                 boxShadow: AppColors.cardShadow,
               ),
-              child: Row(
-                children: [
-                  // Avatar
-                  Container(
-                    width: 44,
-                    height: 44,
-                    decoration: BoxDecoration(
-                      gradient: isSettled
-                          ? null
-                          : LinearGradient(
-                              colors: AppColors.avatarGradientFor(
-                                charge.payerName ?? '',
-                              ),
-                              begin: Alignment.topLeft,
-                              end: Alignment.bottomRight,
-                            ),
-                      color: isSettled ? AppColors.settledGreenBg : null,
-                      shape: BoxShape.circle,
-                    ),
-                    child: Center(
-                      child: isSettled
-                          ? const Icon(
-                              Icons.check_rounded,
-                              color: AppColors.settledGreen,
-                              size: 22,
-                            )
-                          : Text(
-                              (charge.payerName ?? 'S')
-                                  .substring(0, 1)
-                                  .toUpperCase(),
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w800,
-                                fontSize: 16,
-                              ),
-                            ),
-                    ),
-                  ),
-
-                  const SizedBox(width: 14),
-
-                  // Student Details & Status
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          charge.payerName ?? 'Student',
-                          style: const TextStyle(
-                            fontSize: 14.5,
-                            fontWeight: FontWeight.w700,
-                            color: AppColors.textPrimary,
-                          ),
-                          overflow: TextOverflow.ellipsis,
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+                child: InkWell(
+                  borderRadius: BorderRadius.circular(16),
+                  onTap: () async {
+                    await Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => ChargeDetailScreen(
+                          controller: widget.controller,
+                          chargeId: charge.id,
                         ),
-                        const SizedBox(height: 3),
-                        if (isSettled)
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.settledGreenBg,
-                              borderRadius: BorderRadius.circular(6),
-                            ),
-                            child: Text(
-                              'PAID ${CurrencyFormatter.formatPaise(charge.paidPaise)}',
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w800,
-                                color: AppColors.settledGreenDark,
-                              ),
-                            ),
-                          )
-                        else
-                          Text.rich(
-                            TextSpan(
-                              text:
-                                  '${CurrencyFormatter.formatPaise(charge.outstandingPaise)} due',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w700,
-                                color: charge.isOverdue
-                                    ? AppColors.overdueRed
-                                    : AppColors.textSecondary,
-                              ),
-                              children: [
-                                TextSpan(
-                                  text:
-                                      ' · Due ${CurrencyFormatter.formatDisplayDate(charge.dueDate)}',
-                                  style: const TextStyle(
-                                    fontSize: 11,
-                                    fontWeight: FontWeight.normal,
-                                    color: AppColors.textTertiary,
+                      ),
+                    );
+                    await _loadCharges();
+                    widget.onDataChanged();
+                  },
+                  child: Padding(
+                    padding: const EdgeInsets.all(14),
+                    child: Row(
+                      children: [
+                        // Avatar
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            gradient: isSettled
+                                ? null
+                                : LinearGradient(
+                                    colors: AppColors.avatarGradientFor(
+                                      charge.payerName ?? '',
+                                    ),
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
                                   ),
-                                ),
-                              ],
-                            ),
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
+                            color: isSettled ? AppColors.settledGreenBg : null,
+                            shape: BoxShape.circle,
                           ),
-                      ],
-                    ),
-                  ),
+                          child: Center(
+                            child: isSettled
+                                ? const Icon(
+                                    Icons.check_rounded,
+                                    color: AppColors.settledGreen,
+                                    size: 22,
+                                  )
+                                : Text(
+                                    (charge.payerName ?? 'S')
+                                        .substring(0, 1)
+                                        .toUpperCase(),
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.w800,
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                          ),
+                        ),
+
+                        const SizedBox(width: 14),
+
+                        // Student Details & Status
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                charge.payerName ?? 'Student',
+                                style: const TextStyle(
+                                  fontSize: 14.5,
+                                  fontWeight: FontWeight.w700,
+                                  color: AppColors.textPrimary,
+                                ),
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                              const SizedBox(height: 3),
+                              if (isSettled)
+                                Container(
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 6,
+                                    vertical: 2,
+                                  ),
+                                  decoration: BoxDecoration(
+                                    color: AppColors.settledGreenBg,
+                                    borderRadius: BorderRadius.circular(6),
+                                  ),
+                                  child: Text(
+                                    'PAID ${CurrencyFormatter.formatPaise(charge.paidPaise)}',
+                                    style: const TextStyle(
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.w800,
+                                      color: AppColors.settledGreenDark,
+                                    ),
+                                  ),
+                                )
+                              else
+                                Text.rich(
+                                  TextSpan(
+                                    text:
+                                        '${CurrencyFormatter.formatPaise(charge.outstandingPaise)} due',
+                                    style: TextStyle(
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.w700,
+                                      color: charge.isOverdue
+                                          ? AppColors.overdueRed
+                                          : AppColors.textSecondary,
+                                    ),
+                                    children: [
+                                      if (charge.discountPaise > 0)
+                                        TextSpan(
+                                          text:
+                                              ' · -${CurrencyFormatter.formatPaise(charge.discountPaise)} off',
+                                          style: const TextStyle(
+                                            fontSize: 11,
+                                            fontWeight: FontWeight.w700,
+                                            color: AppColors.settledGreenDark,
+                                          ),
+                                        ),
+                                      TextSpan(
+                                        text:
+                                            ' · Due ${CurrencyFormatter.formatDisplayDate(charge.dueDate)}',
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          fontWeight: FontWeight.normal,
+                                          color: AppColors.textTertiary,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  maxLines: 1,
+                                  overflow: TextOverflow.ellipsis,
+                                ),
+                            ],
+                          ),
+                        ),
 
                   const SizedBox(width: 8),
 
@@ -749,12 +778,14 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
                           ),
                         );
                         await _loadCharges();
-                        widget.onDataChanged();
-                      },
-                    ),
-                ],
+                        },
+                      ),
+                    ],
+                  ),
+                ),
               ),
-            );
+            ),
+          );
           }),
       ],
     );
