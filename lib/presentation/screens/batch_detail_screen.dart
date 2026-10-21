@@ -10,7 +10,6 @@ import '../widgets/app_card.dart';
 import '../widgets/monthly_fee_generator_dialog.dart';
 import '../widgets/monthly_fees_register_view.dart';
 import '../widgets/status_badge.dart';
-import 'batch_fee_template_form_screen.dart';
 import 'batch_form_screen.dart';
 import 'payer_detail_screen.dart';
 import 'payer_form_screen.dart';
@@ -617,7 +616,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
               ),
               const SizedBox(height: 8),
               const Text(
-                'Setup monthly tuition fees for the entire academic session in 1-tap, or add custom installments manually.',
+                'Setup standard monthly tuition fees for the entire academic session in 1-tap.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13,
@@ -660,34 +659,6 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
                   ),
                 ),
               ),
-              const SizedBox(height: 12),
-              OutlinedButton.icon(
-                onPressed: () async {
-                  final added = await Navigator.push<bool>(
-                    context,
-                    MaterialPageRoute(
-                      builder: (_) => BatchFeeTemplateFormScreen(
-                        controller: widget.controller,
-                        batchId: widget.batchId,
-                      ),
-                    ),
-                  );
-                  if (added == true) await _loadBatch();
-                },
-                icon: const Icon(Icons.add, size: 16),
-                label: const Text('Add Single Custom Installment'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.textSecondary,
-                  side: const BorderSide(color: AppColors.divider),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 16,
-                    vertical: 11,
-                  ),
-                ),
-              ),
             ],
           ),
         ),
@@ -708,42 +679,21 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
                 color: AppColors.textPrimary,
               ),
             ),
-            Row(
-              children: [
-                TextButton.icon(
-                  onPressed: _openMonthlyFeeGenerator,
-                  icon: const Icon(
-                    Icons.bolt_rounded,
-                    size: 16,
-                    color: AppColors.brand,
-                  ),
-                  label: const Text(
-                    '⚡ Auto Monthly',
-                    style: TextStyle(
-                      color: AppColors.brand,
-                      fontWeight: FontWeight.w700,
-                      fontSize: 12.5,
-                    ),
-                  ),
+            TextButton.icon(
+              onPressed: _openMonthlyFeeGenerator,
+              icon: const Icon(
+                Icons.bolt_rounded,
+                size: 16,
+                color: AppColors.brand,
+              ),
+              label: const Text(
+                '⚡ Re-generate Schedule',
+                style: TextStyle(
+                  color: AppColors.brand,
+                  fontWeight: FontWeight.w700,
+                  fontSize: 12.5,
                 ),
-                const SizedBox(width: 4),
-                IconButton(
-                  icon: const Icon(Icons.add_rounded, size: 20),
-                  tooltip: 'Add Custom Installment',
-                  onPressed: () async {
-                    final added = await Navigator.push<bool>(
-                      context,
-                      MaterialPageRoute(
-                        builder: (_) => BatchFeeTemplateFormScreen(
-                          controller: widget.controller,
-                          batchId: widget.batchId,
-                        ),
-                      ),
-                    );
-                    if (added == true) await _loadBatch();
-                  },
-                ),
-              ],
+              ),
             ),
           ],
         ),

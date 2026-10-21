@@ -104,6 +104,13 @@ class _MonthlyFeeGeneratorDialogState extends State<MonthlyFeeGeneratorDialog> {
     return '${_monthFullNames[index]} $year';
   }
 
+  String _formatDayLabel(int day) {
+    if (day == 1) return '1st of month';
+    if (day == 2) return '2nd of month';
+    if (day == 3) return '3rd of month';
+    return '${day}th of month';
+  }
+
   int _calculateTotalPaise() {
     final monthlyPaise = _parsePaise(_monthlyAmountController.text);
     final count = _selectedMonths.where((m) => m).length;
@@ -299,14 +306,15 @@ class _MonthlyFeeGeneratorDialogState extends State<MonthlyFeeGeneratorDialog> {
                 const SizedBox(height: 8),
                 Wrap(
                   spacing: 8,
+                  runSpacing: 8,
                   children: [1, 5, 10, 15, 20].map((day) {
                     final isSelected = _dueDay == day;
                     return ChoiceChip(
-                      label: Text('${day}th of month'),
+                      label: Text(_formatDayLabel(day)),
                       selected: isSelected,
                       selectedColor: AppColors.brand,
                       labelStyle: TextStyle(
-                        fontSize: 12.5,
+                        fontSize: 12,
                         fontWeight: FontWeight.w700,
                         color: isSelected
                             ? Colors.white
@@ -330,16 +338,20 @@ class _MonthlyFeeGeneratorDialogState extends State<MonthlyFeeGeneratorDialog> {
 
                 // Academic Months Selection
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text(
-                      'Session Months ($selectedCount of 12 selected)',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        fontWeight: FontWeight.w700,
-                        color: AppColors.textPrimary,
+                    Expanded(
+                      child: Text(
+                        'Session Months ($selectedCount of 12 selected)',
+                        style: const TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w700,
+                          color: AppColors.textPrimary,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ),
+                    const SizedBox(width: 8),
                     TextButton(
                       onPressed: () {
                         setState(() {
@@ -352,6 +364,7 @@ class _MonthlyFeeGeneratorDialogState extends State<MonthlyFeeGeneratorDialog> {
                       style: TextButton.styleFrom(
                         visualDensity: VisualDensity.compact,
                         foregroundColor: AppColors.brand,
+                        padding: const EdgeInsets.symmetric(horizontal: 4),
                       ),
                       child: Text(
                         _selectedMonths.every((m) => m)
@@ -365,38 +378,58 @@ class _MonthlyFeeGeneratorDialogState extends State<MonthlyFeeGeneratorDialog> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 6),
-                Wrap(
-                  spacing: 6,
-                  runSpacing: 6,
-                  children: List.generate(12, (index) {
-                    final isSelected = _selectedMonths[index];
-                    return FilterChip(
-                      label: Text(_monthLabels[index]),
-                      selected: isSelected,
-                      selectedColor: AppColors.brandLight,
-                      checkmarkColor: AppColors.brand,
-                      labelStyle: TextStyle(
-                        fontSize: 12,
-                        fontWeight: FontWeight.w700,
-                        color: isSelected
-                            ? AppColors.brand
-                            : AppColors.textSecondary,
-                      ),
-                      onSelected: (val) {
-                        setState(() => _selectedMonths[index] = val);
-                      },
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
-                        side: BorderSide(
-                          color: isSelected
-                              ? AppColors.brandMid
-                              : AppColors.divider,
-                        ),
-                      ),
-                      backgroundColor: AppColors.surfaceSubtle,
+                const SizedBox(height: 8),
+                LayoutBuilder(
+                  builder: (context, constraints) {
+                    final itemWidth =
+                        ((constraints.maxWidth - (3 * 8)) / 4).floorToDouble();
+                    return Wrap(
+                      spacing: 8,
+                      runSpacing: 8,
+                      children: List.generate(12, (index) {
+                        final isSelected = _selectedMonths[index];
+                        return SizedBox(
+                          width: itemWidth,
+                          height: 38,
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(9),
+                            onTap: () {
+                              setState(() =>
+                                  _selectedMonths[index] = !_selectedMonths[index]);
+                            },
+                            child: AnimatedContainer(
+                              duration: const Duration(milliseconds: 150),
+                              alignment: Alignment.center,
+                              decoration: BoxDecoration(
+                                color: isSelected
+                                    ? AppColors.brandLight
+                                    : AppColors.surfaceSubtle,
+                                borderRadius: BorderRadius.circular(9),
+                                border: Border.all(
+                                  color: isSelected
+                                      ? AppColors.brand
+                                      : AppColors.divider,
+                                  width: isSelected ? 1.5 : 1,
+                                ),
+                              ),
+                              child: Text(
+                                _monthLabels[index],
+                                style: TextStyle(
+                                  fontSize: 12.5,
+                                  fontWeight: isSelected
+                                      ? FontWeight.w700
+                                      : FontWeight.w600,
+                                  color: isSelected
+                                      ? AppColors.brand
+                                      : AppColors.textSecondary,
+                                ),
+                              ),
+                            ),
+                          ),
+                        );
+                      }),
                     );
-                  }),
+                  },
                 ),
 
                 const SizedBox(height: 20),
@@ -513,56 +546,73 @@ class _MonthlyFeeGeneratorDialogState extends State<MonthlyFeeGeneratorDialog> {
 
                 // Action Buttons
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.end,
                   children: [
-                    TextButton(
-                      onPressed: _isGenerating
-                          ? null
-                          : () => Navigator.pop(context),
-                      child: const Text('Cancel'),
-                    ),
-                    const SizedBox(width: 10),
-                    Container(
-                      decoration: BoxDecoration(
-                        gradient: AppColors.brandGradient,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: AppColors.brandGlow,
-                      ),
-                      child: ElevatedButton.icon(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: Colors.transparent,
-                          shadowColor: Colors.transparent,
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 20,
-                            vertical: 12,
-                          ),
+                    Expanded(
+                      flex: 2,
+                      child: OutlinedButton(
+                        onPressed: _isGenerating
+                            ? null
+                            : () => Navigator.pop(context),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(color: AppColors.divider),
+                          padding: const EdgeInsets.symmetric(vertical: 12),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
                           ),
                         ),
-                        onPressed: _isGenerating ? null : _generateSchedule,
-                        icon: _isGenerating
-                            ? const SizedBox(
-                                width: 16,
-                                height: 16,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
+                        child: const Text(
+                          'Cancel',
+                          style: TextStyle(
+                            color: AppColors.textSecondary,
+                            fontWeight: FontWeight.w600,
+                            fontSize: 13,
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      flex: 3,
+                      child: Container(
+                        decoration: BoxDecoration(
+                          gradient: AppColors.brandGradient,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: AppColors.brandGlow,
+                        ),
+                        child: ElevatedButton.icon(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.transparent,
+                            shadowColor: Colors.transparent,
+                            padding: const EdgeInsets.symmetric(vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                          ),
+                          onPressed: _isGenerating ? null : _generateSchedule,
+                          icon: _isGenerating
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.white,
+                                  ),
+                                )
+                              : const Icon(
+                                  Icons.bolt_rounded,
+                                  size: 18,
                                   color: Colors.white,
                                 ),
-                              )
-                            : const Icon(
-                                Icons.bolt_rounded,
-                                size: 18,
-                                color: Colors.white,
-                              ),
-                        label: Text(
-                          _isGenerating
-                              ? 'Generating...'
-                              : 'Generate $selectedCount Installments',
-                          style: const TextStyle(
-                            color: Colors.white,
-                            fontWeight: FontWeight.w700,
-                            fontSize: 13.5,
+                          label: Text(
+                            _isGenerating
+                                ? 'Generating...'
+                                : 'Generate ($selectedCount)',
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 13,
+                            ),
+                            overflow: TextOverflow.ellipsis,
                           ),
                         ),
                       ),
