@@ -345,43 +345,100 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                     const SizedBox(height: 16),
                   ] else ...[
                     Container(
-                      padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
                         color: AppColors.surface,
-                        borderRadius: BorderRadius.circular(10),
+                        borderRadius: BorderRadius.circular(14),
                         border: Border.all(color: AppColors.divider),
+                        boxShadow: AppColors.cardShadow,
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            _selectedCharge?.payerName ?? 'Student',
-                            style: const TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: 14,
-                              color: AppColors.textPrimary,
-                            ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            _selectedCharge?.title ?? 'Fee Installment',
-                            style: const TextStyle(
-                              fontSize: 13,
-                              color: AppColors.textSecondary,
-                            ),
-                          ),
-                          if (_selectedCharge != null) ...[
-                            const SizedBox(height: 4),
-                            Text(
-                              'Outstanding Due: ${CurrencyFormatter.formatPaise(_selectedCharge!.outstandingPaise)}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.overdueRed,
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(14),
+                        child: IntrinsicHeight(
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.stretch,
+                            children: [
+                              Container(
+                                width: 4,
+                                decoration: const BoxDecoration(
+                                  gradient: AppColors.brandGradient,
+                                ),
                               ),
-                            ),
-                          ],
-                        ],
+                              Expanded(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(14),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        children: [
+                                          Container(
+                                            padding: const EdgeInsets.all(6),
+                                            decoration: BoxDecoration(
+                                              color: AppColors.brandLight,
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: const Icon(
+                                              Icons.school_rounded,
+                                              size: 14,
+                                              color: AppColors.brand,
+                                            ),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          Expanded(
+                                            child: Text(
+                                              _selectedCharge?.payerName ??
+                                                  'Student',
+                                              style: const TextStyle(
+                                                fontWeight: FontWeight.w700,
+                                                fontSize: 14.5,
+                                                color: AppColors.textPrimary,
+                                              ),
+                                              overflow: TextOverflow.ellipsis,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      const SizedBox(height: 6),
+                                      Text(
+                                        _selectedCharge?.title ??
+                                            'Fee Installment',
+                                        style: const TextStyle(
+                                          fontSize: 13,
+                                          color: AppColors.textSecondary,
+                                          fontWeight: FontWeight.w500,
+                                        ),
+                                      ),
+                                      if (_selectedCharge != null) ...[
+                                        const SizedBox(height: 8),
+                                        Container(
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                            vertical: 3,
+                                          ),
+                                          decoration: BoxDecoration(
+                                            color: AppColors.overdueRedBg,
+                                            borderRadius:
+                                                BorderRadius.circular(6),
+                                          ),
+                                          child: Text(
+                                            'Due: ${CurrencyFormatter.formatPaise(_selectedCharge!.outstandingPaise)}',
+                                            style: const TextStyle(
+                                              fontSize: 11.5,
+                                              fontWeight: FontWeight.w700,
+                                              color: AppColors.overdueRed,
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
                     ),
                     const SizedBox(height: 16),
@@ -456,23 +513,47 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                   if (isEdit) ...[
                     const SizedBox(height: 20),
                     Container(
-                      padding: const EdgeInsets.all(12),
+                      padding: const EdgeInsets.all(14),
                       decoration: BoxDecoration(
-                        color: AppColors.unpaidAmberBg.withValues(alpha: 0.4),
-                        borderRadius: BorderRadius.circular(10),
+                        color: const Color(0xFFFFF8E1),
+                        borderRadius: BorderRadius.circular(12),
                         border: Border.all(
-                          color: AppColors.unpaidAmber.withValues(alpha: 0.5),
+                          color: AppColors.unpaidAmber.withValues(alpha: 0.6),
                         ),
                       ),
-                      child: const Text(
-                        'Audit Trail Notice: Any edit to a committed payment is permanently recorded in the local correction history.',
-                        style: TextStyle(
-                          fontSize: 12,
-                          color: AppColors.unpaidAmber,
-                          fontWeight: FontWeight.w500,
-                        ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(6),
+                            decoration: BoxDecoration(
+                              color: AppColors.unpaidAmber.withValues(
+                                alpha: 0.15,
+                              ),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: const Icon(
+                              Icons.gavel_rounded,
+                              size: 14,
+                              color: AppColors.unpaidAmber,
+                            ),
+                          ),
+                          const SizedBox(width: 10),
+                          const Expanded(
+                            child: Text(
+                              'Audit Trail Notice: Any edit to a committed payment is permanently recorded in the local correction history.',
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                color: AppColors.unpaidAmber,
+                                fontWeight: FontWeight.w600,
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
+
                     const SizedBox(height: 12),
                     TextFormField(
                       controller: _reasonController,
@@ -488,35 +569,39 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
 
                   const SizedBox(height: 28),
 
-                  ElevatedButton(
-                    onPressed: _isSaving ? null : _submit,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: AppColors.brand,
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(10),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 52,
+                    child: ElevatedButton(
+                      onPressed: _isSaving ? null : _submit,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.brand,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        shadowColor: AppColors.brand.withValues(alpha: 0.45),
+                        elevation: 8,
                       ),
-                      elevation: 0,
+                      child: _isSaving
+                          ? const SizedBox(
+                              height: 20,
+                              width: 20,
+                              child: CircularProgressIndicator(
+                                color: Colors.white,
+                                strokeWidth: 2,
+                              ),
+                            )
+                          : Text(
+                              isEdit
+                                  ? 'Save Correction'
+                                  : 'Commit & View Receipt',
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
+                              ),
+                            ),
                     ),
-                    child: _isSaving
-                        ? const SizedBox(
-                            height: 20,
-                            width: 20,
-                            child: CircularProgressIndicator(
-                              color: Colors.white,
-                              strokeWidth: 2,
-                            ),
-                          )
-                        : Text(
-                            isEdit
-                                ? 'Save Correction'
-                                : 'Commit & View Receipt',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white,
-                            ),
-                          ),
                   ),
                 ],
               ),

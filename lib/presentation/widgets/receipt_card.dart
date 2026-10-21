@@ -38,62 +38,82 @@ class ReceiptCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          // Receipt Header
+          // ── Gradient Receipt Header ────────────────────────────────
           Container(
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-            decoration: const BoxDecoration(
-              color: AppColors.surfaceSubtle,
-              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
+            decoration: BoxDecoration(
+              gradient: AppColors.headerGradient,
+              borderRadius: const BorderRadius.vertical(
+                top: Radius.circular(16),
+              ),
             ),
             child: Column(
               children: [
                 if (payment.isEdited)
                   Container(
-                    margin: const EdgeInsets.only(bottom: 8),
+                    margin: const EdgeInsets.only(bottom: 10),
                     padding: const EdgeInsets.symmetric(
                       horizontal: 10,
                       vertical: 4,
                     ),
                     decoration: BoxDecoration(
-                      color: AppColors.unpaidAmberBg,
+                      color: Colors.red.withValues(alpha: 0.25),
                       borderRadius: BorderRadius.circular(6),
-                      border: Border.all(color: AppColors.unpaidAmber),
+                      border: Border.all(
+                        color: Colors.red.shade300.withValues(alpha: 0.6),
+                      ),
                     ),
                     child: const Text(
-                      'CORRECTED RECEIPT (Audited Entry)',
+                      'CORRECTED RECEIPT — AUDITED ENTRY',
                       style: TextStyle(
-                        color: AppColors.unpaidAmber,
-                        fontSize: 11,
-                        fontWeight: FontWeight.bold,
+                        color: Color(0xFFFFB3B3),
+                        fontSize: 10.5,
+                        fontWeight: FontWeight.w700,
+                        letterSpacing: 0.4,
                       ),
                     ),
                   ),
                 Text(
                   businessName.toUpperCase(),
                   style: const TextStyle(
-                    color: AppColors.textPrimary,
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    letterSpacing: 0.8,
+                    color: Colors.white,
+                    fontSize: 17,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: 1.0,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 4),
-                const Text(
+                Text(
                   'FEE PAYMENT RECEIPT',
                   style: TextStyle(
-                    color: AppColors.textSecondary,
-                    fontSize: 12,
+                    color: Colors.white.withValues(alpha: 0.65),
+                    fontSize: 11,
                     fontWeight: FontWeight.w500,
+                    letterSpacing: 1.2,
                   ),
                 ),
-                const SizedBox(height: 6),
-                Text(
-                  'Receipt #${payment.receiptNumber}',
-                  style: const TextStyle(
-                    color: AppColors.brand,
-                    fontSize: 14,
-                    fontWeight: FontWeight.bold,
+                const SizedBox(height: 10),
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 6,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withValues(alpha: 0.15),
+                    borderRadius: BorderRadius.circular(20),
+                    border: Border.all(
+                      color: Colors.white.withValues(alpha: 0.3),
+                    ),
+                  ),
+                  child: Text(
+                    'Receipt #${payment.receiptNumber}',
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 13,
+                      fontWeight: FontWeight.w800,
+                      letterSpacing: 0.3,
+                    ),
                   ),
                 ),
               ],
@@ -137,27 +157,40 @@ class ReceiptCard extends StatelessWidget {
                   child: Divider(color: AppColors.divider),
                 ),
 
-                // Amount Paid Banner
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    const Text(
-                      'AMOUNT PAID',
-                      style: TextStyle(
-                        color: AppColors.textPrimary,
-                        fontSize: 15,
-                        fontWeight: FontWeight.bold,
+                // ── Amount Paid Banner ────────────────────────────
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 14,
+                  ),
+                  decoration: BoxDecoration(
+                    color: AppColors.settledGreenBg,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: AppColors.settledGreen.withValues(alpha: 0.3)),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      const Text(
+                        'AMOUNT PAID',
+                        style: TextStyle(
+                          color: AppColors.settledGreen,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 0.6,
+                        ),
                       ),
-                    ),
-                    Text(
-                      CurrencyFormatter.formatPaise(payment.amountPaise),
-                      style: const TextStyle(
-                        color: AppColors.brand,
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
+                      Text(
+                        CurrencyFormatter.formatPaise(payment.amountPaise),
+                        style: const TextStyle(
+                          color: AppColors.settledGreen,
+                          fontSize: 24,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: -0.5,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
 
                 const SizedBox(height: 12),
@@ -244,7 +277,11 @@ class ReceiptCard extends StatelessWidget {
       children: [
         Text(
           label,
-          style: const TextStyle(color: AppColors.textSecondary, fontSize: 13),
+          style: const TextStyle(
+            color: AppColors.textTertiary,
+            fontSize: 12.5,
+            fontWeight: FontWeight.w500,
+          ),
         ),
         const SizedBox(width: 16),
         Flexible(
@@ -254,7 +291,7 @@ class ReceiptCard extends StatelessWidget {
             style: TextStyle(
               color: AppColors.textPrimary,
               fontSize: 14,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.w500,
+              fontWeight: isBold ? FontWeight.w800 : FontWeight.w600,
             ),
           ),
         ),

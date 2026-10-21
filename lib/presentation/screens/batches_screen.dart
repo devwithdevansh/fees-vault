@@ -3,7 +3,6 @@ import '../../core/constants/app_colors.dart';
 import '../../core/formatters/currency_formatter.dart';
 import '../../data/models/batch.dart';
 import '../controllers/vault_controller.dart';
-import '../widgets/app_card.dart';
 import 'batch_detail_screen.dart';
 import 'batch_form_screen.dart';
 
@@ -30,48 +29,84 @@ class _BatchesScreenState extends State<BatchesScreen> {
   void _showAcademicYearSelector() {
     showModalBottomSheet(
       context: context,
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
-      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
       builder: (ctx) {
-        return SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(vertical: 16),
+        return Container(
+          decoration: const BoxDecoration(
+            color: AppColors.surface,
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          child: SafeArea(
+            top: false,
             child: Column(
               mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const Padding(
-                  padding: EdgeInsets.symmetric(horizontal: 20, vertical: 8),
-                  child: Text(
-                    'Select Academic Year',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
+                const SizedBox(height: 12),
+                Container(
+                  width: 40,
+                  height: 4,
+                  decoration: BoxDecoration(
+                    color: AppColors.divider,
+                    borderRadius: BorderRadius.circular(2),
                   ),
                 ),
+                const SizedBox(height: 16),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 24),
+                  child: Row(
+                    children: [
+                      Text(
+                        'Academic Year',
+                        style: TextStyle(
+                          fontSize: 19,
+                          fontWeight: FontWeight.w800,
+                          color: AppColors.textPrimary,
+                          letterSpacing: -0.3,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                const SizedBox(height: 8),
                 const Divider(color: AppColors.divider),
                 ...widget.controller.academicYears.map((ay) {
                   final isSelected =
                       widget.controller.selectedAcademicYearFilter == ay.name;
                   return ListTile(
-                    leading: Icon(
-                      isSelected
-                          ? Icons.check_circle
-                          : Icons.radio_button_unchecked,
-                      color: isSelected
-                          ? AppColors.brand
-                          : AppColors.textSecondary,
+                    contentPadding: const EdgeInsets.symmetric(
+                      horizontal: 24,
+                      vertical: 4,
+                    ),
+                    leading: Container(
+                      width: 36,
+                      height: 36,
+                      decoration: BoxDecoration(
+                        color: isSelected
+                            ? AppColors.brandLight
+                            : AppColors.surfaceSubtle,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Icon(
+                        isSelected
+                            ? Icons.check_rounded
+                            : Icons.calendar_today_outlined,
+                        color: isSelected
+                            ? AppColors.brand
+                            : AppColors.textTertiary,
+                        size: 18,
+                      ),
                     ),
                     title: Text(
                       ay.name,
                       style: TextStyle(
                         fontWeight: isSelected
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        color: AppColors.textPrimary,
+                            ? FontWeight.w700
+                            : FontWeight.w500,
+                        color: isSelected
+                            ? AppColors.brand
+                            : AppColors.textPrimary,
+                        fontSize: 15,
                       ),
                     ),
                     trailing: ay.isCurrent
@@ -81,15 +116,15 @@ class _BatchesScreenState extends State<BatchesScreen> {
                               vertical: 3,
                             ),
                             decoration: BoxDecoration(
-                              color: AppColors.brandLight,
+                              gradient: AppColors.brandGradient,
                               borderRadius: BorderRadius.circular(6),
                             ),
                             child: const Text(
-                              'Current Year',
+                              'Current',
                               style: TextStyle(
                                 fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.brand,
+                                fontWeight: FontWeight.w700,
+                                color: Colors.white,
                               ),
                             ),
                           )
@@ -102,15 +137,29 @@ class _BatchesScreenState extends State<BatchesScreen> {
                 }),
                 const Divider(color: AppColors.divider),
                 ListTile(
-                  leading: const Icon(
-                    Icons.add_circle_outline,
-                    color: AppColors.brand,
+                  contentPadding: const EdgeInsets.symmetric(
+                    horizontal: 24,
+                    vertical: 4,
+                  ),
+                  leading: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: AppColors.brandLight,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: const Icon(
+                      Icons.add_rounded,
+                      color: AppColors.brand,
+                      size: 20,
+                    ),
                   ),
                   title: const Text(
                     'Add Academic Year',
                     style: TextStyle(
-                      fontWeight: FontWeight.w600,
+                      fontWeight: FontWeight.w700,
                       color: AppColors.brand,
+                      fontSize: 15,
                     ),
                   ),
                   onTap: () {
@@ -118,6 +167,7 @@ class _BatchesScreenState extends State<BatchesScreen> {
                     _showAddAcademicYearDialog();
                   },
                 ),
+                const SizedBox(height: 8),
               ],
             ),
           ),
@@ -212,35 +262,50 @@ class _BatchesScreenState extends State<BatchesScreen> {
         }).toList();
 
         return Scaffold(
+          // — Header
           appBar: AppBar(
-            title: const Text(
-              'Batches & Courses',
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
+            title: const Text('Batches & Courses'),
             actions: [
-              // Academic Year selector pill
               Padding(
                 padding: const EdgeInsets.only(right: 12),
-                child: ActionChip(
-                  avatar: const Icon(
-                    Icons.calendar_month,
-                    size: 16,
-                    color: AppColors.brand,
-                  ),
-                  label: Text(
-                    currentYear,
-                    style: const TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.brand,
+                child: GestureDetector(
+                  onTap: _showAcademicYearSelector,
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 12,
+                      vertical: 7,
+                    ),
+                    decoration: BoxDecoration(
+                      color: AppColors.brandLight,
+                      borderRadius: BorderRadius.circular(20),
+                      border: Border.all(color: AppColors.brandMid),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        const Icon(
+                          Icons.calendar_month_rounded,
+                          size: 14,
+                          color: AppColors.brand,
+                        ),
+                        const SizedBox(width: 5),
+                        Text(
+                          currentYear,
+                          style: const TextStyle(
+                            fontSize: 12.5,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.brand,
+                          ),
+                        ),
+                        const SizedBox(width: 3),
+                        const Icon(
+                          Icons.expand_more_rounded,
+                          size: 14,
+                          color: AppColors.brand,
+                        ),
+                      ],
                     ),
                   ),
-                  backgroundColor: AppColors.brandLight,
-                  side: BorderSide.none,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  onPressed: _showAcademicYearSelector,
                 ),
               ),
             ],
@@ -500,149 +565,226 @@ class _BatchesScreenState extends State<BatchesScreen> {
     final collectedRatio = batch.totalFeePaise > 0
         ? (batch.totalCollectedPaise / batch.totalFeePaise).clamp(0.0, 1.0)
         : 0.0;
+    final pct = (collectedRatio * 100).round();
+    final gradColors = AppColors.avatarGradientFor(batch.name);
 
     return Padding(
       padding: const EdgeInsets.only(bottom: 12),
-      child: AppCard(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(
-              builder: (_) => BatchDetailScreen(
-                batchId: batch.id,
-                controller: widget.controller,
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(18),
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BatchDetailScreen(
+                  batchId: batch.id,
+                  controller: widget.controller,
+                ),
               ),
+            );
+          },
+          child: Ink(
+            decoration: BoxDecoration(
+              color: AppColors.surface,
+              borderRadius: BorderRadius.circular(18),
+              border: Border.all(color: AppColors.divider),
+              boxShadow: AppColors.cardShadow,
             ),
-          );
-        },
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+            child: Padding(
+              padding: const EdgeInsets.all(18),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
                     children: [
-                      Text(
-                        batch.name,
-                        style: const TextStyle(
-                          fontSize: 16,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.textPrimary,
+                      // Batch icon avatar
+                      Container(
+                        width: 46,
+                        height: 46,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: gradColors,
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: Text(
+                          batch.name.isNotEmpty
+                              ? batch.name[0].toUpperCase()
+                              : 'B',
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.w800,
+                            fontSize: 18,
+                          ),
                         ),
                       ),
-                      if (batch.notes != null && batch.notes!.isNotEmpty) ...[
-                        const SizedBox(height: 3),
-                        Text(
-                          batch.notes!,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            color: AppColors.textSecondary,
+                      const SizedBox(width: 14),
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              batch.name,
+                              style: const TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.textPrimary,
+                                letterSpacing: -0.2,
+                              ),
+                            ),
+                            if (batch.notes != null &&
+                                batch.notes!.isNotEmpty) ...[
+                              const SizedBox(height: 3),
+                              Text(
+                                batch.notes!,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                                style: const TextStyle(
+                                  fontSize: 12.5,
+                                  color: AppColors.textTertiary,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
+                      ),
+                      const Icon(
+                        Icons.chevron_right_rounded,
+                        color: AppColors.textMuted,
+                        size: 22,
+                      ),
+                    ],
+                  ),
+
+                  const SizedBox(height: 16),
+                  const Divider(color: AppColors.divider, height: 1),
+                  const SizedBox(height: 14),
+
+                  // Stats row
+                  Row(
+                    children: [
+                      _BatchStat(
+                        icon: Icons.people_outline_rounded,
+                        label:
+                            '${batch.studentCount} student${batch.studentCount == 1 ? '' : 's'}',
+                      ),
+                      const SizedBox(width: 16),
+                      _BatchStat(
+                        icon: Icons.receipt_long_outlined,
+                        label: batch.feeTemplates.isNotEmpty
+                            ? '${CurrencyFormatter.formatPaise(batch.standardBatchFeePaise)} / student'
+                            : 'No fee setup',
+                        color: batch.feeTemplates.isNotEmpty
+                            ? AppColors.textSecondary
+                            : AppColors.textMuted,
+                      ),
+                    ],
+                  ),
+
+                  // Progress bar
+                  if (batch.totalFeePaise > 0) ...[
+                    const SizedBox(height: 14),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
+                                children: [
+                                  Text(
+                                    'Collected ${CurrencyFormatter.formatPaise(batch.totalCollectedPaise)}',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.settledGreen,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                  Text(
+                                    '$pct%',
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: AppColors.textTertiary,
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 6),
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(4),
+                                child: LinearProgressIndicator(
+                                  value: collectedRatio,
+                                  backgroundColor: AppColors.divider,
+                                  valueColor:
+                                      AlwaysStoppedAnimation<Color>(
+                                    pct >= 100
+                                        ? AppColors.settledGreen
+                                        : pct >= 50
+                                            ? AppColors.brand
+                                            : AppColors.unpaidAmber,
+                                  ),
+                                  minHeight: 6,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
-                    ],
-                  ),
-                ),
-                const Icon(Icons.chevron_right, color: AppColors.textSecondary),
-              ],
-            ),
-            const Divider(height: 20, color: AppColors.divider),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.people_outline,
-                      size: 16,
-                      color: AppColors.textSecondary,
                     ),
-                    const SizedBox(width: 4),
-                    Text(
-                      '${batch.studentCount} student${batch.studentCount == 1 ? '' : 's'}',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w500,
+                    if (batch.totalOutstandingPaise > 0)
+                      Padding(
+                        padding: const EdgeInsets.only(top: 8),
+                        child: Text(
+                          'Outstanding: ${CurrencyFormatter.formatPaise(batch.totalOutstandingPaise)}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: AppColors.unpaidAmber,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
                       ),
-                    ),
                   ],
-                ),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.receipt_long_outlined,
-                      size: 16,
-                      color: AppColors.textSecondary,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      batch.feeTemplates.isNotEmpty
-                          ? '${CurrencyFormatter.formatPaise(batch.standardBatchFeePaise)} / student'
-                          : 'No fee setup yet',
-                      style: const TextStyle(
-                        fontSize: 13,
-                        color: AppColors.textPrimary,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-            if (batch.totalFeePaise > 0) ...[
-              const SizedBox(height: 12),
-              ClipRRect(
-                borderRadius: BorderRadius.circular(4),
-                child: LinearProgressIndicator(
-                  value: collectedRatio,
-                  backgroundColor: AppColors.divider,
-                  valueColor: const AlwaysStoppedAnimation<Color>(
-                    AppColors.settledGreen,
-                  ),
-                  minHeight: 6,
-                ),
-              ),
-              const SizedBox(height: 8),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text(
-                    'Collected: ${CurrencyFormatter.formatPaise(batch.totalCollectedPaise)}',
-                    style: const TextStyle(
-                      fontSize: 12,
-                      color: AppColors.settledGreen,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                  if (batch.totalOutstandingPaise > 0)
-                    Text(
-                      'Pending: ${CurrencyFormatter.formatPaise(batch.totalOutstandingPaise)}',
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: AppColors.overdueRed,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    )
-                  else
-                    const Text(
-                      'All Settled',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: AppColors.settledGreen,
-                        fontWeight: FontWeight.w600,
-                      ),
-                    ),
                 ],
               ),
-            ],
-          ],
+            ),
+          ),
         ),
       ),
+    );
+  }
+}
+
+class _BatchStat extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final Color? color;
+  const _BatchStat({required this.icon, required this.label, this.color});
+
+  @override
+  Widget build(BuildContext context) {
+    final c = color ?? AppColors.textSecondary;
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: AppColors.textMuted),
+        const SizedBox(width: 4),
+        Text(
+          label,
+          style: TextStyle(
+            fontSize: 12.5,
+            color: c,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+      ],
     );
   }
 }

@@ -211,20 +211,101 @@ class _FeesVaultAppState extends State<FeesVaultApp>
           surface: AppColors.surface,
           onSurface: AppColors.textPrimary,
         ),
+        // Inter-style via system sans-serif — crisp, professional
         fontFamily: 'Roboto',
+        textTheme: const TextTheme(
+          // Display — hero numbers & page titles
+          displayLarge: TextStyle(
+            fontSize: 36,
+            fontWeight: FontWeight.w800,
+            color: AppColors.textPrimary,
+            letterSpacing: -1.0,
+            height: 1.1,
+          ),
+          displayMedium: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.w800,
+            color: AppColors.textPrimary,
+            letterSpacing: -0.8,
+            height: 1.15,
+          ),
+          displaySmall: TextStyle(
+            fontSize: 22,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+            letterSpacing: -0.5,
+          ),
+          // Headlines — section titles
+          headlineLarge: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+            letterSpacing: -0.3,
+          ),
+          headlineMedium: TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textPrimary,
+            letterSpacing: -0.2,
+          ),
+          headlineSmall: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+          ),
+          // Body
+          bodyLarge: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w400,
+            color: AppColors.textSecondary,
+            height: 1.5,
+          ),
+          bodyMedium: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w400,
+            color: AppColors.textSecondary,
+            height: 1.5,
+          ),
+          bodySmall: TextStyle(
+            fontSize: 12,
+            color: AppColors.textTertiary,
+            height: 1.4,
+          ),
+          // Labels
+          labelLarge: TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textPrimary,
+            letterSpacing: 0.1,
+          ),
+          labelMedium: TextStyle(
+            fontSize: 11,
+            fontWeight: FontWeight.w700,
+            color: AppColors.textTertiary,
+            letterSpacing: 0.6,
+          ),
+          labelSmall: TextStyle(
+            fontSize: 10,
+            fontWeight: FontWeight.w600,
+            color: AppColors.textMuted,
+            letterSpacing: 0.5,
+          ),
+        ),
         appBarTheme: const AppBarTheme(
           backgroundColor: AppColors.surface,
           foregroundColor: AppColors.textPrimary,
           elevation: 0,
-          scrolledUnderElevation: 0,
+          scrolledUnderElevation: 0.5,
+          shadowColor: AppColors.divider,
           centerTitle: false,
           titleTextStyle: TextStyle(
             color: AppColors.textPrimary,
             fontWeight: FontWeight.w700,
-            fontSize: 20,
+            fontSize: 18,
+            letterSpacing: -0.3,
           ),
         ),
-        cardTheme: CardThemeData(
+        cardTheme: const CardThemeData(
           color: AppColors.surface,
           elevation: 0,
           shape: RoundedRectangleBorder(
@@ -236,62 +317,129 @@ class _FeesVaultAppState extends State<FeesVaultApp>
         inputDecorationTheme: InputDecorationTheme(
           filled: true,
           fillColor: AppColors.surface,
-          contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 16,
+            vertical: 15,
+          ),
           border: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12)),
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
             borderSide: BorderSide(color: AppColors.divider),
           ),
           enabledBorder: OutlineInputBorder(
-            borderRadius: BorderRadius.all(Radius.circular(12)),
+            borderRadius: const BorderRadius.all(Radius.circular(12)),
             borderSide: BorderSide(color: AppColors.divider),
           ),
-          focusedBorder: OutlineInputBorder(
+          focusedBorder: const OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(12)),
             borderSide: BorderSide(color: AppColors.brand, width: 2),
           ),
-          errorBorder: OutlineInputBorder(
+          errorBorder: const OutlineInputBorder(
             borderRadius: BorderRadius.all(Radius.circular(12)),
             borderSide: BorderSide(color: AppColors.overdueRed),
           ),
-          labelStyle: TextStyle(color: AppColors.textSecondary, fontSize: 14),
-          hintStyle: TextStyle(color: AppColors.textTertiary, fontSize: 14),
+          focusedErrorBorder: const OutlineInputBorder(
+            borderRadius: BorderRadius.all(Radius.circular(12)),
+            borderSide: BorderSide(color: AppColors.overdueRed, width: 2),
+          ),
+          labelStyle: const TextStyle(
+            color: AppColors.textTertiary,
+            fontSize: 14,
+            fontWeight: FontWeight.w500,
+          ),
+          hintStyle: const TextStyle(
+            color: AppColors.textMuted,
+            fontSize: 14,
+          ),
+          floatingLabelStyle: const TextStyle(
+            color: AppColors.brand,
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ElevatedButton.styleFrom(
             backgroundColor: AppColors.brand,
             foregroundColor: Colors.white,
             elevation: 0,
-            padding: EdgeInsets.symmetric(horizontal: 24, vertical: 14),
-            shape: RoundedRectangleBorder(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 15),
+            shape: const RoundedRectangleBorder(
               borderRadius: BorderRadius.all(Radius.circular(12)),
             ),
-            textStyle: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
+            textStyle: const TextStyle(
+              fontSize: 15,
+              fontWeight: FontWeight.w600,
+              letterSpacing: 0.1,
+            ),
+          ),
+        ),
+        outlinedButtonTheme: OutlinedButtonThemeData(
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.brand,
+            side: const BorderSide(color: AppColors.brandMid, width: 1.5),
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 13),
+            shape: const RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.circular(12)),
+            ),
+            textStyle: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+            ),
           ),
         ),
         floatingActionButtonTheme: const FloatingActionButtonThemeData(
           backgroundColor: AppColors.brand,
           foregroundColor: Colors.white,
-          elevation: 4,
+          elevation: 0,
+          shape: CircleBorder(),
         ),
         chipTheme: ChipThemeData(
           backgroundColor: AppColors.surfaceSubtle,
           selectedColor: AppColors.brandLight,
           labelStyle: const TextStyle(
-            fontSize: 13,
+            fontSize: 12,
             fontWeight: FontWeight.w500,
+            color: AppColors.textSecondary,
           ),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.all(Radius.circular(8)),
+            borderRadius: const BorderRadius.all(Radius.circular(8)),
+            side: BorderSide(color: AppColors.divider),
           ),
-          side: BorderSide.none,
+          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
         ),
         dividerTheme: const DividerThemeData(
           color: AppColors.divider,
           thickness: 1,
           space: 1,
         ),
-        snackBarTheme: const SnackBarThemeData(
+        listTileTheme: const ListTileThemeData(
+          contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 4),
+          titleTextStyle: TextStyle(
+            fontSize: 15,
+            fontWeight: FontWeight.w500,
+            color: AppColors.textPrimary,
+          ),
+          subtitleTextStyle: TextStyle(
+            fontSize: 13,
+            color: AppColors.textTertiary,
+          ),
+        ),
+        snackBarTheme: SnackBarThemeData(
           behavior: SnackBarBehavior.floating,
+          backgroundColor: AppColors.textPrimary,
+          contentTextStyle: const TextStyle(
+            color: Colors.white,
+            fontSize: 14,
+          ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        bottomSheetTheme: const BottomSheetThemeData(
+          backgroundColor: AppColors.surface,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          ),
+          elevation: 0,
         ),
       ),
       home: ListenableBuilder(

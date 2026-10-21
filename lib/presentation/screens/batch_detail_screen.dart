@@ -7,6 +7,8 @@ import '../../data/models/charge.dart';
 import '../../data/models/payer.dart';
 import '../controllers/vault_controller.dart';
 import '../widgets/app_card.dart';
+import '../widgets/monthly_fee_generator_dialog.dart';
+import '../widgets/monthly_fees_register_view.dart';
 import '../widgets/status_badge.dart';
 import 'batch_fee_template_form_screen.dart';
 import 'batch_form_screen.dart';
@@ -40,8 +42,35 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
   @override
   void initState() {
     super.initState();
-    _tabController = TabController(length: 2, vsync: this);
+    _tabController = TabController(length: 3, vsync: this);
     _loadBatch();
+  }
+
+  Future<void> _openMonthlyFeeGenerator() async {
+    if (_batch == null) return;
+    final generatedCount = await showDialog<int>(
+      context: context,
+      builder: (ctx) => MonthlyFeeGeneratorDialog(
+        controller: widget.controller,
+        batchId: _batch!.id,
+        batchName: _batch!.name,
+        academicYear: _batch!.academicYear,
+      ),
+    );
+
+    if (generatedCount != null && generatedCount > 0) {
+      await _loadBatch();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '✓ Generated $generatedCount monthly fee installments!',
+            ),
+            backgroundColor: AppColors.settledGreen,
+          ),
+        );
+      }
+    }
   }
 
   @override
@@ -284,15 +313,20 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
       body: SafeArea(
         child: Column(
           children: [
-            // Batch Overview Header Card
+            // ── Batch Hero Header Card ─────────────────────────────────
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-              child: AppCard(
+              padding: const EdgeInsets.fromLTRB(16, 12, 16, 8),
+              child: Container(
+                decoration: BoxDecoration(
+                  gradient: AppColors.headerGradient,
+                  borderRadius: BorderRadius.circular(20),
+                  boxShadow: AppColors.elevatedShadow,
+                ),
+                padding: const EdgeInsets.all(18),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Container(
                           padding: const EdgeInsets.symmetric(
@@ -300,24 +334,45 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
                             vertical: 4,
                           ),
                           decoration: BoxDecoration(
-                            color: AppColors.brandLight,
-                            borderRadius: BorderRadius.circular(6),
+                            color: Colors.white.withValues(alpha: 0.2),
+                            borderRadius: BorderRadius.circular(7),
                           ),
                           child: Text(
                             b.academicYear,
                             style: const TextStyle(
-                              fontSize: 12,
-                              fontWeight: FontWeight.w600,
-                              color: AppColors.brand,
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.white,
                             ),
                           ),
                         ),
-                        Text(
-                          '${_students.length} Student(s)',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.w600,
-                            color: AppColors.textPrimary,
+                        const Spacer(),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 10,
+                            vertical: 4,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            borderRadius: BorderRadius.circular(7),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.people_rounded,
+                                size: 13,
+                                color: Colors.white,
+                              ),
+                              const SizedBox(width: 4),
+                              Text(
+                                '${_students.length} students',
+                                style: const TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.w700,
+                                  color: Colors.white,
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                       ],
@@ -326,41 +381,58 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
                       const SizedBox(height: 8),
                       Text(
                         b.notes!,
-                        style: const TextStyle(
-                          fontSize: 13,
-                          color: AppColors.textSecondary,
+                        style: TextStyle(
+                          fontSize: 12.5,
+                          color: Colors.white.withValues(alpha: 0.75),
+                          height: 1.4,
                         ),
+                        maxLines: 2,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
-                    const Divider(height: 24, color: AppColors.divider),
+                    const SizedBox(height: 14),
+                    const Divider(color: Colors.white24, height: 1),
+                    const SizedBox(height: 14),
                     Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        _metricCol(
-                          'Standard Fee',
-                          CurrencyFormatter.formatPaise(
-                            b.standardBatchFeePaise,
+                        Expanded(
+                          child: _metricCol(
+                            'Standard Fee',
+                            CurrencyFormatter.formatPaise(
+                              b.standardBatchFeePaise,
+                            ),
+                            Colors.white,
                           ),
-                          AppColors.brand,
                         ),
-                        _metricCol(
-                          'Total Billed',
-                          CurrencyFormatter.formatPaise(b.totalFeePaise),
-                          AppColors.textPrimary,
-                        ),
-                        _metricCol(
-                          'Collected',
-                          CurrencyFormatter.formatPaise(b.totalCollectedPaise),
-                          AppColors.settledGreen,
-                        ),
-                        _metricCol(
-                          'Pending',
-                          CurrencyFormatter.formatPaise(
-                            b.totalOutstandingPaise,
+                        Container(width: 1, height: 36, color: Colors.white24),
+                        Expanded(
+                          child: _metricCol(
+                            'Total Billed',
+                            CurrencyFormatter.formatPaise(b.totalFeePaise),
+                            Colors.white.withValues(alpha: 0.85),
                           ),
-                          b.totalOutstandingPaise > 0
-                              ? AppColors.overdueRed
-                              : AppColors.textSecondary,
+                        ),
+                        Container(width: 1, height: 36, color: Colors.white24),
+                        Expanded(
+                          child: _metricCol(
+                            'Collected',
+                            CurrencyFormatter.formatPaise(
+                              b.totalCollectedPaise,
+                            ),
+                            Colors.greenAccent.shade100,
+                          ),
+                        ),
+                        Container(width: 1, height: 36, color: Colors.white24),
+                        Expanded(
+                          child: _metricCol(
+                            'Pending',
+                            CurrencyFormatter.formatPaise(
+                              b.totalOutstandingPaise,
+                            ),
+                            b.totalOutstandingPaise > 0
+                                ? Colors.red.shade200
+                                : Colors.greenAccent.shade100,
+                          ),
                         ),
                       ],
                     ),
@@ -378,16 +450,20 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
                 labelColor: AppColors.brand,
                 unselectedLabelColor: AppColors.textSecondary,
                 tabs: [
+                  const Tab(
+                    icon: Icon(Icons.menu_book_rounded, size: 20),
+                    text: 'Fees Register',
+                  ),
+                  Tab(
+                    icon: const Icon(Icons.people_outline, size: 20),
+                    text: 'Students (${_students.length})',
+                  ),
                   Tab(
                     icon: const Icon(
                       Icons.account_balance_wallet_outlined,
                       size: 20,
                     ),
                     text: 'Fee Structure (${b.feeTemplates.length})',
-                  ),
-                  Tab(
-                    icon: const Icon(Icons.people_outline, size: 20),
-                    text: 'Students (${_students.length})',
                   ),
                 ],
               ),
@@ -398,50 +474,76 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  // Tab 1: Fee Structure
-                  _buildFeeStructureTab(b),
+                  // Tab 1: Authentic Indian Month-Wise Fees Register & Quick Collect
+                  MonthlyFeesRegisterView(
+                    controller: widget.controller,
+                    batch: b,
+                    students: _students,
+                    onDataChanged: _loadBatch,
+                  ),
 
                   // Tab 2: Enrolled Students
                   _buildStudentsTab(b),
+
+                  // Tab 3: Fee Structure
+                  _buildFeeStructureTab(b),
                 ],
               ),
             ),
 
-            // Bottom Action Bar: One-tap Charge All Students
+            // ── Bottom Action Bar: One-tap Charge All ─────────────────
             if (b.feeTemplates.isNotEmpty && _students.isNotEmpty)
               Container(
-                padding: const EdgeInsets.all(16),
-                decoration: const BoxDecoration(
+                padding: const EdgeInsets.fromLTRB(16, 12, 16, 16),
+                decoration: BoxDecoration(
                   color: AppColors.surface,
-                  border: Border(top: BorderSide(color: AppColors.divider)),
-                ),
-                child: ElevatedButton.icon(
-                  onPressed: _isChargingAll ? null : _chargeAllStudents,
-                  icon: _isChargingAll
-                      ? const SizedBox(
-                          width: 18,
-                          height: 18,
-                          child: CircularProgressIndicator(
-                            color: Colors.white,
-                            strokeWidth: 2,
-                          ),
-                        )
-                      : const Icon(Icons.bolt, color: Colors.white),
-                  label: Text(
-                    _isChargingAll
-                        ? 'Charging Students...'
-                        : '⚡ Charge All ${_students.length} Students',
-                    style: const TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                      color: Colors.white,
-                    ),
+                  border: const Border(
+                    top: BorderSide(color: AppColors.divider),
                   ),
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: AppColors.brand,
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: 0.04),
+                      blurRadius: 8,
+                      offset: const Offset(0, -2),
+                    ),
+                  ],
+                ),
+                child: SizedBox(
+                  width: double.infinity,
+                  height: 52,
+                  child: ElevatedButton.icon(
+                    onPressed: _isChargingAll ? null : _chargeAllStudents,
+                    icon: _isChargingAll
+                        ? const SizedBox(
+                            width: 18,
+                            height: 18,
+                            child: CircularProgressIndicator(
+                              color: Colors.white,
+                              strokeWidth: 2,
+                            ),
+                          )
+                        : const Icon(
+                            Icons.bolt_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                    label: Text(
+                      _isChargingAll
+                          ? 'Charging Students…'
+                          : 'Charge All ${_students.length} Students',
+                      style: const TextStyle(
+                        fontSize: 15,
+                        fontWeight: FontWeight.w700,
+                        color: Colors.white,
+                      ),
+                    ),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: AppColors.brand,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      shadowColor: AppColors.brand.withValues(alpha: 0.45),
+                      elevation: 8,
                     ),
                   ),
                 ),
@@ -453,23 +555,34 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
   }
 
   Widget _metricCol(String label, String value, Color color) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(fontSize: 11, color: AppColors.textSecondary),
-        ),
-        const SizedBox(height: 2),
-        Text(
-          value,
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            color: color,
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 6),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text(
+            value,
+            style: TextStyle(
+              fontSize: 13.5,
+              fontWeight: FontWeight.w800,
+              color: color,
+              letterSpacing: -0.2,
+            ),
+            textAlign: TextAlign.center,
+            overflow: TextOverflow.ellipsis,
           ),
-        ),
-      ],
+          const SizedBox(height: 3),
+          Text(
+            label,
+            style: TextStyle(
+              fontSize: 10.5,
+              color: Colors.white.withValues(alpha: 0.6),
+              fontWeight: FontWeight.w500,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ],
+      ),
     );
   }
 
@@ -481,28 +594,74 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.receipt_outlined,
-                size: 48,
-                color: AppColors.textSecondary,
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: const BoxDecoration(
+                  color: AppColors.brandLight,
+                  shape: BoxShape.circle,
+                ),
+                child: const Icon(
+                  Icons.receipt_long_rounded,
+                  size: 40,
+                  color: AppColors.brand,
+                ),
               ),
-              const SizedBox(height: 12),
+              const SizedBox(height: 14),
               const Text(
-                'No Fee Installments Defined',
+                'No Fee Schedule Configured',
                 style: TextStyle(
-                  fontSize: 16,
-                  fontWeight: FontWeight.w600,
+                  fontSize: 17,
+                  fontWeight: FontWeight.w800,
                   color: AppColors.textPrimary,
                 ),
               ),
-              const SizedBox(height: 6),
+              const SizedBox(height: 8),
               const Text(
-                'Define standard installments once (e.g. Admission Fee, Term 1 Tuition). Then charge all students with one tap.',
+                'Setup monthly tuition fees for the entire academic session in 1-tap, or add custom installments manually.',
                 textAlign: TextAlign.center,
-                style: TextStyle(fontSize: 13, color: AppColors.textSecondary),
+                style: TextStyle(
+                  fontSize: 13,
+                  color: AppColors.textTertiary,
+                  height: 1.5,
+                ),
               ),
-              const SizedBox(height: 16),
-              ElevatedButton.icon(
+              const SizedBox(height: 22),
+              // 1-Tap Generator Button
+              Container(
+                decoration: BoxDecoration(
+                  gradient: AppColors.brandGradient,
+                  borderRadius: BorderRadius.circular(14),
+                  boxShadow: AppColors.brandGlow,
+                ),
+                child: ElevatedButton.icon(
+                  onPressed: _openMonthlyFeeGenerator,
+                  icon: const Icon(
+                    Icons.bolt_rounded,
+                    color: Colors.white,
+                    size: 19,
+                  ),
+                  label: const Text(
+                    '⚡ Generate 12-Month Schedule (Apr-Mar)',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.transparent,
+                    shadowColor: Colors.transparent,
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 18,
+                      vertical: 13,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              OutlinedButton.icon(
                 onPressed: () async {
                   final added = await Navigator.push<bool>(
                     context,
@@ -515,13 +674,18 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
                   );
                   if (added == true) await _loadBatch();
                 },
-                icon: const Icon(Icons.add, color: Colors.white),
-                label: const Text(
-                  'Add First Installment',
-                  style: TextStyle(color: Colors.white),
-                ),
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: AppColors.brand,
+                icon: const Icon(Icons.add, size: 16),
+                label: const Text('Add Single Custom Installment'),
+                style: OutlinedButton.styleFrom(
+                  foregroundColor: AppColors.textSecondary,
+                  side: const BorderSide(color: AppColors.divider),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 16,
+                    vertical: 11,
+                  ),
                 ),
               ),
             ],
@@ -537,28 +701,49 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             const Text(
-              'Standard Installments',
+              'Standard Fee Schedule',
               style: TextStyle(
                 fontSize: 15,
-                fontWeight: FontWeight.w600,
+                fontWeight: FontWeight.w700,
                 color: AppColors.textPrimary,
               ),
             ),
-            TextButton.icon(
-              onPressed: () async {
-                final added = await Navigator.push<bool>(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => BatchFeeTemplateFormScreen(
-                      controller: widget.controller,
-                      batchId: widget.batchId,
+            Row(
+              children: [
+                TextButton.icon(
+                  onPressed: _openMonthlyFeeGenerator,
+                  icon: const Icon(
+                    Icons.bolt_rounded,
+                    size: 16,
+                    color: AppColors.brand,
+                  ),
+                  label: const Text(
+                    '⚡ Auto Monthly',
+                    style: TextStyle(
+                      color: AppColors.brand,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 12.5,
                     ),
                   ),
-                );
-                if (added == true) await _loadBatch();
-              },
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Add Installment'),
+                ),
+                const SizedBox(width: 4),
+                IconButton(
+                  icon: const Icon(Icons.add_rounded, size: 20),
+                  tooltip: 'Add Custom Installment',
+                  onPressed: () async {
+                    final added = await Navigator.push<bool>(
+                      context,
+                      MaterialPageRoute(
+                        builder: (_) => BatchFeeTemplateFormScreen(
+                          controller: widget.controller,
+                          batchId: widget.batchId,
+                        ),
+                      ),
+                    );
+                    if (added == true) await _loadBatch();
+                  },
+                ),
+              ],
             ),
           ],
         ),

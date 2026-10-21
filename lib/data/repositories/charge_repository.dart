@@ -57,6 +57,26 @@ class ChargeRepository {
         .toList();
   }
 
+  /// Retrieves all charges associated with a specific batch/course.
+  Future<List<Charge>> getChargesForBatch(String batchId) async {
+    final db = _dbManager.database;
+    final sql = '''
+      SELECT 
+        c.*,
+        p.name AS payerName,
+        COALESCE((SELECT SUM(pm.amountPaise) FROM payments pm WHERE pm.chargeId = c.id), 0) AS paidPaise
+      FROM charges c
+      JOIN payers p ON c.payerId = p.id
+      WHERE (c.batchId = ? OR c.payerId IN (SELECT p2.id FROM payers p2 WHERE p2.batchId = ?))
+      ORDER BY c.dueDate ASC, c.title ASC;
+    ''';
+
+    final rows = await db.rawQuery(sql, [batchId, batchId]);
+    return rows
+        .map((r) => Charge.fromMap(r, paidPaise: (r['paidPaise'] as int?) ?? 0))
+        .toList();
+  }
+
   /// Retrieves a single charge by ID with paid balance.
   Future<Charge?> getChargeById(String id) async {
     final db = _dbManager.database;

@@ -190,13 +190,33 @@ class _PaymentDetailReceiptScreenState
     return Scaffold(
       backgroundColor: AppColors.background,
       appBar: AppBar(
-        title: Text(
-          'Receipt #${pm.receiptNumber}',
-          style: const TextStyle(
-            color: AppColors.textPrimary,
-            fontWeight: FontWeight.bold,
-            fontSize: 18,
-          ),
+        title: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+              decoration: BoxDecoration(
+                gradient: AppColors.brandGradient,
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Text(
+                '#${pm.receiptNumber}',
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w800,
+                  fontSize: 13.5,
+                ),
+              ),
+            ),
+            const SizedBox(width: 10),
+            const Text(
+              'Receipt',
+              style: TextStyle(
+                color: AppColors.textPrimary,
+                fontWeight: FontWeight.w700,
+                fontSize: 18,
+              ),
+            ),
+          ],
         ),
         backgroundColor: AppColors.surface,
         elevation: 0,
@@ -230,62 +250,120 @@ class _PaymentDetailReceiptScreenState
             ),
             const SizedBox(height: 24),
 
-            // Audit Correction Trail Section
+            // ── Audit Correction Trail ───────────────────────────────
             if (_auditEvents.isNotEmpty) ...[
-              const Text(
-                'LOCAL CORRECTION HISTORY',
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: FontWeight.bold,
-                  color: AppColors.textSecondary,
-                  letterSpacing: 0.6,
+              Padding(
+                padding: const EdgeInsets.only(bottom: 10),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(6),
+                      decoration: BoxDecoration(
+                        color: AppColors.unpaidAmberBg,
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: const Icon(
+                        Icons.history_rounded,
+                        size: 14,
+                        color: AppColors.unpaidAmber,
+                      ),
+                    ),
+                    const SizedBox(width: 8),
+                    const Text(
+                      'LOCAL CORRECTION HISTORY',
+                      style: TextStyle(
+                        fontSize: 11,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.textMuted,
+                        letterSpacing: 0.8,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              const SizedBox(height: 8),
               ..._auditEvents.map((ev) {
-                final dt = DateTime.fromMillisecondsSinceEpoch(ev.timestamp);
+                final dt =
+                    DateTime.fromMillisecondsSinceEpoch(ev.timestamp);
+                final formattedTime =
+                    '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year}  ${dt.hour.toString().padLeft(2, '0')}:${dt.minute.toString().padLeft(2, '0')}';
+
                 return Container(
                   margin: const EdgeInsets.only(bottom: 8),
-                  padding: const EdgeInsets.all(12),
                   decoration: BoxDecoration(
                     color: AppColors.surface,
-                    borderRadius: BorderRadius.circular(10),
+                    borderRadius: BorderRadius.circular(14),
                     border: Border.all(color: AppColors.divider),
+                    boxShadow: AppColors.cardShadow,
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(14),
+                    child: IntrinsicHeight(
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
-                          Text(
-                            ev.action.toUpperCase(),
-                            style: const TextStyle(
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
-                              color: AppColors.brand,
-                            ),
+                          Container(
+                            width: 4,
+                            color: AppColors.unpaidAmber,
                           ),
-                          Text(
-                            '${dt.day.toString().padLeft(2, '0')}/${dt.month.toString().padLeft(2, '0')}/${dt.year} ${dt.hour}:${dt.minute.toString().padLeft(2, '0')}',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: AppColors.textTertiary,
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(12),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.symmetric(
+                                          horizontal: 8,
+                                          vertical: 3,
+                                        ),
+                                        decoration: BoxDecoration(
+                                          color: AppColors.brandLight,
+                                          borderRadius:
+                                              BorderRadius.circular(6),
+                                        ),
+                                        child: Text(
+                                          ev.action.toUpperCase(),
+                                          style: const TextStyle(
+                                            fontSize: 10.5,
+                                            fontWeight: FontWeight.w800,
+                                            color: AppColors.brand,
+                                            letterSpacing: 0.5,
+                                          ),
+                                        ),
+                                      ),
+                                      Text(
+                                        formattedTime,
+                                        style: const TextStyle(
+                                          fontSize: 11,
+                                          color: AppColors.textMuted,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  if (ev.reason != null &&
+                                      ev.reason!.isNotEmpty) ...[
+                                    const SizedBox(height: 6),
+                                    Text(
+                                      ev.reason!,
+                                      style: const TextStyle(
+                                        fontSize: 13,
+                                        color: AppColors.textPrimary,
+                                        fontWeight: FontWeight.w500,
+                                        height: 1.4,
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
                             ),
                           ),
                         ],
                       ),
-                      if (ev.reason != null && ev.reason!.isNotEmpty) ...[
-                        const SizedBox(height: 4),
-                        Text(
-                          'Reason: ${ev.reason!}',
-                          style: const TextStyle(
-                            fontSize: 13,
-                            color: AppColors.textPrimary,
-                          ),
-                        ),
-                      ],
-                    ],
+                    ),
                   ),
                 );
               }),

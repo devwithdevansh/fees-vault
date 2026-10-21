@@ -2,39 +2,37 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/constants/app_colors.dart';
 
-/// Premium card container with subtle border, soft shadow, and ink ripple on tap.
+/// Professional card container with multi-layer shadow, clean border, and ink ripple.
 class AppCard extends StatelessWidget {
   final Widget child;
   final EdgeInsetsGeometry padding;
   final VoidCallback? onTap;
   final Color? backgroundColor;
   final BorderRadius? borderRadius;
+  final List<BoxShadow>? customShadow;
+  final Border? customBorder;
 
   const AppCard({
     super.key,
     required this.child,
-    this.padding = const EdgeInsets.all(16),
+    this.padding = const EdgeInsets.all(18),
     this.onTap,
     this.backgroundColor,
     this.borderRadius,
+    this.customShadow,
+    this.customBorder,
   });
 
   @override
   Widget build(BuildContext context) {
-    final radius = borderRadius ?? BorderRadius.circular(16);
+    final radius = borderRadius ?? BorderRadius.circular(18);
 
     final card = Container(
       decoration: BoxDecoration(
         color: backgroundColor ?? AppColors.surface,
         borderRadius: radius,
-        border: Border.all(color: AppColors.divider, width: 1),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.04),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
+        border: customBorder ?? Border.all(color: AppColors.divider, width: 1),
+        boxShadow: customShadow ?? AppColors.cardShadow,
       ),
       padding: padding,
       child: child,
@@ -49,7 +47,7 @@ class AppCard extends StatelessWidget {
             onTap!();
           },
           borderRadius: radius,
-          splashColor: AppColors.brand.withValues(alpha: 0.05),
+          splashColor: AppColors.brand.withValues(alpha: 0.06),
           highlightColor: AppColors.brand.withValues(alpha: 0.03),
           child: card,
         ),

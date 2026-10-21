@@ -257,15 +257,7 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
           padding: const EdgeInsets.all(20),
           children: [
             // Section 1: Student Selection
-            const Text(
-              'STUDENT ASSIGNMENT',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textSecondary,
-                letterSpacing: 0.6,
-              ),
-            ),
+            _SectionHeader(icon: Icons.person_rounded, label: 'STUDENT ASSIGNMENT'),
             const SizedBox(height: 10),
 
             if (!isEdit && widget.initialPayerId == null) ...[
@@ -303,15 +295,7 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
             ],
 
             // Section 2: Fee Details
-            const Text(
-              'FEE & ACADEMIC SESSION',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textSecondary,
-                letterSpacing: 0.6,
-              ),
-            ),
+            _SectionHeader(icon: Icons.school_rounded, label: 'FEE & ACADEMIC SESSION'),
             const SizedBox(height: 10),
 
             Row(
@@ -365,15 +349,7 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
             const SizedBox(height: 20),
 
             // Section 3: Financials
-            const Text(
-              'FEE FINANCIALS',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textSecondary,
-                letterSpacing: 0.6,
-              ),
-            ),
+            _SectionHeader(icon: Icons.payments_rounded, label: 'FEE FINANCIALS'),
             const SizedBox(height: 10),
 
             MoneyInputField(
@@ -410,48 +386,65 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
             ),
             const SizedBox(height: 14),
 
-            // Live Net Fee Preview Card
+            // ── Live Net Fee Preview Card ──────────────────────────
             Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
               decoration: BoxDecoration(
-                color: AppColors.surfaceSubtle,
-                borderRadius: BorderRadius.circular(10),
+                color: AppColors.surface,
+                borderRadius: BorderRadius.circular(14),
                 border: Border.all(color: AppColors.divider),
+                boxShadow: AppColors.cardShadow,
               ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  const Text(
-                    'Net Fee Payable:',
-                    style: TextStyle(
-                      fontSize: 13,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.textPrimary,
-                    ),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(14),
+                child: IntrinsicHeight(
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Container(
+                        width: 4,
+                        decoration: BoxDecoration(
+                          gradient: AppColors.brandGradient,
+                        ),
+                      ),
+                      Expanded(
+                        child: Padding(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 12,
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              const Text(
+                                'Net Fee Payable',
+                                style: TextStyle(
+                                  fontSize: 13.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textSecondary,
+                                ),
+                              ),
+                              Text(
+                                CurrencyFormatter.formatPaise(net),
+                                style: const TextStyle(
+                                  fontSize: 20,
+                                  fontWeight: FontWeight.w800,
+                                  color: AppColors.brand,
+                                  letterSpacing: -0.5,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                  Text(
-                    CurrencyFormatter.formatPaise(net),
-                    style: const TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: AppColors.brand,
-                    ),
-                  ),
-                ],
+                ),
               ),
             ),
             const SizedBox(height: 20),
 
             // Section 4: Due Date
-            const Text(
-              'PAYMENT SCHEDULE',
-              style: TextStyle(
-                fontSize: 12,
-                fontWeight: FontWeight.bold,
-                color: AppColors.textSecondary,
-                letterSpacing: 0.6,
-              ),
-            ),
+            _SectionHeader(icon: Icons.event_rounded, label: 'PAYMENT SCHEDULE'),
             const SizedBox(height: 10),
 
             Row(
@@ -498,35 +491,39 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
             ),
             const SizedBox(height: 28),
 
-            ElevatedButton(
-              onPressed: _isSaving ? null : _submit,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: AppColors.brand,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(10),
+            SizedBox(
+              width: double.infinity,
+              height: 52,
+              child: ElevatedButton(
+                onPressed: _isSaving ? null : _submit,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.brand,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  shadowColor: AppColors.brand.withValues(alpha: 0.45),
+                  elevation: 8,
                 ),
-                elevation: 0,
+                child: _isSaving
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          color: Colors.white,
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        isEdit
+                            ? 'Update Fee Installment'
+                            : 'Save Fee Installment',
+                        style: const TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.white,
+                        ),
+                      ),
               ),
-              child: _isSaving
-                  ? const SizedBox(
-                      height: 20,
-                      width: 20,
-                      child: CircularProgressIndicator(
-                        color: Colors.white,
-                        strokeWidth: 2,
-                      ),
-                    )
-                  : Text(
-                      isEdit
-                          ? 'Update Fee Installment'
-                          : 'Save Fee Installment',
-                      style: const TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
             ),
           ],
         ),
@@ -557,6 +554,44 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
         borderSide: const BorderSide(color: AppColors.brand, width: 2),
+      ),
+    );
+  }
+}
+
+// ────────────────────────────────────────────────────────────────────────────
+// Section header widget
+// ────────────────────────────────────────────────────────────────────────────
+class _SectionHeader extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  const _SectionHeader({required this.icon, required this.label});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 10),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(6),
+            decoration: BoxDecoration(
+              color: AppColors.brandLight,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, size: 13, color: AppColors.brand),
+          ),
+          const SizedBox(width: 8),
+          Text(
+            label,
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w700,
+              color: AppColors.textMuted,
+              letterSpacing: 0.8,
+            ),
+          ),
+        ],
       ),
     );
   }
