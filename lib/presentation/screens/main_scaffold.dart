@@ -45,9 +45,17 @@ class _MainScaffoldState extends State<MainScaffold>
   ];
 
   void _onTabTap(int index) {
-    if (index == _currentIndex) return;
     HapticFeedback.selectionClick();
+    if (index == _currentIndex) {
+      if (index == 3) {
+        widget.controller.refreshAll();
+      }
+      return;
+    }
     setState(() => _currentIndex = index);
+    if (index == 3) {
+      widget.controller.refreshAll();
+    }
   }
 
   @override

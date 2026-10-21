@@ -23,15 +23,46 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
   String _selectedMethod = 'All';
   List<Payment> _payments = [];
   bool _isLoading = true;
+  bool _isFetching = false;
+  bool _needsReload = false;
 
   @override
   void initState() {
     super.initState();
     _loadPayments();
+    widget.controller.addListener(_onControllerChanged);
   }
 
-  Future<void> _loadPayments() async {
-    setState(() => _isLoading = true);
+  void _onControllerChanged() {
+    if (mounted) {
+      _loadPayments(silent: true);
+    }
+  }
+
+  @override
+  void didUpdateWidget(covariant PaymentsScreen oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (oldWidget.controller != widget.controller) {
+      oldWidget.controller.removeListener(_onControllerChanged);
+      widget.controller.addListener(_onControllerChanged);
+    }
+  }
+
+  @override
+  void dispose() {
+    widget.controller.removeListener(_onControllerChanged);
+    super.dispose();
+  }
+
+  Future<void> _loadPayments({bool silent = false}) async {
+    if (_isFetching) {
+      _needsReload = true;
+      return;
+    }
+    _isFetching = true;
+    if (!silent && _payments.isEmpty) {
+      setState(() => _isLoading = true);
+    }
     try {
       final list = await widget.controller.paymentRepo.getPayments(
         method: _selectedMethod == 'All' ? null : _selectedMethod,
@@ -45,6 +76,12 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
       }
     } catch (_) {
       if (mounted) setState(() => _isLoading = false);
+    } finally {
+      _isFetching = false;
+      if (_needsReload && mounted) {
+        _needsReload = false;
+        _loadPayments(silent: true);
+      }
     }
   }
 
