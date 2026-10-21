@@ -2072,6 +2072,8 @@ class _ReceiptTile extends StatelessWidget {
                           fontWeight: FontWeight.w700,
                           color: AppColors.textPrimary,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 3),
                       Text(
@@ -2080,6 +2082,8 @@ class _ReceiptTile extends StatelessWidget {
                           fontSize: 12,
                           color: AppColors.textTertiary,
                         ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),

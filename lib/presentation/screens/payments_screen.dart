@@ -395,30 +395,39 @@ class _PaymentTile extends StatelessWidget {
                       const SizedBox(height: 2),
                       Row(
                         children: [
-                          Container(
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 6,
-                              vertical: 2,
-                            ),
-                            decoration: BoxDecoration(
-                              color: AppColors.surfaceSubtle,
-                              borderRadius: BorderRadius.circular(5),
-                            ),
-                            child: Text(
-                              pm.method,
-                              style: const TextStyle(
-                                fontSize: 11,
-                                fontWeight: FontWeight.w600,
-                                color: AppColors.textTertiary,
+                          Flexible(
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              decoration: BoxDecoration(
+                                color: AppColors.surfaceSubtle,
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Text(
+                                pm.method,
+                                style: const TextStyle(
+                                  fontSize: 10.5,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.textTertiary,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
                               ),
                             ),
                           ),
                           const SizedBox(width: 6),
-                          Text(
-                            '· #${pm.receiptNumber} · ${CurrencyFormatter.formatDisplayDate(pm.paidDate)}',
-                            style: const TextStyle(
-                              fontSize: 11,
-                              color: AppColors.textMuted,
+                          Expanded(
+                            flex: 2,
+                            child: Text(
+                              '#${pm.receiptNumber} · ${CurrencyFormatter.formatDisplayDate(pm.paidDate)}',
+                              style: const TextStyle(
+                                fontSize: 11,
+                                color: AppColors.textMuted,
+                              ),
+                              overflow: TextOverflow.ellipsis,
+                              maxLines: 1,
                             ),
                           ),
                         ],
