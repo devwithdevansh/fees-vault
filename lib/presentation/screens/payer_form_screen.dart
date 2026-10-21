@@ -199,11 +199,13 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
           child: Divider(height: 1, color: AppColors.divider),
         ),
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
+      body: SafeArea(
+        top: false,
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 36),
+            children: [
             // Section: Student Information
             const Row(
               children: [
@@ -480,7 +482,8 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 
   InputDecoration _inputDecoration({

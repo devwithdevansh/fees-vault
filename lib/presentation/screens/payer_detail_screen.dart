@@ -359,12 +359,14 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
           child: Divider(height: 1, color: AppColors.divider),
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: _loadPayerDetails,
-        color: AppColors.brand,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
+      body: SafeArea(
+        top: false,
+        child: RefreshIndicator(
+          onRefresh: _loadPayerDetails,
+          color: AppColors.brand,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 36),
+            children: [
           // ── Student Hero Profile Card ─────────────────────────────
             Container(
               margin: const EdgeInsets.only(bottom: 14),
@@ -793,7 +795,8 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 
   Widget _chargeItem(BuildContext context, Charge ch) {

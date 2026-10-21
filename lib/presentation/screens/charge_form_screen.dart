@@ -251,11 +251,13 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
           child: Divider(height: 1, color: AppColors.divider),
         ),
       ),
-      body: Form(
-        key: _formKey,
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
+      body: SafeArea(
+        top: false,
+        child: Form(
+          key: _formKey,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 36),
+            children: [
             // Section 1: Student Selection
             _SectionHeader(icon: Icons.person_rounded, label: 'STUDENT ASSIGNMENT'),
             const SizedBox(height: 10),
@@ -530,7 +532,8 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 
   InputDecoration _inputDecoration(

@@ -174,12 +174,14 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
           child: Divider(height: 1, color: AppColors.divider),
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: _loadDetails,
-        color: AppColors.brand,
-        child: ListView(
-          padding: const EdgeInsets.all(16),
-          children: [
+      body: SafeArea(
+        top: false,
+        child: RefreshIndicator(
+          onRefresh: _loadDetails,
+          color: AppColors.brand,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 36),
+            children: [
             // ── Hero Header Card ───────────────────────────────────────────
             Container(
               decoration: BoxDecoration(
@@ -454,7 +456,8 @@ class _ChargeDetailScreenState extends State<ChargeDetailScreen> {
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 
   Widget _breakdownRow(

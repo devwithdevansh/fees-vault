@@ -302,11 +302,13 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
       ),
       body: _isLoadingCharges
           ? const Center(child: CircularProgressIndicator())
-          : Form(
-              key: _formKey,
-              child: ListView(
-                padding: const EdgeInsets.all(20),
-                children: [
+          : SafeArea(
+              top: false,
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  padding: const EdgeInsets.fromLTRB(20, 20, 20, 36),
+                  children: [
                   // Fee Installment selection (disabled if editing)
                   if (!isEdit && widget.targetChargeId == null) ...[
                     DropdownButtonFormField<String>(
@@ -607,6 +609,7 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                 ],
               ),
             ),
+          ),
     );
   }
 

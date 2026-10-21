@@ -225,12 +225,14 @@ class _PaymentDetailReceiptScreenState
           child: Divider(height: 1, color: AppColors.divider),
         ),
       ),
-      body: RefreshIndicator(
-        onRefresh: _loadDetails,
-        color: AppColors.brand,
-        child: ListView(
-          padding: const EdgeInsets.all(20),
-          children: [
+      body: SafeArea(
+        top: false,
+        child: RefreshIndicator(
+          onRefresh: _loadDetails,
+          color: AppColors.brand,
+          child: ListView(
+            padding: const EdgeInsets.fromLTRB(20, 20, 20, 36),
+            children: [
             ReceiptCard(
               payment: pm,
               businessName: widget.controller.businessName,
@@ -372,6 +374,7 @@ class _PaymentDetailReceiptScreenState
           ],
         ),
       ),
-    );
+    ),
+  );
   }
 }
