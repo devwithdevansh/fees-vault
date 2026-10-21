@@ -157,6 +157,7 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                       ),
                       const SizedBox(height: 6),
                       DropdownButtonFormField<String>(
+                        isExpanded: true,
                         initialValue: _selectedAcademicYear,
                         decoration: InputDecoration(
                           filled: true,

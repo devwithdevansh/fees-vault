@@ -244,6 +244,7 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
                 children: [
                   Expanded(
                     child: DropdownButtonFormField<String>(
+                      isExpanded: true,
                       initialValue: _selectedBatchId,
                       decoration: _inputDecoration(
                         label: 'Course / Batch *',

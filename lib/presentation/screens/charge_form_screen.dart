@@ -262,12 +262,14 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
 
             if (!isEdit && widget.initialPayerId == null) ...[
               DropdownButtonFormField<String>(
+                isExpanded: true,
                 initialValue: _selectedPayerId,
                 items: payers.map((p) {
                   return DropdownMenuItem(
                     value: p.id,
                     child: Text(
                       '${p.name}${p.batch != null ? " (${p.batch})" : ""}',
+                      overflow: TextOverflow.ellipsis,
                     ),
                   );
                 }).toList(),

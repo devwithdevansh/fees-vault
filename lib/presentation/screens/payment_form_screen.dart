@@ -310,6 +310,7 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                   // Fee Installment selection (disabled if editing)
                   if (!isEdit && widget.targetChargeId == null) ...[
                     DropdownButtonFormField<String>(
+                      isExpanded: true,
                       initialValue: _selectedChargeId,
                       items: _availableCharges.map((c) {
                         return DropdownMenuItem(
