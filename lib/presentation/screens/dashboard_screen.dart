@@ -355,29 +355,33 @@ class _HeroHeader extends StatelessWidget {
                 // Stat chips row
                 Row(
                   children: [
-                    _StatChip(
-                      label: 'Collected',
-                      value: CurrencyFormatter.formatPaise(
-                        s.totalCollectedPaise,
+                    Expanded(
+                      child: _StatChip(
+                        label: 'Collected',
+                        value: CurrencyFormatter.formatPaise(
+                          s.totalCollectedPaise,
+                        ),
+                        dotColor: const Color(0xFF34D399),
                       ),
-                      dotColor: const Color(0xFF34D399),
                     ),
                     const SizedBox(width: 8),
-                    if (overdueCount > 0)
-                      _StatChip(
-                        label: '$overdueCount Overdue',
-                        value: CurrencyFormatter.formatPaise(
-                          s.totalOverduePaise,
-                        ),
-                        dotColor: const Color(0xFFFCA5A5),
-                        isDanger: true,
-                      )
-                    else
-                      _StatChip(
-                        label: 'Students',
-                        value: '${controller.payers.where((p) => !p.archived).length} active',
-                        dotColor: const Color(0xFF93C5FD),
-                      ),
+                    Expanded(
+                      child: overdueCount > 0
+                          ? _StatChip(
+                              label: '$overdueCount Overdue',
+                              value: CurrencyFormatter.formatPaise(
+                                s.totalOverduePaise,
+                              ),
+                              dotColor: const Color(0xFFFCA5A5),
+                              isDanger: true,
+                            )
+                          : _StatChip(
+                              label: 'Students',
+                              value:
+                                  '${controller.payers.where((p) => !p.archived).length} active',
+                              dotColor: const Color(0xFF93C5FD),
+                            ),
+                    ),
                   ],
                 ),
               ],
@@ -405,7 +409,7 @@ class _StatChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
       decoration: BoxDecoration(
         color: Colors.white.withValues(alpha: isDanger ? 0.10 : 0.08),
         borderRadius: BorderRadius.circular(10),
@@ -414,7 +418,6 @@ class _StatChip extends StatelessWidget {
         ),
       ),
       child: Row(
-        mainAxisSize: MainAxisSize.min,
         children: [
           Container(
             width: 6,
@@ -425,26 +428,33 @@ class _StatChip extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 6),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                label,
-                style: TextStyle(
-                  color: Colors.white.withValues(alpha: 0.65),
-                  fontSize: 10,
-                  fontWeight: FontWeight.w500,
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    color: Colors.white.withValues(alpha: 0.65),
+                    fontSize: 10,
+                    fontWeight: FontWeight.w500,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-              Text(
-                value,
-                style: const TextStyle(
-                  color: Colors.white,
-                  fontSize: 13,
-                  fontWeight: FontWeight.w700,
+                Text(
+                  value,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 13,
+                    fontWeight: FontWeight.w700,
+                  ),
+                  maxLines: 1,
+                  overflow: TextOverflow.ellipsis,
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       ),
@@ -1273,27 +1283,33 @@ class _OnboardingCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(width: 12),
-                const Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      'Welcome to FeesVault',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w800,
-                        color: Colors.white,
-                        letterSpacing: -0.2,
+                const Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Welcome to FeesVault',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w800,
+                          color: Colors.white,
+                          letterSpacing: -0.2,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                    SizedBox(height: 2),
-                    Text(
-                      'Get started in 3 quick steps',
-                      style: TextStyle(
-                        fontSize: 12,
-                        color: Color(0xFFB0B8FF),
+                      SizedBox(height: 2),
+                      Text(
+                        'Get started in 3 quick steps',
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Color(0xFFB0B8FF),
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),

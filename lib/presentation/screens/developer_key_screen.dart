@@ -201,7 +201,7 @@ class _DeveloperKeyScreenState extends State<DeveloperKeyScreen> {
                             color: AppColors.textPrimary,
                           ),
                           decoration: InputDecoration(
-                            hintText: 'e.g. FEES-VAULT-DEV-KEY',
+                            hintText: 'Enter Developer Key',
                             hintStyle: const TextStyle(
                               fontSize: 13,
                               fontWeight: FontWeight.w500,
@@ -362,8 +362,8 @@ class _DeveloperKeyScreenState extends State<DeveloperKeyScreen> {
                   // ── Security Badges Footer ────────────────────────────
                   Container(
                     padding: const EdgeInsets.symmetric(
-                      horizontal: 14,
-                      vertical: 8,
+                      horizontal: 12,
+                      vertical: 6,
                     ),
                     decoration: BoxDecoration(
                       color: AppColors.surfaceSubtle,
@@ -375,12 +375,12 @@ class _DeveloperKeyScreenState extends State<DeveloperKeyScreen> {
                       children: [
                         Icon(
                           Icons.verified_user_outlined,
-                          size: 15,
+                          size: 14,
                           color: AppColors.textTertiary,
                         ),
                         SizedBox(width: 6),
                         Text(
-                          'Hardware-bound authorization · Non-transferable',
+                          'Device-Bound License · Offline',
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
