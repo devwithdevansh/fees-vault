@@ -32,16 +32,18 @@ class QuickCollectSheet {
             color: AppColors.surface,
             borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
           ),
-          padding: EdgeInsets.fromLTRB(
-            24,
-            16,
-            24,
-            MediaQuery.of(ctx).viewInsets.bottom + 24,
+          padding: EdgeInsets.only(
+            bottom: MediaQuery.of(ctx).viewInsets.bottom,
           ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+          child: SafeArea(
+            top: false,
+            child: SingleChildScrollView(
+              physics: const BouncingScrollPhysics(),
+              padding: const EdgeInsets.fromLTRB(24, 16, 24, 24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
               // Pull bar
               Center(
                 child: Container(
@@ -305,7 +307,9 @@ class QuickCollectSheet {
           ),
         ),
       ),
-    );
+    ),
+  ),
+);
 
     if (recorded == true) {
       if (onPaymentRecorded != null) onPaymentRecorded();
