@@ -630,12 +630,45 @@ class SettingsScreen extends StatelessWidget {
                           ],
                         ),
                       ),
+                      if (errorMessage != null) ...[
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: AppColors.overdueRedBg,
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: AppColors.overdueRedMid),
+                          ),
+                          child: Row(
+                            children: [
+                              const Icon(
+                                Icons.error_outline_rounded,
+                                color: AppColors.overdueRed,
+                                size: 18,
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(
+                                child: Text(
+                                  errorMessage!,
+                                  style: const TextStyle(
+                                    color: AppColors.overdueRed,
+                                    fontSize: 12.5,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
                       const SizedBox(height: 20),
                       Row(
                         children: [
                           Expanded(
                             child: OutlinedButton(
-                              onPressed: () => setSheetState(() => verifiedPayload = null),
+                              onPressed: () => setSheetState(() {
+                                verifiedPayload = null;
+                                errorMessage = null;
+                              }),
                               style: OutlinedButton.styleFrom(
                                 side: const BorderSide(color: AppColors.divider),
                                 padding: const EdgeInsets.symmetric(vertical: 12),
@@ -651,14 +684,19 @@ class SettingsScreen extends StatelessWidget {
                               onPressed: isRestoring
                                   ? null
                                   : () async {
-                                      setSheetState(() => isRestoring = true);
+                                      setSheetState(() {
+                                        isRestoring = true;
+                                        errorMessage = null;
+                                      });
                                       try {
                                         final res = await VaultBackupService.restoreBackupIntoVault(
                                           controller: controller,
                                           decryptedPayload: verifiedPayload!,
                                         );
+                                        if (ctx.mounted) {
+                                          Navigator.of(ctx).pop();
+                                        }
                                         if (context.mounted) {
-                                          Navigator.pop(ctx);
                                           ScaffoldMessenger.of(context).showSnackBar(
                                             SnackBar(
                                               content: Text(
