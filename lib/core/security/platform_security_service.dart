@@ -9,6 +9,51 @@ class PlatformSecurityService {
     AppConstants.securityChannelName,
   );
 
+  void Function()? _onScreenshotCallback;
+  bool _handlerInstalled = false;
+
+  /// Registers a callback triggered whenever a screenshot attempt is made or detected on the platform.
+  void setScreenshotCallback(void Function() onScreenshot) {
+    _onScreenshotCallback = onScreenshot;
+    if (!_handlerInstalled) {
+      _channel.setMethodCallHandler(_handleNativeCall);
+      _handlerInstalled = true;
+    }
+  }
+
+  Future<dynamic> _handleNativeCall(MethodCall call) async {
+    if (call.method == 'onScreenshotDetected') {
+      _onScreenshotCallback?.call();
+    }
+    return null;
+  }
+
+  /// Opens the device lock / security settings so the user can set a PIN, Pattern, or Biometrics.
+  Future<bool> openSecuritySettings() async {
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      return false;
+    }
+    try {
+      final result = await _channel.invokeMethod<bool>('openSecuritySettings');
+      return result ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Checks whether a screen lock (PIN, pattern, password, or biometrics) is enrolled at the OS level.
+  Future<bool> isDeviceLockEnrolled() async {
+    if (!Platform.isAndroid && !Platform.isIOS) {
+      return true; // Desktop / simulated environment
+    }
+    try {
+      final result = await _channel.invokeMethod<bool>('isDeviceLockEnrolled');
+      return result ?? false;
+    } catch (_) {
+      return false;
+    }
+  }
+
   /// Applies complete file protection and backup exclusion to the target directory / file.
   Future<Map<String, dynamic>> applyProtectionAndBackupExclusion(
     String path,

@@ -34,3 +34,10 @@ class BiometricAuthException extends AppException {
 class NotFoundException extends AppException {
   const NotFoundException(super.message, [super.details]);
 }
+
+class DeviceLockNotEnrolledException extends AppException {
+  const DeviceLockNotEnrolledException([
+    super.message = 'No device screen lock (PIN, Pattern, Password, or Biometrics) is set up on this device.',
+    super.details,
+  ]);
+}

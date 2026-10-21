@@ -41,9 +41,11 @@ class AuthService {
       debugPrint(
         '[FeesVault] PlatformException during auth: code=${e.code}, message=${e.message}, details=${e.details}',
       );
-      if (e.code == 'NotAvailable' || e.code == 'PasscodeNotSet') {
-        throw BiometricAuthException(
-          'Device passcode or biometrics not configured on this device. A device passcode is required to secure FeesVault.',
+      if (e.code == 'NotAvailable' ||
+          e.code == 'PasscodeNotSet' ||
+          e.code == 'NotEnrolled') {
+        throw DeviceLockNotEnrolledException(
+          'No screen lock (PIN, Pattern, Password, or Biometrics) is set up on this device. A screen lock is required to secure FeesVault records.',
           e.message,
         );
       }

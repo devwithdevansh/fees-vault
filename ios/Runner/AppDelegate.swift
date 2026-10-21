@@ -1,5 +1,6 @@
 import Flutter
 import UIKit
+import LocalAuthentication
 
 @main
 @objc class AppDelegate: FlutterAppDelegate, FlutterImplicitEngineDelegate {
@@ -38,10 +39,35 @@ import UIKit
           return
         }
         self.verifySecurityAttributes(path: path, result: result)
+      } else if call.method == "openSecuritySettings" {
+        if let settingsUrl = URL(string: UIApplication.openSettingsURLString) {
+          if UIApplication.shared.canOpenURL(settingsUrl) {
+            UIApplication.shared.open(settingsUrl, options: [:], completionHandler: { success in
+              result(success)
+            })
+            return
+          }
+        }
+        result(FlutterError(code: "SETTINGS_ERROR", message: "Cannot open iOS settings", details: nil))
+      } else if call.method == "isDeviceLockEnrolled" {
+        var authError: NSError?
+        let context = LAContext()
+        let isEnrolled = context.canEvaluatePolicy(.deviceOwnerAuthentication, error: &authError)
+        result(isEnrolled)
       } else {
         result(FlutterMethodNotImplemented)
       }
     })
+
+    // Listen for screenshots and immediately trigger locking phase and privacy overlay
+    NotificationCenter.default.addObserver(
+      forName: UIApplication.userDidTakeScreenshotNotification,
+      object: nil,
+      queue: .main
+    ) { [weak self] _ in
+      securityChannel.invokeMethod("onScreenshotDetected", arguments: nil)
+      self?.showPrivacyOverlay()
+    }
 
     return super.application(application, didFinishLaunchingWithOptions: launchOptions)
   }

@@ -53,6 +53,7 @@ void main() async {
   final authController = AuthController(
     authService: authService,
     database: database,
+    platformSecurityService: platformSecurity,
   );
 
   final vaultController = VaultController(

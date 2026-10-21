@@ -1,29 +1,52 @@
 import 'package:flutter/material.dart';
 import '../../core/errors/app_exceptions.dart';
 import '../../core/security/auth_service.dart';
+import '../../core/security/platform_security_service.dart';
 import '../../data/database/app_database.dart';
 
 enum AuthStatus { locked, authenticating, unlocked, failedClosed }
 
 /// Controller managing the lock/unlock state machine and app lifecycle security.
 /// Guarantees that sensitive screens are obscured when inactive, locked when backgrounded,
-/// and that the authentication sheet itself does not trigger an infinite lock loop.
+/// and that screenshot attempts or lack of enrolled device lock are handled safely.
 class AuthController extends ChangeNotifier {
   final AuthService authService;
   final AppDatabase database;
+  final PlatformSecurityService platformSecurityService;
 
   AuthStatus _status = AuthStatus.locked;
   bool _isObscured = true;
   String? _errorMessage;
   bool _isAuthenticatingSheet = false;
+  bool _isDeviceLockMissing = false;
 
-  AuthController({required this.authService, required this.database});
+  AuthController({
+    required this.authService,
+    required this.database,
+    PlatformSecurityService? platformSecurityService,
+  }) : platformSecurityService =
+           platformSecurityService ?? PlatformSecurityService() {
+    this.platformSecurityService.setScreenshotCallback(_onScreenshotDetected);
+  }
 
   AuthStatus get status => _status;
   bool get isLocked =>
       _status == AuthStatus.locked || _status == AuthStatus.failedClosed;
   bool get isObscured => _isObscured || isLocked;
   String? get errorMessage => _errorMessage;
+  bool get isDeviceLockMissing => _isDeviceLockMissing;
+
+  void _onScreenshotDetected() {
+    debugPrint(
+      '[FeesVault] Screenshot attempt detected! Relocking vault immediately...',
+    );
+    lock();
+  }
+
+  /// Opens the device settings so the user can configure a PIN, pattern, or biometrics.
+  Future<bool> openSecuritySettings() async {
+    return await platformSecurityService.openSecuritySettings();
+  }
 
   /// Attempts to authenticate user using system biometrics / device passcode fallback
   /// and opens the encrypted database.
@@ -32,11 +55,21 @@ class AuthController extends ChangeNotifier {
     if (_status == AuthStatus.failedClosed) return false;
 
     _errorMessage = null;
+    _isDeviceLockMissing = false;
     _status = AuthStatus.authenticating;
     _isAuthenticatingSheet = true;
     notifyListeners();
 
     try {
+      debugPrint('[FeesVault] AuthController: Checking device lock enrollment...');
+      final hasDeviceLock = await platformSecurityService.isDeviceLockEnrolled();
+      if (!hasDeviceLock) {
+        throw DeviceLockNotEnrolledException(
+          'No screen lock (PIN, Pattern, Password, or Biometrics) is set up on this device. A screen lock is required to secure FeesVault records.',
+          'Device lock missing',
+        );
+      }
+
       debugPrint('[FeesVault] AuthController: Starting unlock sequence...');
       final authenticated = await authService.authenticate(
         reason: 'Authenticate to access FeesVault records',
@@ -53,6 +86,7 @@ class AuthController extends ChangeNotifier {
         _status = AuthStatus.unlocked;
         _isObscured = false;
         _errorMessage = null;
+        _isDeviceLockMissing = false;
         debugPrint('[FeesVault] AuthController: Vault unlocked successfully!');
         notifyListeners();
         return true;
@@ -67,10 +101,22 @@ class AuthController extends ChangeNotifier {
         notifyListeners();
         return false;
       }
+    } on DeviceLockNotEnrolledException catch (e) {
+      debugPrint(
+        '[FeesVault] AuthController DeviceLockNotEnrolledException: ${e.message}',
+      );
+      _isAuthenticatingSheet = false;
+      _status = AuthStatus.locked;
+      _isObscured = true;
+      _isDeviceLockMissing = true;
+      _errorMessage = e.message;
+      notifyListeners();
+      return false;
     } on DatabaseSecurityException catch (e) {
       debugPrint(
         '[FeesVault] AuthController DatabaseSecurityException: ${e.message}',
       );
+      _isAuthenticatingSheet = false;
       _status = AuthStatus.failedClosed;
       _isObscured = true;
       _errorMessage = e.message;
@@ -78,6 +124,7 @@ class AuthController extends ChangeNotifier {
       return false;
     } on AppException catch (e) {
       debugPrint('[FeesVault] AuthController AppException: ${e.message}');
+      _isAuthenticatingSheet = false;
       _status = AuthStatus.locked;
       _isObscured = true;
       _errorMessage = e.message;
@@ -85,6 +132,7 @@ class AuthController extends ChangeNotifier {
       return false;
     } catch (e) {
       debugPrint('[FeesVault] AuthController unexpected error: $e');
+      _isAuthenticatingSheet = false;
       _status = AuthStatus.locked;
       _isObscured = true;
       _errorMessage = 'Unlock failed: ${e.toString()}';

@@ -3,6 +3,7 @@ import '../../core/constants/app_colors.dart';
 import '../controllers/auth_controller.dart';
 
 /// Premium lock screen — dark gradient with centered vault icon and unlock CTA.
+/// Handles normal locked state, failed-closed security lockout, and no-device-lock fallback.
 class LockScreen extends StatelessWidget {
   final AuthController authController;
 
@@ -11,6 +12,7 @@ class LockScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final isFailedClosed = authController.status == AuthStatus.failedClosed;
+    final isDeviceLockMissing = authController.isDeviceLockMissing;
 
     return Scaffold(
       body: Container(
@@ -19,29 +21,41 @@ class LockScreen extends StatelessWidget {
         decoration: const BoxDecoration(gradient: AppColors.headerGradient),
         child: SafeArea(
           child: Center(
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 32),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 24),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  // Icon
+                  // Icon badge
                   Container(
                     width: 96,
                     height: 96,
                     decoration: BoxDecoration(
-                      color: Colors.white.withValues(alpha: 0.15),
+                      color: isDeviceLockMissing
+                          ? const Color(0xFFFFD54F).withValues(alpha: 0.18)
+                          : isFailedClosed
+                          ? const Color(0xFFFF5252).withValues(alpha: 0.18)
+                          : Colors.white.withValues(alpha: 0.15),
                       shape: BoxShape.circle,
                       border: Border.all(
-                        color: Colors.white.withValues(alpha: 0.3),
+                        color: isDeviceLockMissing
+                            ? const Color(0xFFFFD54F).withValues(alpha: 0.45)
+                            : isFailedClosed
+                            ? const Color(0xFFFF5252).withValues(alpha: 0.45)
+                            : Colors.white.withValues(alpha: 0.3),
                         width: 2,
                       ),
                     ),
                     child: Icon(
-                      isFailedClosed
+                      isDeviceLockMissing
+                          ? Icons.phonelink_lock_rounded
+                          : isFailedClosed
                           ? Icons.lock_person_rounded
                           : Icons.lock_rounded,
                       size: 48,
-                      color: isFailedClosed
+                      color: isDeviceLockMissing
+                          ? const Color(0xFFFFD54F)
+                          : isFailedClosed
                           ? const Color(0xFFFFB3B3)
                           : Colors.white,
                     ),
@@ -50,31 +64,128 @@ class LockScreen extends StatelessWidget {
 
                   // Title
                   Text(
-                    isFailedClosed ? 'Security Lockout' : 'FeesVault is Locked',
+                    isDeviceLockMissing
+                        ? 'Device Lock Required'
+                        : isFailedClosed
+                        ? 'Security Lockout'
+                        : 'FeesVault is Locked',
                     style: const TextStyle(
-                      fontSize: 28,
+                      fontSize: 27,
                       fontWeight: FontWeight.w800,
                       color: Colors.white,
                       letterSpacing: -0.5,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 8),
+                  const SizedBox(height: 10),
+
+                  // Description
                   Text(
-                    isFailedClosed
+                    isDeviceLockMissing
+                        ? 'FeesVault encrypts sensitive fee records using your device\'s secure lock. Please set up a screen lock (PIN, Pattern, Password, or Fingerprint) in your device settings to continue.'
+                        : isFailedClosed
                         ? (authController.errorMessage ??
-                              'Decryption key unavailable. Cannot open records.')
+                            'Decryption key unavailable. Cannot open records.')
                         : 'Your fee records are encrypted and offline.\nAuthenticate to open FeesVault.',
-                    style: const TextStyle(
+                    style: TextStyle(
                       fontSize: 14.5,
-                      color: Color(0xFFB0B8FF),
+                      color: isDeviceLockMissing
+                          ? const Color(0xFFFFE082)
+                          : const Color(0xFFB0B8FF),
                       height: 1.5,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 40),
+                  const SizedBox(height: 36),
 
-                  if (!isFailedClosed) ...[
+                  if (isDeviceLockMissing) ...[
+                    // Primary button: Open Settings
+                    SizedBox(
+                      width: double.infinity,
+                      child: ElevatedButton.icon(
+                        onPressed: () => authController.openSecuritySettings(),
+                        icon: const Icon(Icons.settings_rounded, size: 22),
+                        label: const Text(
+                          'Open Device Settings',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.white,
+                          foregroundColor: AppColors.brand,
+                          padding: const EdgeInsets.symmetric(vertical: 16),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                          elevation: 0,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 12),
+                    // Secondary button: Retry
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton.icon(
+                        onPressed: () => authController.unlock(),
+                        icon: const Icon(
+                          Icons.refresh_rounded,
+                          size: 20,
+                          color: Colors.white,
+                        ),
+                        label: const Text(
+                          "I've Set a Lock — Try Again",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.white,
+                          ),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: BorderSide(
+                            color: Colors.white.withValues(alpha: 0.4),
+                          ),
+                          padding: const EdgeInsets.symmetric(vertical: 14),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(14),
+                          ),
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 20),
+                    // Explanatory note
+                    Container(
+                      padding: const EdgeInsets.all(14),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(12),
+                        border: Border.all(
+                          color: Colors.white.withValues(alpha: 0.15),
+                        ),
+                      ),
+                      child: const Row(
+                        children: [
+                          Icon(
+                            Icons.shield_outlined,
+                            size: 20,
+                            color: Color(0xFFFFD54F),
+                          ),
+                          SizedBox(width: 10),
+                          Expanded(
+                            child: Text(
+                              'FeesVault keeps all student financial records private on this device. A screen lock guarantees that only you can access them.',
+                              style: TextStyle(
+                                fontSize: 12.5,
+                                color: Colors.white70,
+                                height: 1.4,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ] else if (!isFailedClosed) ...[
                     SizedBox(
                       width: double.infinity,
                       child: ElevatedButton.icon(
@@ -142,7 +253,7 @@ class LockScreen extends StatelessWidget {
                     ),
                   ],
 
-                  const SizedBox(height: 24),
+                  const SizedBox(height: 28),
                   // Offline badge
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
