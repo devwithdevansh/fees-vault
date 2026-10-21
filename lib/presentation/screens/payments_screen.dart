@@ -7,7 +7,6 @@ import '../../data/models/payment.dart';
 import '../controllers/vault_controller.dart';
 import 'payer_form_screen.dart';
 import 'payment_detail_receipt_screen.dart';
-import 'payment_form_screen.dart';
 
 /// Payments & Receipts screen — professional design with method filter chips,
 /// gradient avatar tiles, and rich receipt cards.
@@ -92,68 +91,25 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
                         ],
                       ),
                     ),
-                    // Record payment button
-                    GestureDetector(
-                      onTap: () async {
-                        HapticFeedback.lightImpact();
-                        if (!hasStudents) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                              content:
-                                  Text('Please register a student first.'),
-                            ),
-                          );
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => PayerFormScreen(
-                                controller: widget.controller,
-                              ),
-                            ),
-                          );
-                          return;
-                        }
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => PaymentFormScreen(
-                              controller: widget.controller,
-                            ),
-                          ),
-                        );
-                        await _loadPayments();
-                      },
-                      child: Container(
+                    if (_payments.isNotEmpty)
+                      Container(
                         padding: const EdgeInsets.symmetric(
-                          horizontal: 14,
-                          vertical: 10,
+                          horizontal: 12,
+                          vertical: 6,
                         ),
                         decoration: BoxDecoration(
-                          gradient: AppColors.brandGradient,
-                          borderRadius: BorderRadius.circular(12),
-                          boxShadow: AppColors.brandGlow,
+                          color: AppColors.settledGreenBg,
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                        child: const Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.add_rounded,
-                              color: Colors.white,
-                              size: 16,
-                            ),
-                            SizedBox(width: 5),
-                            Text(
-                              'Record',
-                              style: TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.w700,
-                                fontSize: 13,
-                              ),
-                            ),
-                          ],
+                        child: Text(
+                          '${_payments.length} ${_payments.length == 1 ? "receipt" : "receipts"}',
+                          style: const TextStyle(
+                            fontSize: 12,
+                            fontWeight: FontWeight.w700,
+                            color: AppColors.settledGreen,
+                          ),
                         ),
                       ),
-                    ),
                   ],
                 ),
 
@@ -211,26 +167,15 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
                   ? _EmptyState(
                       method: _selectedMethod,
                       hasStudents: hasStudents,
-                      onCta: () async {
-                        if (!hasStudents) {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => PayerFormScreen(
-                                controller: widget.controller,
-                              ),
+                      onRegisterStudent: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => PayerFormScreen(
+                              controller: widget.controller,
                             ),
-                          );
-                        } else {
-                          await Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (_) => PaymentFormScreen(
-                                controller: widget.controller,
-                              ),
-                            ),
-                          );
-                        }
+                          ),
+                        );
                         await _loadPayments();
                       },
                     )
@@ -495,12 +440,12 @@ class _PaymentTile extends StatelessWidget {
 class _EmptyState extends StatelessWidget {
   final String method;
   final bool hasStudents;
-  final VoidCallback onCta;
+  final VoidCallback onRegisterStudent;
 
   const _EmptyState({
     required this.method,
     required this.hasStudents,
-    required this.onCta,
+    required this.onRegisterStudent,
   });
 
   @override
@@ -516,7 +461,7 @@ class _EmptyState extends StatelessWidget {
             Container(
               width: 80,
               height: 80,
-              decoration: BoxDecoration(
+              decoration: const BoxDecoration(
                 color: AppColors.settledGreenBg,
                 shape: BoxShape.circle,
               ),
@@ -529,8 +474,8 @@ class _EmptyState extends StatelessWidget {
             const SizedBox(height: 20),
             Text(
               isFiltered
-                  ? 'No $method Payments'
-                  : 'No Receipts Yet',
+                  ? 'No $method Receipts'
+                  : 'No Receipts Issued Yet',
               style: const TextStyle(
                 fontSize: 20,
                 fontWeight: FontWeight.w800,
@@ -541,26 +486,21 @@ class _EmptyState extends StatelessWidget {
             const SizedBox(height: 8),
             Text(
               isFiltered
-                  ? 'Try selecting "All" to view all receipts.'
-                  : 'Record fee payments received to generate\nofficial receipts instantly.',
+                  ? 'Try selecting "All" to view all issued receipts.'
+                  : 'Fee payments collected from the Monthly Fees Register or Student Profiles will appear here automatically with downloadable receipts.',
               style: const TextStyle(
-                fontSize: 14,
+                fontSize: 13.5,
                 color: AppColors.textTertiary,
-                height: 1.6,
+                height: 1.5,
               ),
               textAlign: TextAlign.center,
             ),
-            if (!isFiltered) ...[
-              const SizedBox(height: 28),
+            if (!hasStudents && !isFiltered) ...[
+              const SizedBox(height: 24),
               ElevatedButton.icon(
-                onPressed: onCta,
-                icon: Icon(
-                  hasStudents ? Icons.payments_rounded : Icons.person_add_rounded,
-                  size: 17,
-                ),
-                label: Text(
-                  hasStudents ? 'Record First Payment' : 'Register Student First',
-                ),
+                onPressed: onRegisterStudent,
+                icon: const Icon(Icons.person_add_rounded, size: 17),
+                label: const Text('Register First Student'),
               ),
             ],
           ],
