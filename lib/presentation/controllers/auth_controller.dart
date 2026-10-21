@@ -61,15 +61,6 @@ class AuthController extends ChangeNotifier {
     notifyListeners();
 
     try {
-      debugPrint('[FeesVault] AuthController: Checking device lock enrollment...');
-      final hasDeviceLock = await platformSecurityService.isDeviceLockEnrolled();
-      if (!hasDeviceLock) {
-        throw DeviceLockNotEnrolledException(
-          'No screen lock (PIN, Pattern, Password, or Biometrics) is set up on this device. A screen lock is required to secure FeesVault records.',
-          'Device lock missing',
-        );
-      }
-
       debugPrint('[FeesVault] AuthController: Starting unlock sequence...');
       final authenticated = await authService.authenticate(
         reason: 'Authenticate to access FeesVault records',
