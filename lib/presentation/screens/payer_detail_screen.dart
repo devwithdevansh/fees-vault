@@ -377,7 +377,7 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                       children: [
                         Row(
                           children: [
-                            Flexible(
+                            Expanded(
                               child: Text(
                                 p.name,
                                 style: const TextStyle(
@@ -386,6 +386,7 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                                   color: Colors.white,
                                   letterSpacing: -0.3,
                                 ),
+                                maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
                               ),
                             ),
@@ -396,22 +397,19 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                           ],
                         ),
                         const SizedBox(height: 6),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 5,
-                          children: [
-                            if (p.batch != null && p.batch!.isNotEmpty)
-                              _HeroPill(
-                                icon: Icons.school_rounded,
-                                label: p.batch!,
-                              ),
-                            if (p.phone != null && p.phone!.isNotEmpty)
-                              _HeroPill(
-                                icon: Icons.phone_outlined,
-                                label: p.phone!,
-                              ),
-                          ],
-                        ),
+                        if (p.batch != null && p.batch!.isNotEmpty) ...[
+                          _HeroPill(
+                            icon: Icons.school_rounded,
+                            label: p.batch!,
+                          ),
+                          const SizedBox(height: 5),
+                        ],
+                        if (p.phone != null && p.phone!.isNotEmpty) ...[
+                          _HeroPill(
+                            icon: Icons.phone_outlined,
+                            label: p.phone!,
+                          ),
+                        ],
                         if (p.notes != null && p.notes!.isNotEmpty) ...[
                           const SizedBox(height: 8),
                           Text(
@@ -900,14 +898,18 @@ class _HeroPill extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 11, color: Colors.white),
-          const SizedBox(width: 4),
-          Text(
-            label,
-            style: const TextStyle(
-              fontSize: 11.5,
-              color: Colors.white,
-              fontWeight: FontWeight.w600,
+          Icon(icon, size: 12, color: Colors.white),
+          const SizedBox(width: 5),
+          Flexible(
+            child: Text(
+              label,
+              style: const TextStyle(
+                fontSize: 11.5,
+                color: Colors.white,
+                fontWeight: FontWeight.w600,
+              ),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
             ),
           ),
         ],
