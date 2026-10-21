@@ -4,7 +4,7 @@ import '../../core/formatters/currency_formatter.dart';
 import '../controllers/vault_controller.dart';
 import 'money_input_field.dart';
 
-/// Modal dialog that generates a complete Indian 12-month tuition fee schedule
+/// Modal dialog that generates a complete 12-month tuition fee schedule
 /// with a single tap, eliminating the need to manually enter 12 installments.
 class MonthlyFeeGeneratorDialog extends StatefulWidget {
   final VaultController controller;
@@ -37,7 +37,7 @@ class _MonthlyFeeGeneratorDialogState extends State<MonthlyFeeGeneratorDialog> {
   late int _startYear;
   late int _endYear;
 
-  // 12 Indian Academic session months (April to March)
+  // 12 Academic session months (April to March)
   final List<bool> _selectedMonths = List.generate(12, (_) => true);
 
   static const List<String> _monthLabels = [

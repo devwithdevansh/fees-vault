@@ -8,12 +8,12 @@ import '../controllers/vault_controller.dart';
 import '../screens/charge_detail_screen.dart';
 import 'quick_collect_sheet.dart';
 
-/// Authentic Indian Month-Wise Fees Register & Quick-Collection View.
+/// Month-Wise Fees Register & Quick-Collection View.
 /// Provides:
 /// 1. Horizontal Month Carousel (April to March) with current month detection
 /// 2. Monthly Collection Health Card (Target vs Collected vs Pending)
 /// 3. Student Roster with 1-Tap "⚡ Collect ₹..." instant payment flow
-/// 4. Classic Indian Tuition Ledger Matrix view toggle (Student rows x 12 Month columns)
+/// 4. Classic Monthly Ledger Matrix view toggle (Student rows x 12 Month columns)
 class MonthlyFeesRegisterView extends StatefulWidget {
   final VaultController controller;
   final Batch batch;
@@ -212,7 +212,7 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
               ),
               const SizedBox(height: 8),
               const Text(
-                'Generate a 12-month Indian tuition schedule in the "Fee Structure" tab, then tap "Charge All Students" to activate this register.',
+                'Generate a 12-month tuition schedule in the "Fee Structure" tab, then tap "Charge All Students" to activate this register.',
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontSize: 13,
@@ -772,7 +772,7 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
   }
 
   // ─────────────────────────────────────────────────────────────────────────
-  // View B: Classic Indian Tuition Ledger Matrix (Students x 12 Months)
+  // View B: Classic Monthly Tuition Ledger Matrix (Students x 12 Months)
   // ─────────────────────────────────────────────────────────────────────────
   Widget _buildLedgerMatrix() {
     return SingleChildScrollView(

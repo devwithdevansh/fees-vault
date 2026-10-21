@@ -4,7 +4,7 @@ import 'package:fees_vault/data/models/charge.dart';
 import 'package:fees_vault/data/seeds/demo_data_seeder.dart';
 
 void main() {
-  group('Authentic Indian Tuition Fee System Invariants', () {
+  group('Monthly Tuition Fee System Invariants', () {
     test('Session months accurately model 12 months from April to March', () {
       expect(DemoDataSeeder.monthNames.first, equals('April 2026'));
       expect(DemoDataSeeder.monthNames.last, equals('March 2027'));

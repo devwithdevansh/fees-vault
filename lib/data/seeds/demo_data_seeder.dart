@@ -5,8 +5,8 @@ import '../models/batch.dart';
 import '../models/payer.dart';
 import '../../presentation/controllers/vault_controller.dart';
 
-/// Seeds realistic, authentic Indian tuition fee data for 50 students across 5 classes.
-/// Models a standard Indian academic year (April 2026 to March 2027) with:
+/// Seeds realistic tuition fee data for 50 students across 5 classes.
+/// Models a standard academic year (April 2026 to March 2027) with:
 /// - 12 monthly tuition installments (due on the 10th of every month)
 /// - One-time admission/material fee
 /// - Realistic timeline collections up to the current month (October):
@@ -65,32 +65,32 @@ class DemoDataSeeder {
     'Vandana Patil',
   ];
 
-  static const List<_IndianClassSpec> _classes = [
-    _IndianClassSpec(
+  static const List<_DemoClassSpec> _classes = [
+    _DemoClassSpec(
       name: 'Class 9 - Foundation Science & Maths',
       monthlyFeePaise: 150000, // ₹1,500/mo
       admissionFeePaise: 100000, // ₹1,000 one-time
       notes: 'CBSE Foundation 2026-27',
     ),
-    _IndianClassSpec(
+    _DemoClassSpec(
       name: 'Class 10 - Board Master Batch',
       monthlyFeePaise: 200000, // ₹2,000/mo
       admissionFeePaise: 150000, // ₹1,500 one-time
       notes: '10th Board Target 95%+',
     ),
-    _IndianClassSpec(
+    _DemoClassSpec(
       name: 'Class 11 - PCM & Computer Science',
       monthlyFeePaise: 280000, // ₹2,800/mo
       admissionFeePaise: 200000, // ₹2,000 one-time
       notes: 'Engineering & CBSE 11th',
     ),
-    _IndianClassSpec(
+    _DemoClassSpec(
       name: 'Class 12 - Target NEET & JEE Prep',
       monthlyFeePaise: 350000, // ₹3,500/mo
       admissionFeePaise: 250000, // ₹2,500 one-time
       notes: 'Intensive Entrance Batch',
     ),
-    _IndianClassSpec(
+    _DemoClassSpec(
       name: 'Commerce - Accountancy & Economics',
       monthlyFeePaise: 220000, // ₹2,200/mo
       admissionFeePaise: 150000, // ₹1,500 one-time
@@ -148,7 +148,7 @@ class DemoDataSeeder {
     await controller.refreshAll();
   }
 
-  /// Seeds 50 students across 5 classes with standard Indian 12-month tuition schedules.
+  /// Seeds 50 students across 5 classes with standard 12-month tuition schedules.
   /// If [clearFirst] is true, safely wipes existing demo data before seeding.
   static Future<Map<String, int>> seed(
     VaultController controller, {
@@ -174,7 +174,7 @@ class DemoDataSeeder {
       }
     }
 
-    // 2. Create the 5 Indian tuition batches with 12 monthly templates
+    // 2. Create the 5 tuition batches with 12 monthly templates
     final createdBatches = <Batch>[];
     for (final cls in _classes) {
       final batch = await controller.batchRepo.createBatch(
@@ -327,13 +327,13 @@ class DemoDataSeeder {
   }
 }
 
-class _IndianClassSpec {
+class _DemoClassSpec {
   final String name;
   final int monthlyFeePaise;
   final int admissionFeePaise;
   final String notes;
 
-  const _IndianClassSpec({
+  const _DemoClassSpec({
     required this.name,
     required this.monthlyFeePaise,
     required this.admissionFeePaise,

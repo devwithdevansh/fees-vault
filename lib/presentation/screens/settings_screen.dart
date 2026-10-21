@@ -45,7 +45,7 @@ class SettingsScreen extends StatelessWidget {
           ],
         ),
         content: const Text(
-          'This will safely clear existing test records and populate your encrypted database with an authentic Indian tuition fee system:\n\n'
+          'This will safely clear existing test records and populate your encrypted database with a complete 12-month tuition fee system:\n\n'
           '• 5 Classes (Class 9 to 12 & Commerce)\n'
           '• 12 Monthly Tuition Cycles (April 2026 to March 2027)\n'
           '• Standard Due Dates on 10th of every month\n'
@@ -103,7 +103,7 @@ class SettingsScreen extends StatelessWidget {
                 ),
                 SizedBox(height: 16),
                 Text(
-                  'Setting up Indian Tuition System...',
+                  'Setting up Tuition Demo Data...',
                   style: TextStyle(
                     fontWeight: FontWeight.w700,
                     fontSize: 14.5,
@@ -699,7 +699,7 @@ class SettingsScreen extends StatelessWidget {
                               ),
                             ),
                             Text(
-                              'INR (₹) · Indian Rupee',
+                              'INR (₹) · Rupee',
                               style: TextStyle(
                                 fontWeight: FontWeight.w700,
                                 fontSize: 14,
@@ -847,7 +847,7 @@ class SettingsScreen extends StatelessWidget {
               const SizedBox(height: 24),
 
               // ── DEMO & TESTING DATA ─────────────────────────────────
-              _SectionLabel(label: 'INDIAN TUITION SYSTEM & DEMO DATA'),
+              _SectionLabel(label: 'DEMO DATA & SAMPLE SYSTEM'),
               const SizedBox(height: 10),
               Builder(
                 builder: (context) => _SettingsCard(
@@ -859,7 +859,7 @@ class SettingsScreen extends StatelessWidget {
                         iconBg: AppColors.brandLight,
                         title: 'Reset & Seed Monthly Tuition Data',
                         subtitle:
-                            'Safely replace data with 12-month Indian tuition fee schedules',
+                            'Safely replace data with 12-month tuition fee schedules',
                         trailing: Container(
                           padding: const EdgeInsets.symmetric(
                             horizontal: 11,
@@ -871,7 +871,7 @@ class SettingsScreen extends StatelessWidget {
                             boxShadow: AppColors.brandGlow,
                           ),
                           child: const Text(
-                            'Load Indian',
+                            'Load Demo',
                             style: TextStyle(
                               color: Colors.white,
                               fontWeight: FontWeight.w700,

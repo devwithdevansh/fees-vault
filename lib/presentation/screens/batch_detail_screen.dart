@@ -474,7 +474,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
               child: TabBarView(
                 controller: _tabController,
                 children: [
-                  // Tab 1: Authentic Indian Month-Wise Fees Register & Quick Collect
+                  // Tab 1: Month-Wise Fees Register & Quick Collect
                   MonthlyFeesRegisterView(
                     controller: widget.controller,
                     batch: b,

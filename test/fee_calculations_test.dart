@@ -46,7 +46,7 @@ void main() {
       },
     );
 
-    test('Formats paise into Indian English grouping (en_IN)', () {
+    test('Formats paise into standard currency grouping (en_IN)', () {
       // 10,000 INR = 1000000 paise
       expect(CurrencyFormatter.formatPaise(1000000), equals('₹10,000'));
       // 1,23,456.50 INR = 12345650 paise

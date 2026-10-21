@@ -1,7 +1,7 @@
 import 'package:intl/intl.dart';
 import '../errors/app_exceptions.dart';
 
-/// Accurate, integer-paise currency parsing and Indian English (en_IN) formatting.
+/// Accurate, integer-paise currency parsing and standard locale (en_IN) formatting.
 /// Guarantees that financial records never lose precision from floating point errors.
 class CurrencyFormatter {
   static final NumberFormat _inrWithDecimals = NumberFormat.currency(

@@ -5,7 +5,7 @@ import '../../core/formatters/currency_formatter.dart';
 import '../../data/models/charge.dart';
 import '../controllers/vault_controller.dart';
 
-/// Universal 3-second Quick Collect Bottom Sheet for Indian tuition fee collection.
+/// Universal 3-second Quick Collect Bottom Sheet for tuition fee collection.
 /// Eliminates the need for standalone multi-step payment forms and 200-item charge dropdowns.
 /// Pre-fills student name, fee title, and remaining balance.
 class QuickCollectSheet {
