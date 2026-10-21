@@ -505,30 +505,34 @@ class _MonthlyFeeGeneratorDialogState extends State<MonthlyFeeGeneratorDialog> {
                     border: Border.all(color: AppColors.brandMid),
                   ),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const Text(
-                            'ANNUAL BATCH FEE',
-                            style: TextStyle(
-                              fontSize: 10,
-                              fontWeight: FontWeight.w800,
-                              color: AppColors.brandDark,
-                              letterSpacing: 0.8,
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'ANNUAL BATCH FEE',
+                              style: TextStyle(
+                                fontSize: 10,
+                                fontWeight: FontWeight.w800,
+                                color: AppColors.brandDark,
+                                letterSpacing: 0.8,
+                              ),
                             ),
-                          ),
-                          const SizedBox(height: 2),
-                          Text(
-                            '$selectedCount Monthly installments${_includeAdmissionFee ? " + 1 Admission fee" : ""}',
-                            style: const TextStyle(
-                              fontSize: 12,
-                              color: AppColors.textSecondary,
+                            const SizedBox(height: 2),
+                            Text(
+                              '$selectedCount Monthly installments${_includeAdmissionFee ? " + 1 Admission fee" : ""}',
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: AppColors.textSecondary,
+                              ),
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
+                      const SizedBox(width: 8),
                       Text(
                         CurrencyFormatter.formatPaise(totalPaise),
                         style: const TextStyle(
