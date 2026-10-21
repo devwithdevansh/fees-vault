@@ -107,6 +107,7 @@ class SettingsScreen extends StatelessWidget {
     final updated = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
+        scrollable: true,
         title: const Text('Edit Academy Name'),
         content: Form(
           key: formKey,
@@ -157,10 +158,11 @@ class SettingsScreen extends StatelessWidget {
           ),
           child: SafeArea(
             top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                const SizedBox(height: 12),
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 12),
                 Container(
                   width: 40,
                   height: 4,
@@ -288,8 +290,9 @@ class SettingsScreen extends StatelessWidget {
               ],
             ),
           ),
-        );
-      },
+        ),
+      );
+    },
     );
   }
 
@@ -301,6 +304,7 @@ class SettingsScreen extends StatelessWidget {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
+          scrollable: true,
           title: const Text('Add Academic Year'),
           content: Column(
             mainAxisSize: MainAxisSize.min,

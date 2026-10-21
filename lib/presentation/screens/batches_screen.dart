@@ -40,9 +40,10 @@ class _BatchesScreenState extends State<BatchesScreen> {
           ),
           child: SafeArea(
             top: false,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
                 const SizedBox(height: 12),
                 Container(
                   width: 40,
@@ -172,8 +173,9 @@ class _BatchesScreenState extends State<BatchesScreen> {
               ],
             ),
           ),
-        );
-      },
+        ),
+      );
+    },
     );
   }
 
@@ -185,6 +187,7 @@ class _BatchesScreenState extends State<BatchesScreen> {
       context: context,
       builder: (ctx) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
+          scrollable: true,
           title: const Text('Add Academic Year'),
           content: Column(
             mainAxisSize: MainAxisSize.min,
