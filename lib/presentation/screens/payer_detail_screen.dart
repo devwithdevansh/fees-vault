@@ -117,27 +117,62 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
       showDialog(
         context: context,
         builder: (ctx) => AlertDialog(
-          title: const Text('Deletion Blocked'),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+          title: const Row(
+            children: [
+              Icon(Icons.archive_outlined, color: AppColors.brand, size: 22),
+              SizedBox(width: 8),
+              Text('Archive Student?'),
+            ],
+          ),
           content: Text(
-            'Cannot delete ${_payer!.name} because ${_charges.length} fee installment(s) '
-            'are recorded for this student. To preserve accounting integrity, you can archive this student instead.',
+            'Cannot permanently delete ${_payer!.name} because ${_charges.length} fee installment(s) / receipt(s) '
+            'are recorded for this student.\n\n'
+            'To preserve your fee accounting & receipt records, this student will be moved to the Archived tab. '
+            'You can restore them back to active students at any time.',
+            style: const TextStyle(height: 1.45, fontSize: 13.5),
           ),
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(ctx),
               child: const Text('Cancel'),
             ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(backgroundColor: AppColors.brand),
-              onPressed: () async {
-                Navigator.pop(ctx);
-                await widget.controller.archivePayer(_payer!.id, true);
-                await _loadPayerDetails();
-              },
-              child: const Text(
-                'Archive Student',
-                style: TextStyle(color: Colors.white),
+            ElevatedButton.icon(
+              style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.brand,
+                foregroundColor: Colors.white,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
+              icon: const Icon(Icons.archive_outlined, size: 18),
+              onPressed: () async {
+                final studentName = _payer!.name;
+                final studentId = _payer!.id;
+                Navigator.pop(ctx);
+                await widget.controller.archivePayer(studentId, true);
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text(
+                        '✓ $studentName moved to Archived tab. You can restore anytime.',
+                      ),
+                      backgroundColor: AppColors.settledGreen,
+                      action: SnackBarAction(
+                        label: 'Undo',
+                        textColor: Colors.white,
+                        onPressed: () async {
+                          await widget.controller.archivePayer(studentId, false);
+                        },
+                      ),
+                    ),
+                  );
+                  Navigator.pop(context);
+                }
+              },
+              label: const Text('Archive Student'),
             ),
           ],
         ),
@@ -171,6 +206,125 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
     if (confirmed == true && mounted) {
       await widget.controller.deletePayer(_payer!.id);
       if (mounted) Navigator.pop(context);
+    }
+  }
+
+  Future<void> _confirmUnarchive(Payer p) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.unarchive_rounded, color: AppColors.settledGreen, size: 24),
+            SizedBox(width: 8),
+            Text('Restore Student?'),
+          ],
+        ),
+        content: Text(
+          'Restore ${p.name} back to the active student list?\n\n'
+          'All fee records, receipts, and outstanding dues will become fully active again.',
+          style: const TextStyle(fontSize: 13.5, height: 1.45),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.settledGreen,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Restore Student'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && mounted) {
+      await widget.controller.archivePayer(p.id, false);
+      await _loadPayerDetails();
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('✓ ${p.name} restored to active students!'),
+            backgroundColor: AppColors.settledGreen,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _confirmArchive(Payer p) async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Row(
+          children: [
+            Icon(Icons.archive_outlined, color: AppColors.brand, size: 24),
+            SizedBox(width: 8),
+            Text('Archive Student?'),
+          ],
+        ),
+        content: Text(
+          'Move ${p.name} to the Archived tab?\n\n'
+          'Archiving hides the student from the active list, but preserves all fee records, receipts, and outstanding dues in financial totals.\n\n'
+          'You can restore them at any time.',
+          style: const TextStyle(fontSize: 13.5, height: 1.45),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton.icon(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: AppColors.brand,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(10),
+              ),
+            ),
+            icon: const Icon(Icons.archive_outlined, size: 18),
+            onPressed: () => Navigator.pop(ctx, true),
+            label: const Text('Archive Student'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true && mounted) {
+      final studentName = p.name;
+      final studentId = p.id;
+      await widget.controller.archivePayer(studentId, true);
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              '✓ $studentName moved to Archived tab. You can restore anytime.',
+            ),
+            backgroundColor: AppColors.settledGreen,
+            action: SnackBarAction(
+              label: 'Undo',
+              textColor: Colors.white,
+              onPressed: () async {
+                await widget.controller.archivePayer(studentId, false);
+              },
+            ),
+          ),
+        );
+        Navigator.pop(context);
+      }
     }
   }
 
@@ -300,38 +454,10 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
             icon: const Icon(Icons.more_vert, color: AppColors.textSecondary),
             onSelected: (val) async {
               if (val == 'archive') {
-                final confirm = await showDialog<bool>(
-                  context: context,
-                  builder: (ctx) => AlertDialog(
-                    title: Text(
-                      p.archived ? 'Unarchive Student?' : 'Archive Student?',
-                    ),
-                    content: Text(
-                      p.archived
-                          ? 'This student will return to the active student list.'
-                          : 'Archiving hides the student from the active list, but preserves all fee records and outstanding dues in financial totals.',
-                    ),
-                    actions: [
-                      TextButton(
-                        onPressed: () => Navigator.pop(ctx, false),
-                        child: const Text('Cancel'),
-                      ),
-                      ElevatedButton(
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.brand,
-                        ),
-                        onPressed: () => Navigator.pop(ctx, true),
-                        child: Text(
-                          p.archived ? 'Unarchive' : 'Archive',
-                          style: const TextStyle(color: Colors.white),
-                        ),
-                      ),
-                    ],
-                  ),
-                );
-                if (confirm == true) {
-                  await widget.controller.archivePayer(p.id, !p.archived);
-                  await _loadPayerDetails();
+                if (p.archived) {
+                  await _confirmUnarchive(p);
+                } else {
+                  await _confirmArchive(p);
                 }
               } else if (val == 'delete') {
                 await _confirmDelete();
@@ -340,15 +466,39 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
             itemBuilder: (_) => [
               PopupMenuItem(
                 value: 'archive',
-                child: Text(
-                  p.archived ? 'Unarchive Student' : 'Archive Student',
+                child: Row(
+                  children: [
+                    Icon(
+                      p.archived
+                          ? Icons.unarchive_rounded
+                          : Icons.archive_outlined,
+                      size: 18,
+                      color: p.archived
+                          ? AppColors.settledGreen
+                          : AppColors.textSecondary,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      p.archived ? 'Restore Student' : 'Archive Student',
+                    ),
+                  ],
                 ),
               ),
               const PopupMenuItem(
                 value: 'delete',
-                child: Text(
-                  'Delete Student',
-                  style: TextStyle(color: AppColors.overdueRed),
+                child: Row(
+                  children: [
+                    Icon(
+                      Icons.delete_outline_rounded,
+                      size: 18,
+                      color: AppColors.overdueRed,
+                    ),
+                    SizedBox(width: 8),
+                    Text(
+                      'Delete Student',
+                      style: TextStyle(color: AppColors.overdueRed),
+                    ),
+                  ],
                 ),
               ),
             ],
@@ -469,6 +619,82 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                 ],
               ),
             ),
+            if (p.archived) ...[
+              Container(
+                margin: const EdgeInsets.only(bottom: 16),
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: AppColors.unpaidAmberBg,
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(color: AppColors.unpaidAmberMid),
+                ),
+                child: Row(
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.all(10),
+                      decoration: BoxDecoration(
+                        color: AppColors.unpaidAmber.withValues(alpha: 0.15),
+                        shape: BoxShape.circle,
+                      ),
+                      child: const Icon(
+                        Icons.inventory_2_outlined,
+                        color: AppColors.unpaidAmber,
+                        size: 24,
+                      ),
+                    ),
+                    const SizedBox(width: 14),
+                    const Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'This Student is Archived',
+                            style: TextStyle(
+                              fontWeight: FontWeight.w700,
+                              fontSize: 14.5,
+                              color: AppColors.textPrimary,
+                            ),
+                          ),
+                          SizedBox(height: 3),
+                          Text(
+                            'Hidden from active lists. Receipts & accounting records are preserved.',
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: AppColors.textSecondary,
+                              height: 1.3,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(width: 10),
+                    ElevatedButton.icon(
+                      onPressed: () => _confirmUnarchive(p),
+                      icon: const Icon(Icons.unarchive_rounded, size: 16),
+                      label: const Text(
+                        'Restore',
+                        style: TextStyle(
+                          fontWeight: FontWeight.w700,
+                          fontSize: 13,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: AppColors.settledGreen,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 14,
+                          vertical: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        elevation: 0,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
 
             // ── Financial Balance Card ───────────────────────────────
             Container(

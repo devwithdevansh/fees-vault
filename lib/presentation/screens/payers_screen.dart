@@ -1234,6 +1234,104 @@ class _StudentCard extends StatelessWidget {
                           ),
                         ],
                       ),
+                      if (student.archived) ...[
+                        const SizedBox(width: 10),
+                        InkWell(
+                          onTap: () async {
+                            HapticFeedback.lightImpact();
+                            final confirm = await showDialog<bool>(
+                              context: context,
+                              builder: (ctx) => AlertDialog(
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                title: const Row(
+                                  children: [
+                                    Icon(
+                                      Icons.unarchive_rounded,
+                                      color: AppColors.settledGreen,
+                                      size: 22,
+                                    ),
+                                    SizedBox(width: 8),
+                                    Text('Restore Student?'),
+                                  ],
+                                ),
+                                content: Text(
+                                  'Restore ${student.name} back to the active student list?\n\n'
+                                  'All fee records and receipts remain completely intact.',
+                                  style: const TextStyle(
+                                    fontSize: 13.5,
+                                    height: 1.45,
+                                  ),
+                                ),
+                                actions: [
+                                  TextButton(
+                                    onPressed: () => Navigator.pop(ctx, false),
+                                    child: const Text('Cancel'),
+                                  ),
+                                  ElevatedButton(
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: AppColors.settledGreen,
+                                      foregroundColor: Colors.white,
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                    ),
+                                    onPressed: () => Navigator.pop(ctx, true),
+                                    child: const Text('Restore Student'),
+                                  ),
+                                ],
+                              ),
+                            );
+                            if (confirm == true) {
+                              await controller.archivePayer(student.id, false);
+                              if (context.mounted) {
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  SnackBar(
+                                    content: Text(
+                                      '✓ ${student.name} restored to active list!',
+                                    ),
+                                    backgroundColor: AppColors.settledGreen,
+                                  ),
+                                );
+                              }
+                            }
+                          },
+                          borderRadius: BorderRadius.circular(8),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 10,
+                              vertical: 4,
+                            ),
+                            decoration: BoxDecoration(
+                              color: AppColors.settledGreenBg,
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(
+                                color: AppColors.settledGreenMid,
+                              ),
+                            ),
+                            child: const Row(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                Icon(
+                                  Icons.unarchive_rounded,
+                                  size: 14,
+                                  color: AppColors.settledGreen,
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Restore',
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w700,
+                                    color: AppColors.settledGreen,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ],

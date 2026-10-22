@@ -39,12 +39,12 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
   void initState() {
     super.initState();
     final ch = widget.chargeToEdit;
+    final activePayers =
+        widget.controller.payers.where((p) => !p.archived).toList();
     _selectedPayerId =
         ch?.payerId ??
         widget.initialPayerId ??
-        (widget.controller.payers.isNotEmpty
-            ? widget.controller.payers.first.id
-            : null);
+        (activePayers.isNotEmpty ? activePayers.first.id : null);
     _titleController = TextEditingController(text: ch?.title ?? '');
     _periodController = TextEditingController(text: ch?.period ?? '');
     _grossController = TextEditingController(
@@ -198,7 +198,9 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.chargeToEdit != null;
-    final payers = widget.controller.payers;
+    final payers = widget.controller.payers
+        .where((p) => !p.archived || p.id == _selectedPayerId)
+        .toList();
 
     // Calculate live net fee — safe: returns 0 for empty or invalid input
     int safePaise(String text) {

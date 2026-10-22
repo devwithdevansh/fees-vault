@@ -121,7 +121,7 @@ class VaultController extends ChangeNotifier {
   Future<void> refreshAll() async {
     try {
       _summary = await chargeRepo.getVaultSummary();
-      _payers = await payerRepo.getPayers();
+      _payers = await payerRepo.getPayers(includeArchived: true);
       _recentPayments = await paymentRepo.getPayments(limit: 10);
       _overdueCharges = await chargeRepo.getOverdueCharges(limit: 10);
       _academicYears = await academicYearRepo.getAcademicYears();

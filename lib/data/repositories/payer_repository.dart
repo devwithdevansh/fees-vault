@@ -17,7 +17,7 @@ class PayerRepository {
   /// Uses correlated subqueries to avoid JOIN multiplication.
   Future<List<Payer>> getPayers({
     String? query,
-    bool includeArchived = false,
+    bool includeArchived = true,
   }) async {
     final db = _dbManager.database;
 
