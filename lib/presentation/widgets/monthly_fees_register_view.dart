@@ -33,45 +33,33 @@ class MonthlyFeesRegisterView extends StatefulWidget {
       _MonthlyFeesRegisterViewState();
 }
 
+/// Configuration for a partition tab/column in the Fees Register
+class RegisterPartition {
+  final String id;
+  final String label;
+  final String? sublabel;
+  final String fullTitle;
+  final bool Function(Charge) matcher;
+
+  const RegisterPartition({
+    required this.id,
+    required this.label,
+    this.sublabel,
+    required this.fullTitle,
+    required this.matcher,
+  });
+}
+
 class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
   bool _isLoading = true;
   List<Charge> _allCharges = [];
-  int _selectedMonthIndex = 0;
+  List<RegisterPartition> _partitions = [];
+  int _selectedPartitionIndex = 0;
   bool _isLedgerMatrixView = false;
   String _filterState = 'all'; // 'all', 'pending', 'paid'
 
   late int _startYear;
   late int _endYear;
-
-  static const List<String> _monthLabels = [
-    'Apr',
-    'May',
-    'Jun',
-    'Jul',
-    'Aug',
-    'Sep',
-    'Oct',
-    'Nov',
-    'Dec',
-    'Jan',
-    'Feb',
-    'Mar',
-  ];
-
-  static const List<String> _monthFullNames = [
-    'April',
-    'May',
-    'June',
-    'July',
-    'August',
-    'September',
-    'October',
-    'November',
-    'December',
-    'January',
-    'February',
-    'March',
-  ];
 
   @override
   void initState() {
@@ -90,28 +78,315 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
       _startYear = DateTime.now().year;
     }
     _endYear = _startYear + 1;
+  }
 
-    // Detect current calendar month index (April = 0, ..., March = 11)
-    final now = DateTime.now();
-    if (now.month >= 4) {
-      _selectedMonthIndex = now.month - 4; // Apr(4) -> 0, Dec(12) -> 8
+  List<RegisterPartition> _buildPartitions() {
+    final list = <RegisterPartition>[];
+
+    // 1. Ancillary Fees: Admission Fee
+    final hasAdmission = _allCharges.any(
+      (c) => c.title.toLowerCase().contains('admission'),
+    );
+    if (hasAdmission) {
+      list.add(
+        RegisterPartition(
+          id: 'admission',
+          label: 'Adm',
+          sublabel: 'Admission',
+          fullTitle: 'Admission Fee',
+          matcher: (c) => c.title.toLowerCase().contains('admission'),
+        ),
+      );
+    }
+
+    // 2. Ancillary Fees: Bag & Kit Fee
+    final hasBagKit = _allCharges.any(
+      (c) =>
+          c.title.toLowerCase().contains('bag') ||
+          c.title.toLowerCase().contains('kit'),
+    );
+    if (hasBagKit) {
+      list.add(
+        RegisterPartition(
+          id: 'bag_kit',
+          label: 'Kit',
+          sublabel: 'Bag & Kit',
+          fullTitle: 'Bag & Kit Material Fee',
+          matcher: (c) =>
+              c.title.toLowerCase().contains('bag') ||
+              c.title.toLowerCase().contains('kit'),
+        ),
+      );
+    }
+
+    // 3. Check if charges contain "Term 1" or "Term 2" (DEFAULT_12_2 from school-erp)
+    final hasTerms = _allCharges.any(
+      (c) =>
+          c.title.toLowerCase().contains('term 1') ||
+          c.title.toLowerCase().contains('term 2') ||
+          (c.period != null && c.period!.toLowerCase().contains('term')),
+    );
+
+    // 4. Check whether charges use June session or April session
+    final hasJuneCharges = _allCharges.any(
+      (c) =>
+          c.title.toLowerCase().contains('june') ||
+          (c.dueDate.length >= 7 && c.dueDate.contains('-06-')),
+    );
+    final isJuneSession = hasTerms || hasJuneCharges;
+
+    if (hasTerms) {
+      // 14-part layout (matching school-erp buildEduTermConfig!)
+      // Term 1 (due before June)
+      list.add(
+        RegisterPartition(
+          id: 'term_1',
+          label: 'Term 1',
+          sublabel: 'Term Fee',
+          fullTitle: 'Term 1 Fee',
+          matcher: (c) =>
+              c.title.toLowerCase().contains('term 1') ||
+              (c.period != null && c.period!.toLowerCase().contains('term 1')),
+        ),
+      );
+
+      // June to November
+      final firstHalfMonths = [
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+      ];
+      final firstHalfLabels = ['Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'];
+      for (int i = 0; i < 6; i++) {
+        final mName = firstHalfMonths[i];
+        final mCode = '$_startYear-${(i + 6).toString().padLeft(2, '0')}';
+        list.add(
+          RegisterPartition(
+            id: mCode,
+            label: firstHalfLabels[i],
+            sublabel: 'Tuition',
+            fullTitle: '$mName $_startYear Tuition',
+            matcher: (c) =>
+                !c.title.toLowerCase().contains('term') &&
+                !c.title.toLowerCase().contains('admission') &&
+                !c.title.toLowerCase().contains('kit') &&
+                (c.dueDate.startsWith(mCode) ||
+                    c.title.toLowerCase().contains(mName.toLowerCase())),
+          ),
+        );
+      }
+
+      // Term 2 (due before Dec / November)
+      list.add(
+        RegisterPartition(
+          id: 'term_2',
+          label: 'Term 2',
+          sublabel: 'Term Fee',
+          fullTitle: 'Term 2 Fee',
+          matcher: (c) =>
+              c.title.toLowerCase().contains('term 2') ||
+              (c.period != null && c.period!.toLowerCase().contains('term 2')),
+        ),
+      );
+
+      // December to May
+      final secondHalfMonths = [
+        'December',
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+      ];
+      final secondHalfLabels = ['Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May'];
+      for (int i = 0; i < 6; i++) {
+        final mName = secondHalfMonths[i];
+        final cYear = i == 0 ? _startYear : _endYear;
+        final cMonth = i == 0 ? 12 : i;
+        final mCode = '$cYear-${cMonth.toString().padLeft(2, '0')}';
+        list.add(
+          RegisterPartition(
+            id: mCode,
+            label: secondHalfLabels[i],
+            sublabel: 'Tuition',
+            fullTitle: '$mName $cYear Tuition',
+            matcher: (c) =>
+                !c.title.toLowerCase().contains('term') &&
+                !c.title.toLowerCase().contains('admission') &&
+                !c.title.toLowerCase().contains('kit') &&
+                (c.dueDate.startsWith(mCode) ||
+                    c.title.toLowerCase().contains(mName.toLowerCase())),
+          ),
+        );
+      }
+    } else if (_allCharges.any(
+      (c) => c.title.toLowerCase().contains('quarter'),
+    )) {
+      // Quarterly 4 parts
+      final quarters = [
+        {'name': '1st Quarter', 'label': 'Q1'},
+        {'name': '2nd Quarter', 'label': 'Q2'},
+        {'name': '3rd Quarter', 'label': 'Q3'},
+        {'name': '4th Quarter', 'label': 'Q4'},
+      ];
+      for (final q in quarters) {
+        final qName = q['name']!;
+        list.add(
+          RegisterPartition(
+            id: q['label']!,
+            label: q['label']!,
+            sublabel: 'Quarterly',
+            fullTitle: qName,
+            matcher: (c) => c.title.toLowerCase().contains(qName.toLowerCase()),
+          ),
+        );
+      }
+    } else if (_allCharges.any(
+      (c) =>
+          c.title.toLowerCase().contains('half') ||
+          c.title.toLowerCase().contains('installment 1 (jun'),
+    )) {
+      // Half-Yearly 2 parts
+      list.add(
+        RegisterPartition(
+          id: 'half_1',
+          label: 'Term 1',
+          sublabel: 'Semester 1',
+          fullTitle: 'Term 1 Installment',
+          matcher: (c) =>
+              c.title.toLowerCase().contains('term 1') ||
+              c.title.toLowerCase().contains('1st half'),
+        ),
+      );
+      list.add(
+        RegisterPartition(
+          id: 'half_2',
+          label: 'Term 2',
+          sublabel: 'Semester 2',
+          fullTitle: 'Term 2 Installment',
+          matcher: (c) =>
+              c.title.toLowerCase().contains('term 2') ||
+              c.title.toLowerCase().contains('2nd half'),
+        ),
+      );
+    } else if (isJuneSession) {
+      // 12 Monthly (June to May)
+      final months = [
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+      ];
+      final labels = [
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+      ];
+      for (int i = 0; i < 12; i++) {
+        final mName = months[i];
+        final cYear = i <= 6 ? _startYear : _endYear;
+        final cMonth = (i + 6) > 12 ? (i + 6) - 12 : (i + 6);
+        final mCode = '$cYear-${cMonth.toString().padLeft(2, '0')}';
+        list.add(
+          RegisterPartition(
+            id: mCode,
+            label: labels[i],
+            sublabel: 'Tuition',
+            fullTitle: '$mName $cYear Tuition',
+            matcher: (c) =>
+                !c.title.toLowerCase().contains('admission') &&
+                !c.title.toLowerCase().contains('kit') &&
+                (c.dueDate.startsWith(mCode) ||
+                    c.title.toLowerCase().contains(mName.toLowerCase())),
+          ),
+        );
+      }
     } else {
-      _selectedMonthIndex = now.month + 8; // Jan(1) -> 9, Mar(3) -> 11
+      // 12 Monthly (April to March)
+      final months = [
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+        'January',
+        'February',
+        'March',
+      ];
+      final labels = [
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+        'Jan',
+        'Feb',
+        'Mar',
+      ];
+      for (int i = 0; i < 12; i++) {
+        final mName = months[i];
+        final cYear = i <= 8 ? _startYear : _endYear;
+        final cMonth = (i + 4) > 12 ? (i + 4) - 12 : (i + 4);
+        final mCode = '$cYear-${cMonth.toString().padLeft(2, '0')}';
+        list.add(
+          RegisterPartition(
+            id: mCode,
+            label: labels[i],
+            sublabel: 'Tuition',
+            fullTitle: '$mName $cYear Tuition',
+            matcher: (c) =>
+                !c.title.toLowerCase().contains('admission') &&
+                !c.title.toLowerCase().contains('kit') &&
+                (c.dueDate.startsWith(mCode) ||
+                    c.title.toLowerCase().contains(mName.toLowerCase())),
+          ),
+        );
+      }
     }
-    if (_selectedMonthIndex < 0 || _selectedMonthIndex > 11) {
-      _selectedMonthIndex = 0;
-    }
+
+    return list;
   }
 
-  String _getMonthCode(int index) {
-    final year = index < 9 ? _startYear : _endYear;
-    final monthNumber = index < 9 ? index + 4 : index - 8;
-    return '$year-${monthNumber.toString().padLeft(2, '0')}';
-  }
-
-  String _getMonthTitle(int index) {
-    final year = index < 9 ? _startYear : _endYear;
-    return '${_monthFullNames[index]} $year';
+  void _autoSelectCurrentPartition(List<RegisterPartition> partitions) {
+    if (partitions.isEmpty) return;
+    final now = DateTime.now();
+    final currentMonthStr = '-${now.month.toString().padLeft(2, '0')}-';
+    final matchIdx = partitions.indexWhere(
+      (p) => p.id.contains(currentMonthStr),
+    );
+    if (matchIdx >= 0) {
+      _selectedPartitionIndex = matchIdx;
+    } else {
+      _selectedPartitionIndex = 0;
+    }
   }
 
   Future<void> _loadCharges() async {
@@ -123,6 +398,8 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
       if (mounted) {
         setState(() {
           _allCharges = charges;
+          _partitions = _buildPartitions();
+          _autoSelectCurrentPartition(_partitions);
           _isLoading = false;
         });
       }
@@ -131,25 +408,8 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
     }
   }
 
-  List<Charge> _getChargesForMonth(int monthIdx) {
-    final monthCode = _getMonthCode(monthIdx);
-
-    return _allCharges.where((c) {
-      // Primary match: use dueDate (most reliable source of truth)
-      if (c.dueDate.startsWith(monthCode)) return true;
-      // Secondary: match period field only when dueDate is NOT in any month code
-      // (i.e. the charge has no meaningful dueDate-month alignment)
-      final dueDateMonthCode = c.dueDate.length >= 7 ? c.dueDate.substring(0, 7) : '';
-      final allMonthCodes = List.generate(12, (i) => _getMonthCode(i));
-      if (!allMonthCodes.contains(dueDateMonthCode)) {
-        // dueDate doesn't map to any known month — fall back to period field
-        final monthName = _monthFullNames[monthIdx].toLowerCase();
-        if (c.period != null && c.period!.toLowerCase().contains(monthName)) {
-          return true;
-        }
-      }
-      return false;
-    }).toList();
+  List<Charge> _getChargesForPartition(RegisterPartition partition) {
+    return _allCharges.where(partition.matcher).toList();
   }
 
   Future<void> _quickCollectFee(Charge charge) async {
@@ -281,29 +541,30 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
                 ),
               ),
 
-              // Month Carousel (if in roster mode)
+              // Partition Carousel (if in roster mode)
               if (!_isLedgerMatrixView)
                 SizedBox(
                   height: 48,
                   child: ListView.builder(
                     scrollDirection: Axis.horizontal,
                     padding: const EdgeInsets.symmetric(horizontal: 12),
-                    itemCount: 12,
+                    itemCount: _partitions.length,
                     itemBuilder: (ctx, idx) {
-                      final isSelected = _selectedMonthIndex == idx;
-                      final monthCharges = _getChargesForMonth(idx);
-                      final totalPaid = monthCharges.fold<int>(
+                      final partition = _partitions[idx];
+                      final isSelected = _selectedPartitionIndex == idx;
+                      final partitionCharges = _getChargesForPartition(partition);
+                      final totalPaid = partitionCharges.fold<int>(
                         0,
                         (sum, c) => sum + c.paidPaise,
                       );
-                      final totalNet = monthCharges.fold<int>(
+                      final totalNet = partitionCharges.fold<int>(
                         0,
                         (sum, c) => sum + c.netChargePaise,
                       );
 
                       // Dot color indicator
                       Color dotColor = Colors.transparent;
-                      if (monthCharges.isNotEmpty) {
+                      if (partitionCharges.isNotEmpty) {
                         if (totalPaid >= totalNet) {
                           dotColor = AppColors.settledGreen;
                         } else if (totalPaid > 0) {
@@ -326,7 +587,7 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
                                   ),
                                 )
                               : null,
-                          label: Text(_monthLabels[idx]),
+                          label: Text(partition.label),
                           selected: isSelected,
                           selectedColor: AppColors.brand,
                           labelStyle: TextStyle(
@@ -337,7 +598,7 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
                                 : AppColors.textPrimary,
                           ),
                           onSelected: (_) =>
-                              setState(() => _selectedMonthIndex = idx),
+                              setState(() => _selectedPartitionIndex = idx),
                           backgroundColor: AppColors.surfaceSubtle,
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(12),
@@ -372,8 +633,18 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
   // View A: Monthly Roster with Quick-Collection Buttons
   // ─────────────────────────────────────────────────────────────────────────
   Widget _buildMonthlyRoster() {
-    final monthCharges = _getChargesForMonth(_selectedMonthIndex);
-    final monthTitle = _getMonthTitle(_selectedMonthIndex);
+    if (_partitions.isEmpty) {
+      return const Center(
+        child: Text(
+          'No fee partitions registered yet.',
+          style: TextStyle(color: AppColors.textTertiary),
+        ),
+      );
+    }
+    final safeIndex = _selectedPartitionIndex.clamp(0, _partitions.length - 1);
+    final partition = _partitions[safeIndex];
+    final monthCharges = _getChargesForPartition(partition);
+    final monthTitle = partition.fullTitle;
 
     final totalTarget = monthCharges.fold<int>(
       0,
@@ -411,15 +682,19 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    monthTitle.toUpperCase(),
-                    style: const TextStyle(
-                      fontSize: 12,
-                      fontWeight: FontWeight.w800,
-                      color: Colors.white,
-                      letterSpacing: 0.8,
+                  Expanded(
+                    child: Text(
+                      monthTitle.toUpperCase(),
+                      overflow: TextOverflow.ellipsis,
+                      style: const TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w800,
+                        color: Colors.white,
+                        letterSpacing: 0.8,
+                      ),
                     ),
                   ),
+                  const SizedBox(width: 8),
                   Container(
                     padding: const EdgeInsets.symmetric(
                       horizontal: 8,
@@ -845,10 +1120,10 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
                   style: TextStyle(fontWeight: FontWeight.w800, fontSize: 13),
                 ),
               ),
-              ..._monthLabels.map(
-                (m) => DataColumn(
+              ..._partitions.map(
+                (p) => DataColumn(
                   label: Text(
-                    m,
+                    p.label,
                     style: const TextStyle(
                       fontWeight: FontWeight.w800,
                       fontSize: 12,
@@ -870,9 +1145,9 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
                       ),
                     ),
                   ),
-                  ...List.generate(12, (mIdx) {
-                    final monthCharges = _getChargesForMonth(mIdx);
-                    final studentCharge = monthCharges
+                  ..._partitions.map((partition) {
+                    final partitionCharges = _getChargesForPartition(partition);
+                    final studentCharge = partitionCharges
                         .where((c) => c.payerId == student.id)
                         .firstOrNull;
 

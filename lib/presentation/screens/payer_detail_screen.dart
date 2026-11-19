@@ -51,7 +51,10 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
       if (p?.batchId != null) {
         b = await widget.controller.batchRepo.getBatchById(p!.batchId!);
       } else if (p?.batch != null) {
-        final matches = widget.controller.batches.where(
+        final available = widget.controller.allBatches.isNotEmpty
+            ? widget.controller.allBatches
+            : widget.controller.batches;
+        final matches = available.where(
           (batch) => batch.name == p!.batch,
         );
         if (matches.isNotEmpty) {

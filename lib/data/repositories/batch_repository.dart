@@ -320,6 +320,15 @@ class BatchRepository {
     );
   }
 
+  /// Clears all fee templates for a batch.
+  Future<void> clearFeeTemplates(String batchId) async {
+    await _dbManager.database.delete(
+      'batch_fee_templates',
+      where: 'batchId = ?',
+      whereArgs: [batchId],
+    );
+  }
+
   // --- Automated Batch Fee Charging ---
 
   /// Charges a batch's standard fee structure to a single student.

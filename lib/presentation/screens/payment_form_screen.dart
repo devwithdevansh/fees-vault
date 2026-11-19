@@ -98,10 +98,19 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
 
       Charge? current;
       if (_selectedChargeId != null) {
-        current = all.firstWhere(
-          (c) => c.id == _selectedChargeId,
-          orElse: () => filtered.isNotEmpty ? filtered.first : all.first,
-        );
+        final matches = all.where((c) => c.id == _selectedChargeId);
+        if (matches.isNotEmpty) {
+          current = matches.first;
+        } else if (filtered.isNotEmpty) {
+          current = filtered.first;
+          _selectedChargeId = current.id;
+        } else if (all.isNotEmpty) {
+          current = all.first;
+          _selectedChargeId = current.id;
+        } else {
+          current = null;
+          _selectedChargeId = null;
+        }
       } else if (filtered.isNotEmpty) {
         current = filtered.first;
         _selectedChargeId = current.id;
@@ -110,6 +119,12 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
             current.outstandingPaise,
           );
         }
+      } else if (all.isNotEmpty) {
+        current = all.first;
+        _selectedChargeId = current.id;
+      } else {
+        current = null;
+        _selectedChargeId = null;
       }
 
       if (mounted) {
@@ -311,39 +326,46 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                   children: [
                   // Fee Installment selection (disabled if editing)
                   if (!isEdit && widget.targetChargeId == null) ...[
-                    DropdownButtonFormField<String>(
-                      isExpanded: true,
-                      value: _selectedChargeId,
-                      items: _availableCharges.map((c) {
-                        return DropdownMenuItem(
-                          value: c.id,
-                          child: Text(
-                            '${c.payerName}: ${c.title} (Due: ${CurrencyFormatter.formatPaise(c.outstandingPaise)})',
-                            overflow: TextOverflow.ellipsis,
+                    Builder(
+                      builder: (context) {
+                        final validChargeId = _availableCharges.any((c) => c.id == _selectedChargeId)
+                            ? _selectedChargeId
+                            : (_availableCharges.isNotEmpty ? _availableCharges.first.id : null);
+                        return DropdownButtonFormField<String>(
+                          isExpanded: true,
+                          value: validChargeId,
+                          items: _availableCharges.map((c) {
+                            return DropdownMenuItem(
+                              value: c.id,
+                              child: Text(
+                                '${c.payerName}: ${c.title} (Due: ${CurrencyFormatter.formatPaise(c.outstandingPaise)})',
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            );
+                          }).toList(),
+                          onChanged: (val) {
+                            setState(() {
+                              _selectedChargeId = val;
+                              _selectedCharge = _availableCharges.firstWhere(
+                                (c) => c.id == val,
+                              );
+                              if (_selectedCharge != null &&
+                                  _selectedCharge!.outstandingPaise > 0) {
+                                _amountController.text =
+                                    CurrencyFormatter.paiseToEditableString(
+                                      _selectedCharge!.outstandingPaise,
+                                    );
+                              }
+                            });
+                          },
+                          decoration: _inputDecoration(
+                            'Select Fee Installment *',
+                            Icons.receipt_long_outlined,
                           ),
+                          validator: (v) =>
+                              v == null ? 'Please select a fee installment' : null,
                         );
-                      }).toList(),
-                      onChanged: (val) {
-                        setState(() {
-                          _selectedChargeId = val;
-                          _selectedCharge = _availableCharges.firstWhere(
-                            (c) => c.id == val,
-                          );
-                          if (_selectedCharge != null &&
-                              _selectedCharge!.outstandingPaise > 0) {
-                            _amountController.text =
-                                CurrencyFormatter.paiseToEditableString(
-                                  _selectedCharge!.outstandingPaise,
-                                );
-                          }
-                        });
                       },
-                      decoration: _inputDecoration(
-                        'Select Fee Installment *',
-                        Icons.receipt_long_outlined,
-                      ),
-                      validator: (v) =>
-                          v == null ? 'Please select a fee installment' : null,
                     ),
                     const SizedBox(height: 16),
                   ] else ...[

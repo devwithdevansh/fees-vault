@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:uuid/uuid.dart';
 import '../../core/errors/app_exceptions.dart';
 import '../../core/formatters/currency_formatter.dart';
 import '../database/app_database.dart';
+import '../models/audit_event.dart';
 import '../models/charge.dart';
 import '../models/vault_summary.dart';
 
@@ -257,15 +259,22 @@ class ChargeRepository {
       if (chargeRows.isNotEmpty) {
         final c = chargeRows.first;
         final now = DateTime.now().millisecondsSinceEpoch;
-        await txn.insert('audit_events', {
-          'id': _uuid.v4(),
-          'payerId': c['payerId'] as String?,
-          'action': 'charge_deleted',
-          'details':
-              'Charge "${c['title']}" (${(c['grossPaise'] as int?) ?? 0} paise gross) deleted',
-          'timestamp': DateTime.fromMillisecondsSinceEpoch(now).toIso8601String(),
-          'createdAt': now,
-        });
+        final audit = AuditEvent(
+          id: _uuid.v4(),
+          entityType: 'charge',
+          entityId: id,
+          action: 'delete',
+          timestamp: now,
+          reason: 'Charge deleted',
+          detailsJson: jsonEncode({
+            'title': c['title'],
+            'grossPaise': c['grossPaise'],
+            'discountPaise': c['discountPaise'],
+            'payerId': c['payerId'],
+            'batchId': c['batchId'],
+          }),
+        );
+        await txn.insert('audit_events', audit.toMap());
       }
     });
   }
@@ -284,6 +293,10 @@ class ChargeRepository {
     final yearFilter = academicYear != null && academicYear.isNotEmpty;
     final chargesAyWhere = yearFilter
         ? 'EXISTS (SELECT 1 FROM batches b WHERE b.id = charges.batchId AND b.academicYear = ?)'
+        : '1=1';
+    // The overdue query aliases `charges` as `c`, so it needs an alias-aware variant.
+    final overdueAyWhere = yearFilter
+        ? 'EXISTS (SELECT 1 FROM batches b WHERE b.id = c.batchId AND b.academicYear = ?)'
         : '1=1';
     final yearArg = yearFilter ? [academicYear] : <Object?>[];
 
@@ -319,7 +332,7 @@ class ChargeRepository {
       SELECT 
         (c.grossPaise - c.discountPaise) - COALESCE((SELECT SUM(pm.amountPaise) FROM payments pm WHERE pm.chargeId = c.id), 0) AS remaining
       FROM charges c
-      WHERE c.dueDate < ? AND $chargesAyWhere
+      WHERE c.dueDate < ? AND $overdueAyWhere
     ''',
       [today, ...yearArg],
     );
