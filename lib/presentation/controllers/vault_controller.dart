@@ -68,6 +68,14 @@ class VaultController extends ChangeNotifier {
   List<Charge> get overdueCharges => _overdueCharges;
   List<AcademicYear> get academicYears => _academicYears;
   AcademicYear? get currentAcademicYear => _currentAcademicYear;
+
+  /// Builds a dynamic academic year label like "2026-2027" based on current date.
+  static String _currentYearLabel() {
+    final now = DateTime.now();
+    // Academic year typically starts in April in India
+    final startYear = now.month >= 4 ? now.year : now.year - 1;
+    return '$startYear-${startYear + 1}';
+  }
   List<Batch> get batches => _batches;
   String? get selectedAcademicYearFilter => _selectedAcademicYearFilter;
   String get businessName => _businessName;
@@ -106,7 +114,7 @@ class VaultController extends ChangeNotifier {
       _currentAcademicYear = await academicYearRepo.getCurrentAcademicYear();
       _selectedAcademicYearFilter =
           _currentAcademicYear?.name ??
-          (_academicYears.isNotEmpty ? _academicYears.first.name : '2026-2027');
+          (_academicYears.isNotEmpty ? _academicYears.first.name : _currentYearLabel());
 
       await refreshAll();
     } catch (e) {
@@ -120,7 +128,9 @@ class VaultController extends ChangeNotifier {
   /// Refreshes all summary metrics, overdue charges, recent payments, payers, and batches
   Future<void> refreshAll() async {
     try {
-      _summary = await chargeRepo.getVaultSummary();
+      _summary = await chargeRepo.getVaultSummary(
+        academicYear: _selectedAcademicYearFilter,
+      );
       _payers = await payerRepo.getPayers(includeArchived: true);
       _recentPayments = await paymentRepo.getPayments(limit: 10);
       _overdueCharges = await chargeRepo.getOverdueCharges(limit: 10);
@@ -551,6 +561,7 @@ class VaultController extends ChangeNotifier {
       await txn.delete('batch_fee_templates');
       await txn.delete('payers');
       await txn.delete('batches');
+      await txn.delete('academic_years');
       await txn.insert('settings', {
         'key': AppConstants.settingReceiptCounter,
         'value': '1000',

@@ -79,10 +79,10 @@ class Payer {
   Payer copyWith({
     String? id,
     String? name,
-    String? phone,
-    String? batch,
-    String? batchId,
-    String? notes,
+    Object? phone = _sentinel,
+    Object? batch = _sentinel,
+    Object? batchId = _sentinel,
+    Object? notes = _sentinel,
     bool? archived,
     int? createdAt,
     int? updatedAt,
@@ -94,10 +94,10 @@ class Payer {
     return Payer(
       id: id ?? this.id,
       name: name ?? this.name,
-      phone: phone ?? this.phone,
-      batch: batch ?? this.batch,
-      batchId: batchId ?? this.batchId,
-      notes: notes ?? this.notes,
+      phone: phone == _sentinel ? this.phone : phone as String?,
+      batch: batch == _sentinel ? this.batch : batch as String?,
+      batchId: batchId == _sentinel ? this.batchId : batchId as String?,
+      notes: notes == _sentinel ? this.notes : notes as String?,
       archived: archived ?? this.archived,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
@@ -109,3 +109,6 @@ class Payer {
     );
   }
 }
+
+// Sentinel value to distinguish "not passed" from "explicitly null"
+const Object _sentinel = Object();

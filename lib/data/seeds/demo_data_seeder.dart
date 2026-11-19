@@ -98,6 +98,31 @@ class DemoDataSeeder {
     ),
   ];
 
+  /// Returns the 12 academic month names for the given start year (e.g. 2026 → April 2026 … March 2027).
+  static List<String> _buildMonthNames(int startYear) {
+    final monthLabels = [
+      'April', 'May', 'June', 'July', 'August', 'September',
+      'October', 'November', 'December', 'January', 'February', 'March',
+    ];
+    return [
+      for (int i = 0; i < 12; i++)
+        '${monthLabels[i]} ${i < 9 ? startYear : startYear + 1}',
+    ];
+  }
+
+  /// Returns YYYY-MM codes for the 12 academic months starting from April of [startYear].
+  static List<String> _buildMonthCodes(int startYear) {
+    return [
+      for (int i = 0; i < 12; i++) ...[
+        () {
+          final month = (4 + i - 1) % 12 + 1;
+          final year = (4 + i) > 12 ? startYear + 1 : startYear;
+          return '${year.toString().padLeft(4, '0')}-${month.toString().padLeft(2, '0')}';
+        }(),
+      ],
+    ];
+  }
+
   static const List<String> monthNames = [
     'April 2026',
     'May 2026',
@@ -158,21 +183,31 @@ class DemoDataSeeder {
       await clearVaultData(controller);
     }
 
-    // 1. Ensure active Academic Year is 2026-2027
+    // 1. Ensure active Academic Year exists (use current or derive from date)
     var currentYear = controller.currentAcademicYear?.name;
     if (currentYear == null || currentYear.isEmpty) {
-      final existingYears = await controller.academicYearRepo
-          .getAcademicYears();
+      final existingYears = await controller.academicYearRepo.getAcademicYears();
       if (existingYears.isNotEmpty) {
         currentYear = existingYears.first.name;
       } else {
+        // Dynamically compute the current academic year from today's date
+        final now = DateTime.now();
+        final startYear = now.month >= 4 ? now.year : now.year - 1;
+        final ayName = '$startYear-${startYear + 1}';
         final newAy = await controller.academicYearRepo.createAcademicYear(
-          name: '2026-2027',
+          name: ayName,
           isCurrent: true,
         );
         currentYear = newAy.name;
       }
     }
+
+    // Parse start year from academic year name (e.g. "2026-2027" → 2026)
+    final startYear = int.tryParse(currentYear.split('-').first) ??
+        (DateTime.now().month >= 4 ? DateTime.now().year : DateTime.now().year - 1);
+    final dynamicMonthNames = _buildMonthNames(startYear);
+    final dynamicMonthCodes = _buildMonthCodes(startYear);
+    final admissionDueDate = '${startYear.toString().padLeft(4, '0')}-04-05';
 
     // 2. Create the 5 tuition batches with 12 monthly templates
     final createdBatches = <Batch>[];
@@ -188,15 +223,15 @@ class DemoDataSeeder {
         batchId: batch.id,
         title: 'Admission & Study Material Kit',
         grossPaise: cls.admissionFeePaise,
-        defaultDueDate: '2026-04-05',
+        defaultDueDate: admissionDueDate,
       );
 
       // Add 12 Monthly Fee templates (due on the 10th of each month)
-      for (int m = 0; m < monthNames.length; m++) {
-        final dueDay = '${monthCodes[m]}-10';
+      for (int m = 0; m < dynamicMonthNames.length; m++) {
+        final dueDay = '${dynamicMonthCodes[m]}-10';
         await controller.batchRepo.addFeeTemplate(
           batchId: batch.id,
-          title: '${monthNames[m]} Tuition Fee',
+          title: '${dynamicMonthNames[m]} Tuition Fee',
           grossPaise: cls.monthlyFeePaise,
           defaultDueDate: dueDay,
         );
@@ -236,10 +271,10 @@ class DemoDataSeeder {
       final admissionCharge = await controller.chargeRepo.createCharge(
         payerId: payer.id,
         title: 'Admission & Study Material Kit',
-        period: 'Session 2026-27',
+        period: 'Session $currentYear',
         grossPaise: cls.admissionFeePaise,
         discountPaise: (i % 7 == 0) ? 50000 : 0, // ₹500 concession occasionally
-        dueDate: '2026-04-05',
+        dueDate: admissionDueDate,
         batchId: assignedBatch.id,
       );
       chargesAdded++;
@@ -248,19 +283,32 @@ class DemoDataSeeder {
       await controller.paymentRepo.recordPayment(
         chargeId: admissionCharge.id,
         amountPaise: admissionCharge.grossPaise - admissionCharge.discountPaise,
-        paidDate: '2026-04-05',
+        paidDate: admissionDueDate,
         method: (i % 2 == 0) ? 'UPI' : 'Cash',
         reference: (i % 2 == 0) ? 'UPI/ADM/${2000 + i}' : 'CASH-REC',
         notes: 'Admission kit fee collected',
       );
       paymentsAdded++;
 
+      // Determine how many months are "past" relative to today
+      final nowMonth = DateTime.now().month;
+      final nowYear = DateTime.now().year;
+      // months 0..11 map to April..March; a month is "past" if its year-month < today
+      int pastMonthCount = 0;
+      for (int m = 0; m < dynamicMonthCodes.length; m++) {
+        final parts = dynamicMonthCodes[m].split('-');
+        final mYear = int.tryParse(parts[0]) ?? startYear;
+        final mMonth = int.tryParse(parts[1]) ?? 4;
+        if (mYear < nowYear || (mYear == nowYear && mMonth < nowMonth)) {
+          pastMonthCount++;
+        }
+      }
+
       // Create 12 Monthly Charges for this student
-      // Month 0 (Apr) through 6 (Oct) are past/running.
-      // Month 7 (Nov) through 11 (Mar) are future.
-      for (int m = 0; m < monthNames.length; m++) {
-        final mName = monthNames[m];
-        final mDue = '${monthCodes[m]}-10';
+      for (int m = 0; m < dynamicMonthNames.length; m++) {
+        final mName = dynamicMonthNames[m];
+        final mCode = dynamicMonthCodes[m];
+        final mDue = '$mCode-10';
         final monthlyCharge = await controller.chargeRepo.createCharge(
           payerId: payer.id,
           title: '$mName Tuition Fee',
@@ -272,42 +320,42 @@ class DemoDataSeeder {
         );
         chargesAdded++;
 
-        // Past months (Apr - Sep: m = 0..5): 90% paid
-        if (m < 6) {
+        // Past months (m < pastMonthCount - 1): 90% paid
+        if (m < pastMonthCount - 1) {
           final isDefaulter =
-              (i % 10 == 0 && m >= 4); // Student misses Aug or Sep
+              (i % 10 == 0 && m >= pastMonthCount - 3); // misses last 2 past months
           if (!isDefaulter) {
             final method =
                 paymentMethods[random.nextInt(paymentMethods.length)];
             final payDay = (random.nextInt(8) + 2).toString().padLeft(2, '0');
-            final pDate = '${monthCodes[m]}-$payDay';
+            final pDate = '${dynamicMonthCodes[m]}-$payDay';
 
             await controller.paymentRepo.recordPayment(
               chargeId: monthlyCharge.id,
               amountPaise: cls.monthlyFeePaise,
               paidDate: pDate,
               method: method,
-              reference: method == 'UPI' ? 'UPI/${monthCodes[m]}/$i' : null,
+              reference: method == 'UPI' ? 'UPI/${dynamicMonthCodes[m]}/$i' : null,
               notes: '$mName Fee Paid',
             );
             paymentsAdded++;
           }
         }
-        // Current month (October: m = 6): ~60% paid, ~40% pending/overdue
-        else if (m == 6) {
-          final hasPaidOctober = (i % 3 != 0); // 2 out of 3 paid
-          if (hasPaidOctober) {
+        // Current month (m == pastMonthCount): ~60% paid, ~40% pending
+        else if (m == pastMonthCount) {
+          final hasPaid = (i % 3 != 0); // 2 out of 3 paid
+          if (hasPaid) {
             final method = paymentMethods[random.nextInt(2)]; // UPI or Cash
             final payDay = (random.nextInt(9) + 1).toString().padLeft(2, '0');
-            final pDate = '2026-10-$payDay';
+            final pDate = '${dynamicMonthCodes[m]}-$payDay';
 
             await controller.paymentRepo.recordPayment(
               chargeId: monthlyCharge.id,
               amountPaise: cls.monthlyFeePaise,
               paidDate: pDate,
               method: method,
-              reference: method == 'UPI' ? 'UPI/OCT/$i' : null,
-              notes: 'October Fee Cleared',
+              reference: method == 'UPI' ? 'UPI/${dynamicMonthCodes[m]}/$i' : null,
+              notes: '$mName Fee Cleared',
             );
             paymentsAdded++;
           }

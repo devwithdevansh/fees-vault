@@ -65,7 +65,10 @@ class AuthService {
       );
       final result = await _localAuth.authenticate(
         localizedReason: reason,
-        biometricOnly: biometricOnly,
+        options: AuthenticationOptions(
+          biometricOnly: biometricOnly,
+          stickyAuth: true,
+        ),
       );
       debugPrint('[FeesVault] System authentication result: $result');
       return result;

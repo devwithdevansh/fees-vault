@@ -12,12 +12,15 @@ class ChargeFormScreen extends StatefulWidget {
   final VaultController controller;
   final Charge? chargeToEdit;
   final String? initialPayerId;
+  /// Optional batch to auto-link this charge to (for batch-scoped manual charges)
+  final String? initialBatchId;
 
   const ChargeFormScreen({
     super.key,
     required this.controller,
     this.chargeToEdit,
     this.initialPayerId,
+    this.initialBatchId,
   });
 
   @override
@@ -143,6 +146,12 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
           discountPaise: discountPaise,
           dueDate: ymdDueDate,
           notes: _notesController.text.trim(),
+          // Auto-link to batch when created from a batch context or student has a batchId
+          batchId: widget.initialBatchId ??
+              widget.controller.payers
+                  .where((p) => p.id == _selectedPayerId)
+                  .firstOrNull
+                  ?.batchId,
         );
       } else {
         final updated = widget.chargeToEdit!.copyWith(
@@ -267,7 +276,7 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
             if (!isEdit && widget.initialPayerId == null) ...[
               DropdownButtonFormField<String>(
                 isExpanded: true,
-                initialValue: _selectedPayerId,
+                value: _selectedPayerId,
                 items: payers.map((p) {
                   return DropdownMenuItem(
                     value: p.id,
@@ -310,6 +319,7 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
                   child: TextFormField(
                     controller: _titleController,
                     textCapitalization: TextCapitalization.words,
+                    maxLength: 100,
                     decoration: _inputDecoration(
                       'Fee / Installment Title *',
                       Icons.label_outline,
@@ -337,6 +347,7 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
                   child: TextFormField(
                     controller: _periodController,
                     textCapitalization: TextCapitalization.words,
+                    maxLength: 50,
                     decoration: _inputDecoration(
                       'Academic Year / Session (Optional)',
                       Icons.calendar_view_month_outlined,
@@ -489,6 +500,7 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
             TextFormField(
               controller: _notesController,
               maxLines: 2,
+              maxLength: 300,
               decoration: _inputDecoration(
                 'Notes / Remarks (Optional)',
                 Icons.notes_outlined,

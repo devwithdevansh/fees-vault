@@ -131,7 +131,7 @@ class DashboardScreen extends StatelessWidget {
             else
               SliverList.separated(
                 itemCount: controller.overdueCharges.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 8),
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
                 itemBuilder: (ctx, i) => Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: _OverdueTile(
@@ -175,7 +175,7 @@ class DashboardScreen extends StatelessWidget {
             else
               SliverList.separated(
                 itemCount: controller.recentPayments.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 8),
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
                 itemBuilder: (ctx, i) => Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 20),
                   child: _ReceiptTile(
@@ -338,7 +338,7 @@ class _HeroHeader extends StatelessWidget {
                   ),
                   duration: const Duration(milliseconds: 900),
                   curve: Curves.easeOutCubic,
-                  builder: (_, v, _) => Text(
+                  builder: (_, v, __) => Text(
                     CurrencyFormatter.formatPaise(v.round()),
                     style: const TextStyle(
                       color: Colors.white,
@@ -620,7 +620,7 @@ class _QuickActionsRow extends StatelessWidget {
               child: ListView.separated(
                 shrinkWrap: true,
                 itemCount: controller.batches.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 8),
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
                 itemBuilder: (_, i) {
                   final b = controller.batches[i];
                   return ListTile(
@@ -812,7 +812,7 @@ class _QuickActionsRow extends StatelessWidget {
                           )
                         : ListView.separated(
                             itemCount: filtered.length,
-                            separatorBuilder: (_, _) => const SizedBox(height: 8),
+                            separatorBuilder: (_, __) => const SizedBox(height: 8),
                             itemBuilder: (_, i) {
                               final student = filtered[i];
                               final studentCharges = allCharges
@@ -1050,7 +1050,7 @@ class _QuickActionsRow extends StatelessWidget {
               child: ListView.separated(
                 shrinkWrap: true,
                 itemCount: charges.length,
-                separatorBuilder: (_, _) => const SizedBox(height: 8),
+                separatorBuilder: (_, __) => const SizedBox(height: 8),
                 itemBuilder: (_, i) {
                   final ch = charges[i];
                   return ListTile(
@@ -1571,7 +1571,7 @@ class _MetricCard extends StatelessWidget {
             tween: Tween(begin: 0, end: amountPaise.toDouble()),
             duration: const Duration(milliseconds: 750),
             curve: Curves.easeOutCubic,
-            builder: (_, v, _) => Text(
+            builder: (_, v, __) => Text(
               CurrencyFormatter.formatPaise(v.round()),
               style: TextStyle(
                 fontSize: 19,
@@ -1710,7 +1710,7 @@ class _MonthCard extends StatelessWidget {
                       tween: Tween(begin: 0, end: ratio),
                       duration: const Duration(milliseconds: 900),
                       curve: Curves.easeOutCubic,
-                      builder: (_, v, _) => LinearProgressIndicator(
+                      builder: (_, v, __) => LinearProgressIndicator(
                         value: v,
                         minHeight: 6,
                         backgroundColor: AppColors.divider,

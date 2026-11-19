@@ -158,7 +158,7 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                       const SizedBox(height: 6),
                       DropdownButtonFormField<String>(
                         isExpanded: true,
-                        initialValue: _selectedAcademicYear,
+                        value: _selectedAcademicYear,
                         decoration: InputDecoration(
                           filled: true,
                           fillColor: Colors.white,
@@ -230,6 +230,7 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                       TextFormField(
                         controller: _nameController,
                         textCapitalization: TextCapitalization.words,
+                        maxLength: 100,
                         decoration: InputDecoration(
                           hintText: 'e.g. Class 10 - Science, NEET Morning',
                           filled: true,
@@ -272,6 +273,7 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                       TextFormField(
                         controller: _notesController,
                         maxLines: 2,
+                        maxLength: 300,
                         decoration: InputDecoration(
                           hintText: 'e.g. Mon-Fri 8:00 AM - 10:00 AM, Room 3',
                           filled: true,

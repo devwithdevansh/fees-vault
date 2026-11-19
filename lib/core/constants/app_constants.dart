@@ -18,9 +18,6 @@ class AppConstants {
   static const String settingDeveloperActivated = 'developer_license_activated';
   static const String settingReceiptCounter = 'receipt_counter';
 
-  // Developer License Key (one-time activation)
-  static const String masterDeveloperKey = 'FEES-VAULT-DEV-KEY';
-
   // Payment Methods (fixed labels per MVP specs)
   static const List<String> paymentMethods = [
     'Cash',

@@ -90,8 +90,7 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
 
       int concessionPaise = 0;
       if (_concessionController.text.trim().isNotEmpty) {
-        final rupees = double.tryParse(_concessionController.text.trim()) ?? 0;
-        concessionPaise = (rupees * 100).round();
+        concessionPaise = CurrencyFormatter.parseToPaise(_concessionController.text.trim());
       }
 
       if (widget.payerToEdit == null) {
@@ -226,6 +225,7 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
               controller: _nameController,
               autofocus: !isEdit,
               textCapitalization: TextCapitalization.words,
+              maxLength: 100,
               decoration: _inputDecoration(
                 label: 'Student Name *',
                 hint: 'e.g. Aarav Sharma',
@@ -247,7 +247,7 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
                   Expanded(
                     child: DropdownButtonFormField<String>(
                       isExpanded: true,
-                      initialValue: _selectedBatchId,
+                      value: _selectedBatchId,
                       decoration: _inputDecoration(
                         label: 'Course / Batch *',
                         hint: 'Select a batch',
@@ -378,7 +378,7 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
                           ),
                         ),
                         value: _applyBatchFees,
-                        activeThumbColor: AppColors.brand,
+                        activeColor: AppColors.brand,
                         onChanged: (val) =>
                             setState(() => _applyBatchFees = val),
                       ),
@@ -432,6 +432,7 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
             TextFormField(
               controller: _phoneController,
               keyboardType: TextInputType.phone,
+              maxLength: 20,
               decoration: _inputDecoration(
                 label: 'Parent / Guardian Phone',
                 hint: 'e.g. +91 98765 43210',
@@ -443,6 +444,7 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
             TextFormField(
               controller: _notesController,
               maxLines: 3,
+              maxLength: 300,
               decoration: _inputDecoration(
                 label: 'Student ID / Roll No / Remarks (Optional)',
                 hint: 'e.g. Roll #104, Admission ID',

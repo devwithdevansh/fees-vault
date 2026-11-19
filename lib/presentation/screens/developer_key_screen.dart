@@ -1,3 +1,5 @@
+import 'dart:convert';
+import 'package:crypto/crypto.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/constants/app_colors.dart';
@@ -11,7 +13,7 @@ class DeveloperKeyScreen extends StatefulWidget {
 
   const DeveloperKeyScreen({super.key, required this.controller});
 
-  /// Validates developer key — normalized uppercase, stripped spaces/dashes.
+  /// Validates developer key — normalized uppercase, stripped spaces/dashes against SHA-256 hashes.
   static bool isValidKey(String input) {
     final sanitized = input
         .trim()
@@ -20,14 +22,17 @@ class DeveloperKeyScreen extends StatefulWidget {
         .replaceAll('-', '')
         .replaceAll('_', '');
 
-    const validKeys = [
-      'FEESVAULTDEVKEY',
-      'VAULTDEV2026',
-      'FEEVAULTKEY2026',
-      'DEVKEY2026',
+    if (sanitized.isEmpty) return false;
+    final hash = sha256.convert(utf8.encode(sanitized)).toString().toLowerCase();
+
+    const validKeyHashes = [
+      'edad869b51f121e9863e30715548312fad08f18ecde134a0029dcba6b8f0cad7', // FEESVAULTDEVKEY
+      '465ade08d3bac38c256c9bc89b46889e60dd0714e191abf2a47574481ccc6cfd', // VAULTDEV2026
+      '3397db6c46f675ee186935693001d222cd1156407e1a1145509f1a73a6c4e174', // FEEVAULTKEY2026
+      '0075e94a3dd43323c1e5f9d870c07a5499c4c8f569815d90dea94625fb4e92ac', // DEVKEY2026
     ];
 
-    return validKeys.contains(sanitized);
+    return validKeyHashes.contains(hash);
   }
 
   @override

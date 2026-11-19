@@ -33,6 +33,7 @@ class VaultBackupService {
     final payersRows = await db.query('payers');
     final chargesRows = await db.query('charges');
     final paymentsRows = await db.query('payments');
+    final auditEventsRows = await db.query('audit_events');
 
     final payload = {
       'metadata': {
@@ -44,6 +45,7 @@ class VaultBackupService {
           'students': payersRows.length,
           'charges': chargesRows.length,
           'payments': paymentsRows.length,
+          'auditEvents': auditEventsRows.length,
         },
       },
       'data': {
@@ -54,6 +56,7 @@ class VaultBackupService {
         'payers': payersRows,
         'charges': chargesRows,
         'payments': paymentsRows,
+        'audit_events': auditEventsRows,
       },
     };
 
@@ -207,6 +210,7 @@ class VaultBackupService {
     final payers = (data['payers'] as List? ?? []).cast<Map<String, dynamic>>();
     final charges = (data['charges'] as List? ?? []).cast<Map<String, dynamic>>();
     final payments = (data['payments'] as List? ?? []).cast<Map<String, dynamic>>();
+    final auditEvents = (data['audit_events'] as List? ?? []).cast<Map<String, dynamic>>();
 
     await db.transaction((txn) async {
       // 1. Wipe existing records in strict reverse foreign key dependency order
@@ -281,6 +285,15 @@ class VaultBackupService {
           conflictAlgorithm: ConflictAlgorithm.replace,
         );
       }
+
+      // 9. Restore audit events with conflict replacement
+      for (final ae in auditEvents) {
+        await txn.insert(
+          'audit_events',
+          ae,
+          conflictAlgorithm: ConflictAlgorithm.replace,
+        );
+      }
     });
 
     // Full refresh of state across all screens
@@ -297,7 +310,7 @@ class VaultBackupService {
   /// Saves the armored backup string to a file in the app documents directory
   /// and returns the File object.
   static Future<File> saveBackupToFile(String armoredBackup) async {
-    final dir = await getApplicationDocumentsDirectory();
+    final dir = await getApplicationSupportDirectory();
     final dateStr = DateTime.now().toIso8601String().replaceAll(':', '-').split('.').first;
     final file = File('${dir.path}/FeesVault_Backup_$dateStr.vault');
     return file.writeAsString(armoredBackup, flush: true);

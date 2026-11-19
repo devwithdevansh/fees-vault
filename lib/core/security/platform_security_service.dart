@@ -73,12 +73,15 @@ class PlatformSecurityService {
     } else if (Platform.isAndroid) {
       // On Android, the private application support directory is sandboxed
       // under /data/user/0/<package>/ with Unix mode 0700 by Android OS.
+      // `isExcludedFromBackup` is noted as "not applicable" because Android
+      // uses `allowBackup` in AndroidManifest.xml — this cannot be verified
+      // at runtime from Dart code.
       return {
         'success': true,
         'path': path,
         'platform': 'Android (Sandboxed private internal app storage)',
         'protection': 'Linux UID-isolated sandbox (MODE_PRIVATE)',
-        'isExcludedFromBackup': true,
+        'isExcludedFromBackup': 'Set via allowBackup=false in AndroidManifest.xml',
       };
     } else {
       return {

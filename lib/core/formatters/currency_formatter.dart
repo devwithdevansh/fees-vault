@@ -45,8 +45,9 @@ class CurrencyFormatter {
     }
 
     final totalPaise = rupees * 100 + paise;
-    if (totalPaise <= 0 && clean != '0' && clean != '0.00' && clean != '0.0') {
-      throw const ValidationException('Amount must be positive');
+    // Allow zero (e.g. for concession = ₹0) but reject negative
+    if (totalPaise < 0) {
+      throw const ValidationException('Amount cannot be negative');
     }
 
     return totalPaise;

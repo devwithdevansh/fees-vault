@@ -313,7 +313,7 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
                   if (!isEdit && widget.targetChargeId == null) ...[
                     DropdownButtonFormField<String>(
                       isExpanded: true,
-                      initialValue: _selectedChargeId,
+                      value: _selectedChargeId,
                       items: _availableCharges.map((c) {
                         return DropdownMenuItem(
                           value: c.id,
@@ -459,7 +459,7 @@ class _PaymentFormScreenState extends State<PaymentFormScreen> {
 
                   // Payment Method Dropdown
                   DropdownButtonFormField<String>(
-                    initialValue: _selectedMethod,
+                    value: _selectedMethod,
                     items: AppConstants.paymentMethods.map((m) {
                       return DropdownMenuItem(value: m, child: Text(m));
                     }).toList(),

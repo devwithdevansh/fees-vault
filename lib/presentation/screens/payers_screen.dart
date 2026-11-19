@@ -290,7 +290,7 @@ class _PayersScreenState extends State<PayersScreen>
                       padding: const EdgeInsets.symmetric(horizontal: 20),
                       physics: const BouncingScrollPhysics(),
                       itemCount: allFilterChips.length + 1, // +1 for 'All'
-                      separatorBuilder: (_, _) => const SizedBox(width: 8),
+                      separatorBuilder: (_, __) => const SizedBox(width: 8),
                       itemBuilder: (context, index) {
                         if (index == 0) {
                           final isSelected = _selectedBatchFilter == null;

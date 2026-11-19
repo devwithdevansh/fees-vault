@@ -133,14 +133,21 @@ class _MonthlyFeesRegisterViewState extends State<MonthlyFeesRegisterView> {
 
   List<Charge> _getChargesForMonth(int monthIdx) {
     final monthCode = _getMonthCode(monthIdx);
-    final monthName = _monthFullNames[monthIdx].toLowerCase();
 
     return _allCharges.where((c) {
+      // Primary match: use dueDate (most reliable source of truth)
       if (c.dueDate.startsWith(monthCode)) return true;
-      if (c.period != null && c.period!.toLowerCase().contains(monthName)) {
-        return true;
+      // Secondary: match period field only when dueDate is NOT in any month code
+      // (i.e. the charge has no meaningful dueDate-month alignment)
+      final dueDateMonthCode = c.dueDate.length >= 7 ? c.dueDate.substring(0, 7) : '';
+      final allMonthCodes = List.generate(12, (i) => _getMonthCode(i));
+      if (!allMonthCodes.contains(dueDateMonthCode)) {
+        // dueDate doesn't map to any known month — fall back to period field
+        final monthName = _monthFullNames[monthIdx].toLowerCase();
+        if (c.period != null && c.period!.toLowerCase().contains(monthName)) {
+          return true;
+        }
       }
-      if (c.title.toLowerCase().contains(monthName)) return true;
       return false;
     }).toList();
   }

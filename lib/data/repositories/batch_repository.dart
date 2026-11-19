@@ -137,6 +137,19 @@ class BatchRepository {
       throw const ValidationException('Academic Year must be specified');
     }
 
+    // Reject duplicate batch name within the same academic year
+    final existing = Sqflite.firstIntValue(
+      await _dbManager.database.rawQuery(
+        'SELECT COUNT(*) FROM batches WHERE name = ? COLLATE NOCASE AND academicYear = ?',
+        [cleanName, cleanYear],
+      ),
+    ) ?? 0;
+    if (existing > 0) {
+      throw ValidationException(
+        'A batch named "$cleanName" already exists for $cleanYear',
+      );
+    }
+
     final now = DateTime.now().millisecondsSinceEpoch;
     final batch = Batch(
       id: _uuid.v4(),
@@ -165,12 +178,22 @@ class BatchRepository {
       updatedAt: DateTime.now().millisecondsSinceEpoch,
     );
 
-    await _dbManager.database.update(
-      'batches',
-      updated.toMap(),
-      where: 'id = ?',
-      whereArgs: [batch.id],
-    );
+    await _dbManager.database.transaction((txn) async {
+      await txn.update(
+        'batches',
+        updated.toMap(),
+        where: 'id = ?',
+        whereArgs: [batch.id],
+      );
+
+      // Keep payer.batch string in sync with renamed batch for enrolled students
+      await txn.update(
+        'payers',
+        {'batch': cleanName},
+        where: 'batchId = ?',
+        whereArgs: [batch.id],
+      );
+    });
   }
 
   /// Deletes a Batch. Fails if students are currently enrolled in it.
@@ -326,11 +349,11 @@ class BatchRepository {
         ? batchRow.first['academicYear'] as String?
         : null;
 
-    // Check existing charges for this student to prevent duplicate charges
+    // Check existing charges for this student from THIS BATCH to prevent duplicate charges
     final existingCharges = await db.query(
       'charges',
-      where: 'payerId = ?',
-      whereArgs: [payerId],
+      where: 'payerId = ? AND batchId = ?',
+      whereArgs: [payerId, batchId],
     );
     final existingTitles = existingCharges
         .map((c) => (c['title'] as String).toLowerCase())
@@ -410,16 +433,50 @@ class BatchRepository {
       );
     }
 
+    final defaultDue = CurrencyFormatter.toYmd(
+      DateTime.now().add(const Duration(days: 30)),
+    );
+    final templates = batch.feeTemplates;
+    final academicYear = batch.academicYear;
+
     int totalCreated = 0;
-    for (final sRow in studentRows) {
-      final studentId = sRow['id'] as String;
-      final created = await chargeBatchFeesToStudent(
-        payerId: studentId,
-        batchId: batchId,
-        concessionPaise: 0,
-      );
-      totalCreated += created.length;
-    }
+    await db.transaction((txn) async {
+      for (final sRow in studentRows) {
+        final studentId = sRow['id'] as String;
+        final existingCharges = await txn.query(
+          'charges',
+          where: 'payerId = ? AND batchId = ?',
+          whereArgs: [studentId, batchId],
+        );
+        final existingTitles = existingCharges
+            .map((c) => (c['title'] as String).toLowerCase())
+            .toSet();
+
+        for (final template in templates) {
+          if (existingTitles.contains(template.title.toLowerCase())) {
+            continue;
+          }
+
+          final now = DateTime.now().millisecondsSinceEpoch;
+          final charge = Charge(
+            id: _uuid.v4(),
+            payerId: studentId,
+            batchId: batchId,
+            title: template.title,
+            period: academicYear,
+            grossPaise: template.grossPaise,
+            discountPaise: 0,
+            dueDate: template.defaultDueDate ?? defaultDue,
+            notes: 'Standard fee installment from batch structure',
+            createdAt: now,
+            updatedAt: now,
+          );
+
+          await txn.insert('charges', charge.toMap());
+          totalCreated++;
+        }
+      }
+    });
 
     return totalCreated;
   }

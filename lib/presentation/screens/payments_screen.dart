@@ -25,6 +25,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
   bool _isLoading = true;
   bool _isFetching = false;
   bool _needsReload = false;
+  int _lastKnownPaymentCount = -1; // change-detection guard
 
   @override
   void initState() {
@@ -34,7 +35,11 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
   }
 
   void _onControllerChanged() {
-    if (mounted) {
+    if (!mounted) return;
+    // Only reload payments when the payment list length actually changed,
+    // not on every controller notification (e.g. batch/payer updates).
+    final newCount = widget.controller.recentPayments.length;
+    if (newCount != _lastKnownPaymentCount) {
       _loadPayments(silent: true);
     }
   }
@@ -71,6 +76,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
       if (mounted) {
         setState(() {
           _payments = list;
+          _lastKnownPaymentCount = widget.controller.recentPayments.length;
           _isLoading = false;
         });
       }
@@ -219,7 +225,7 @@ class _PaymentsScreenState extends State<PaymentsScreen> {
                   : ListView.separated(
                       padding: const EdgeInsets.fromLTRB(20, 20, 20, 100),
                       itemCount: _payments.length,
-                      separatorBuilder: (_, _) => const SizedBox(height: 10),
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
                       itemBuilder: (context, index) =>
                           _PaymentTile(pm: _payments[index], onTap: () async {
                             await Navigator.push(

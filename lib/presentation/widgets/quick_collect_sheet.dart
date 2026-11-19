@@ -15,8 +15,21 @@ class QuickCollectSheet {
     required Charge charge,
     VoidCallback? onPaymentRecorded,
   }) async {
+    // Always fetch the LATEST charge data before opening the sheet
+    // to avoid stale outstanding amounts from a previously opened charge object.
+    Charge latestCharge = charge;
+    try {
+      final fresh = await controller.chargeRepo.getChargeById(charge.id);
+      if (fresh != null) latestCharge = fresh;
+    } catch (_) {
+      // Fall back to passed charge if repo unavailable
+    }
+
+    // Guard against async gap: don't use context if widget was unmounted
+    if (!context.mounted) return null;
+
     final amountController = TextEditingController(
-      text: CurrencyFormatter.paiseToEditableString(charge.outstandingPaise),
+      text: CurrencyFormatter.paiseToEditableString(latestCharge.outstandingPaise),
     );
     final refController = TextEditingController();
     String selectedMethod = 'UPI';
@@ -78,7 +91,7 @@ class QuickCollectSheet {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          charge.payerName ?? 'Student',
+                          latestCharge.payerName ?? 'Student',
                           style: const TextStyle(
                             fontSize: 17,
                             fontWeight: FontWeight.w800,
@@ -89,7 +102,7 @@ class QuickCollectSheet {
                         ),
                         const SizedBox(height: 2),
                         Text(
-                          charge.title,
+                          latestCharge.title,
                           style: const TextStyle(
                             fontSize: 12.5,
                             color: AppColors.textTertiary,
@@ -132,7 +145,7 @@ class QuickCollectSheet {
                     color: AppColors.textPrimary,
                   ),
                   helperText:
-                      'Outstanding due: ${CurrencyFormatter.formatPaise(charge.outstandingPaise)}',
+                      'Outstanding due: ${CurrencyFormatter.formatPaise(latestCharge.outstandingPaise)}',
                   helperStyle: const TextStyle(
                     fontSize: 12,
                     fontWeight: FontWeight.w600,
@@ -245,7 +258,7 @@ class QuickCollectSheet {
                               return;
                             }
 
-                            if (paise > charge.outstandingPaise) {
+                            if (paise > latestCharge.outstandingPaise) {
                               ScaffoldMessenger.of(ctx).showSnackBar(
                                 const SnackBar(
                                   content: Text(

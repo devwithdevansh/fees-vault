@@ -105,9 +105,9 @@ class _MonthlyFeeGeneratorDialogState extends State<MonthlyFeeGeneratorDialog> {
   }
 
   String _formatDayLabel(int day) {
-    if (day == 1) return '1st of month';
-    if (day == 2) return '2nd of month';
-    if (day == 3) return '3rd of month';
+    if (day == 1 || day == 21 || day == 31) return '${day}st of month';
+    if (day == 2 || day == 22) return '${day}nd of month';
+    if (day == 3 || day == 23) return '${day}rd of month';
     return '${day}th of month';
   }
 

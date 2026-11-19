@@ -154,6 +154,8 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                 Navigator.pop(ctx);
                 await widget.controller.archivePayer(studentId, true);
                 if (mounted) {
+                  // Pop first so the undo can refresh the previous screen correctly
+                  Navigator.pop(context);
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
@@ -169,7 +171,6 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
                       ),
                     ),
                   );
-                  Navigator.pop(context);
                 }
               },
               label: const Text('Archive Student'),
@@ -374,8 +375,7 @@ class _PayerDetailScreenState extends State<PayerDetailScreen> {
     if (confirmed == true) {
       int concessionPaise = 0;
       if (concessionCtrl.text.trim().isNotEmpty) {
-        final rupees = double.tryParse(concessionCtrl.text.trim()) ?? 0;
-        concessionPaise = (rupees * 100).round();
+        concessionPaise = CurrencyFormatter.parseToPaise(concessionCtrl.text.trim());
       }
 
       await widget.controller.chargeBatchFeesToStudent(

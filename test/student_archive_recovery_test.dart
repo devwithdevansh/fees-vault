@@ -87,7 +87,7 @@ void main() {
       ];
 
       // When creating a new charge (_selectedPayerId is null or p_1)
-      final forNewCharge = allPayers.where((p) => !p.archived || p.id == null).toList();
+      final forNewCharge = allPayers.where((p) => !p.archived).toList();
       expect(forNewCharge.length, equals(1));
       expect(forNewCharge.first.name, equals('Active Student 1'));
 

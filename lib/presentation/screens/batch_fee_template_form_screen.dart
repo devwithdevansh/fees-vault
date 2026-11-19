@@ -85,8 +85,7 @@ class _BatchFeeTemplateFormScreenState
 
     try {
       final title = _titleController.text.trim();
-      final rupees = double.tryParse(_amountController.text.trim()) ?? 0.0;
-      final grossPaise = (rupees * 100).round();
+      final grossPaise = CurrencyFormatter.parseToPaise(_amountController.text.trim());
       final dueDate = _dueDateController.text.trim().isEmpty
           ? null
           : _dueDateController.text.trim();

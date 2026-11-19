@@ -20,7 +20,9 @@ class KeyStorageService {
               accessibility: KeychainAccessibility.unlocked_this_device,
               synchronizable: false,
             ),
-            aOptions: AndroidOptions(),
+            aOptions: AndroidOptions(
+              encryptedSharedPreferences: true,
+            ),
           );
 
   /// Retrieves the existing database key from Keychain / Keystore.

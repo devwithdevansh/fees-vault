@@ -242,22 +242,57 @@ class ChargeRepository {
       );
     }
 
-    await db.delete('charges', where: 'id = ?', whereArgs: [id]);
+    // Fetch charge details before deletion for the audit trail
+    final chargeRows = await db.query(
+      'charges',
+      where: 'id = ?',
+      whereArgs: [id],
+      limit: 1,
+    );
+
+    await db.transaction((txn) async {
+      await txn.delete('charges', where: 'id = ?', whereArgs: [id]);
+
+      // Record audit event for charge deletion
+      if (chargeRows.isNotEmpty) {
+        final c = chargeRows.first;
+        final now = DateTime.now().millisecondsSinceEpoch;
+        await txn.insert('audit_events', {
+          'id': _uuid.v4(),
+          'payerId': c['payerId'] as String?,
+          'action': 'charge_deleted',
+          'details':
+              'Charge "${c['title']}" (${(c['grossPaise'] as int?) ?? 0} paise gross) deleted',
+          'timestamp': DateTime.fromMillisecondsSinceEpoch(now).toIso8601String(),
+          'createdAt': now,
+        });
+      }
+    });
   }
 
   /// Calculates global financial metrics strictly through independent aggregation queries.
-  Future<VaultSummary> getVaultSummary() async {
+  /// Pass [academicYear] to filter metrics to a specific academic year (matches batch.academicYear).
+  /// If null, returns metrics across all years.
+  Future<VaultSummary> getVaultSummary({String? academicYear}) async {
     final db = _dbManager.database;
     final now = DateTime.now();
     final today = CurrencyFormatter.toYmd(now);
     final currentMonthPrefix =
         '${now.year.toString().padLeft(4, '0')}-${now.month.toString().padLeft(2, '0')}%';
 
+    // Optional WHERE clause joining charges to batches for academic year filter
+    final yearFilter = academicYear != null && academicYear.isNotEmpty;
+    final chargesAyWhere = yearFilter
+        ? 'EXISTS (SELECT 1 FROM batches b WHERE b.id = charges.batchId AND b.academicYear = ?)'
+        : '1=1';
+    final yearArg = yearFilter ? [academicYear] : <Object?>[];
+
     // 1. Total net fees raised (independent)
     final totalNetFees =
         Sqflite.firstIntValue(
           await db.rawQuery(
-            'SELECT COALESCE(SUM(grossPaise - discountPaise), 0) FROM charges;',
+            'SELECT COALESCE(SUM(grossPaise - discountPaise), 0) FROM charges WHERE $chargesAyWhere;',
+            yearArg,
           ),
         ) ??
         0;
@@ -266,7 +301,10 @@ class ChargeRepository {
     final totalCollected =
         Sqflite.firstIntValue(
           await db.rawQuery(
-            'SELECT COALESCE(SUM(amountPaise), 0) FROM payments;',
+            yearFilter
+                ? 'SELECT COALESCE(SUM(p.amountPaise), 0) FROM payments p JOIN charges c ON p.chargeId = c.id WHERE EXISTS (SELECT 1 FROM batches b WHERE b.id = c.batchId AND b.academicYear = ?);'
+                : 'SELECT COALESCE(SUM(amountPaise), 0) FROM payments;',
+            yearArg,
           ),
         ) ??
         0;
@@ -281,9 +319,9 @@ class ChargeRepository {
       SELECT 
         (c.grossPaise - c.discountPaise) - COALESCE((SELECT SUM(pm.amountPaise) FROM payments pm WHERE pm.chargeId = c.id), 0) AS remaining
       FROM charges c
-      WHERE c.dueDate < ?
+      WHERE c.dueDate < ? AND $chargesAyWhere
     ''',
-      [today],
+      [today, ...yearArg],
     );
 
     int totalOverdue = 0;
