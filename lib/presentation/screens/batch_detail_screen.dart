@@ -63,7 +63,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(
-              '✓ Generated $generatedCount monthly fee installments!',
+              '✓ Generated $generatedCount fee installment partition(s)!',
             ),
             backgroundColor: AppColors.settledGreen,
           ),
@@ -654,7 +654,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
                     size: 19,
                   ),
                   label: const Text(
-                    '⚡ Generate 12-Month Schedule (Apr-Mar)',
+                    '⚡ Generate Fee Schedule (14 Parts / Monthly / Terms)',
                     style: TextStyle(
                       color: Colors.white,
                       fontWeight: FontWeight.w700,
@@ -710,7 +710,7 @@ class _BatchDetailScreenState extends State<BatchDetailScreen>
                 color: AppColors.brand,
               ),
               label: const Text(
-                'Re-generate',
+                'Re-generate Schedule',
                 style: TextStyle(
                   color: AppColors.brand,
                   fontWeight: FontWeight.w700,

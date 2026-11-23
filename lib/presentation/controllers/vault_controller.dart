@@ -78,7 +78,7 @@ class VaultController extends ChangeNotifier {
     return '$startYear-${startYear + 1}';
   }
   List<Batch> get batches => _batches;
-  List<Batch> get allBatches => _allBatches;
+  List<Batch> get allBatches => _allBatches.isNotEmpty ? _allBatches : _batches;
   String? get selectedAcademicYearFilter => _selectedAcademicYearFilter;
   String get businessName => _businessName;
   bool get onboardingDone => _onboardingDone;
@@ -282,7 +282,6 @@ class VaultController extends ChangeNotifier {
         academicYear: cleanYear,
         notes: notes,
       );
-
       // Automatically switch active filter to new batch's academic year so it's immediately visible
       _selectedAcademicYearFilter = cleanYear;
       await refreshAll();
@@ -356,6 +355,11 @@ class VaultController extends ChangeNotifier {
 
   Future<void> deleteBatchFeeTemplate(String templateId) async {
     await batchRepo.deleteFeeTemplate(templateId);
+    await refreshAll();
+  }
+
+  Future<void> clearBatchFeeTemplates(String batchId) async {
+    await batchRepo.clearFeeTemplates(batchId);
     await refreshAll();
   }
 

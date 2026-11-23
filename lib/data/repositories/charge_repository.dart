@@ -1,8 +1,10 @@
+import 'dart:convert';
 import 'package:sqflite_sqlcipher/sqflite.dart';
 import 'package:uuid/uuid.dart';
 import '../../core/errors/app_exceptions.dart';
 import '../../core/formatters/currency_formatter.dart';
 import '../database/app_database.dart';
+import '../models/audit_event.dart';
 import '../models/charge.dart';
 import '../models/vault_summary.dart';
 
@@ -257,15 +259,22 @@ class ChargeRepository {
       if (chargeRows.isNotEmpty) {
         final c = chargeRows.first;
         final now = DateTime.now().millisecondsSinceEpoch;
-        await txn.insert('audit_events', {
-          'id': _uuid.v4(),
-          'payerId': c['payerId'] as String?,
-          'action': 'charge_deleted',
-          'details':
-              'Charge "${c['title']}" (${(c['grossPaise'] as int?) ?? 0} paise gross) deleted',
-          'timestamp': DateTime.fromMillisecondsSinceEpoch(now).toIso8601String(),
-          'createdAt': now,
-        });
+        final audit = AuditEvent(
+          id: _uuid.v4(),
+          entityType: 'charge',
+          entityId: id,
+          action: 'delete',
+          timestamp: now,
+          reason: 'Charge deleted',
+          detailsJson: jsonEncode({
+            'title': c['title'],
+            'grossPaise': c['grossPaise'],
+            'discountPaise': c['discountPaise'],
+            'payerId': c['payerId'],
+            'batchId': c['batchId'],
+          }),
+        );
+        await txn.insert('audit_events', audit.toMap());
       }
     });
   }
@@ -288,6 +297,14 @@ class ChargeRepository {
             OR (charges.period = ? COLLATE NOCASE)
             OR EXISTS (SELECT 1 FROM payers p JOIN batches b ON (p.batchId = b.id OR (p.batchId IS NULL AND TRIM(p.batch) = TRIM(b.name) COLLATE NOCASE)) WHERE p.id = charges.payerId AND b.academicYear = ? COLLATE NOCASE)
             OR (charges.batchId IS NULL AND (charges.period IS NULL OR charges.period = '') AND NOT EXISTS (SELECT 1 FROM payers p2 WHERE p2.id = charges.payerId AND p2.batchId IS NOT NULL))
+          )'''
+        : '1=1';
+    final overdueAyWhere = yearFilter
+        ? '''(
+            (c.batchId IS NOT NULL AND EXISTS (SELECT 1 FROM batches b WHERE b.id = c.batchId AND b.academicYear = ? COLLATE NOCASE))
+            OR (c.period = ? COLLATE NOCASE)
+            OR EXISTS (SELECT 1 FROM payers p JOIN batches b ON (p.batchId = b.id OR (p.batchId IS NULL AND TRIM(p.batch) = TRIM(b.name) COLLATE NOCASE)) WHERE p.id = c.payerId AND b.academicYear = ? COLLATE NOCASE)
+            OR (c.batchId IS NULL AND (c.period IS NULL OR c.period = '') AND NOT EXISTS (SELECT 1 FROM payers p2 WHERE p2.id = c.payerId AND p2.batchId IS NOT NULL))
           )'''
         : '1=1';
     final yearArg = yearFilter
@@ -333,7 +350,7 @@ class ChargeRepository {
       SELECT 
         (c.grossPaise - c.discountPaise) - COALESCE((SELECT SUM(pm.amountPaise) FROM payments pm WHERE pm.chargeId = c.id), 0) AS remaining
       FROM charges c
-      WHERE c.dueDate < ? AND $chargesAyWhere
+      WHERE c.dueDate < ? AND $overdueAyWhere
     ''',
       [today, ...yearArg],
     );

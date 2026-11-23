@@ -554,7 +554,11 @@ class _QuickActionsRow extends StatelessWidget {
   }
 
   void _openFeesRegister(BuildContext context) {
-    if (controller.batches.isEmpty) {
+    final availableBatches = controller.allBatches.isNotEmpty
+        ? controller.allBatches
+        : controller.batches;
+
+    if (availableBatches.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please create a class or batch first.')),
       );
@@ -582,12 +586,12 @@ class _QuickActionsRow extends StatelessWidget {
       return;
     }
 
-    if (controller.batches.length == 1) {
+    if (availableBatches.length == 1) {
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => BatchDetailScreen(
-            batchId: controller.batches.first.id,
+            batchId: availableBatches.first.id,
             controller: controller,
           ),
         ),
@@ -645,10 +649,10 @@ class _QuickActionsRow extends StatelessWidget {
               ),
               child: ListView.separated(
                 shrinkWrap: true,
-                itemCount: controller.batches.length,
+                itemCount: availableBatches.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 8),
                 itemBuilder: (_, i) {
-                  final b = controller.batches[i];
+                  final b = availableBatches[i];
                   return ListTile(
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),

@@ -211,6 +211,10 @@ class _ChargeFormScreenState extends State<ChargeFormScreen> {
         .where((p) => !p.archived || p.id == _selectedPayerId)
         .toList();
 
+    if (_selectedPayerId != null && !payers.any((p) => p.id == _selectedPayerId)) {
+      _selectedPayerId = payers.isNotEmpty ? payers.first.id : null;
+    }
+
     // Calculate live net fee — safe: returns 0 for empty or invalid input
     int safePaise(String text) {
       if (text.trim().isEmpty) return 0;

@@ -61,10 +61,11 @@ class _PayersScreenState extends State<PayersScreen>
     final seenIds = <String>{};
     final seenNames = <String>{};
 
-    final batchSource = widget.controller.allBatches.isNotEmpty
+    final sourceBatches = widget.controller.allBatches.isNotEmpty
         ? widget.controller.allBatches
         : widget.controller.batches;
-    for (final b in batchSource) {
+
+    for (final b in sourceBatches) {
       options.add(_BatchFilterOption(
         id: b.id,
         label: b.name,
