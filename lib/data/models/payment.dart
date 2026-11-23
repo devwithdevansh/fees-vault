@@ -63,18 +63,18 @@ class Payment {
     return Payment(
       id: map['id'] as String,
       chargeId: map['chargeId'] as String,
-      amountPaise: map['amountPaise'] as int,
+      amountPaise: (map['amountPaise'] as num).round(),
       paidDate: map['paidDate'] as String,
       method: map['method'] as String,
       reference: map['reference'] as String?,
       notes: map['notes'] as String?,
-      receiptNumber: map['receiptNumber'] as int,
-      createdAt: map['createdAt'] as int,
-      updatedAt: map['updatedAt'] as int,
+      receiptNumber: (map['receiptNumber'] as num).round(),
+      createdAt: (map['createdAt'] as num).round(),
+      updatedAt: (map['updatedAt'] as num).round(),
       payerName: payerName ?? map['payerName'] as String?,
       chargeTitle: chargeTitle ?? map['chargeTitle'] as String?,
       remainingBalancePaise:
-          remainingBalancePaise ?? (map['remainingBalancePaise'] as int?),
+          remainingBalancePaise ?? (map['remainingBalancePaise'] as num?)?.round(),
       isEdited: isEdited,
     );
   }

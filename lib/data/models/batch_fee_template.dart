@@ -35,10 +35,10 @@ class BatchFeeTemplate {
       id: map['id'] as String,
       batchId: map['batchId'] as String,
       title: map['title'] as String,
-      grossPaise: map['grossPaise'] as int,
+      grossPaise: (map['grossPaise'] as num).round(),
       defaultDueDate: map['defaultDueDate'] as String?,
-      createdAt: map['createdAt'] as int,
-      updatedAt: map['updatedAt'] as int,
+      createdAt: (map['createdAt'] as num).round(),
+      updatedAt: (map['updatedAt'] as num).round(),
     );
   }
 

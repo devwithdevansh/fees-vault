@@ -53,9 +53,9 @@ class PayerRepository {
     final rows = await db.rawQuery(sql, whereArgs);
 
     return rows.map((row) {
-      final net = (row['totalNetPaise'] as int?) ?? 0;
-      final paid = (row['totalPaidPaise'] as int?) ?? 0;
-      final count = (row['chargeCount'] as int?) ?? 0;
+      final net = (row['totalNetPaise'] as num?)?.round() ?? 0;
+      final paid = (row['totalPaidPaise'] as num?)?.round() ?? 0;
+      final count = (row['chargeCount'] as num?)?.toInt() ?? 0;
       return Payer.fromMap(
         row,
         totalNetPaise: net,
@@ -84,9 +84,9 @@ class PayerRepository {
     if (rows.isEmpty) return null;
 
     final row = rows.first;
-    final net = (row['totalNetPaise'] as int?) ?? 0;
-    final paid = (row['totalPaidPaise'] as int?) ?? 0;
-    final count = (row['chargeCount'] as int?) ?? 0;
+    final net = (row['totalNetPaise'] as num?)?.round() ?? 0;
+    final paid = (row['totalPaidPaise'] as num?)?.round() ?? 0;
+    final count = (row['chargeCount'] as num?)?.toInt() ?? 0;
 
     return Payer.fromMap(
       row,

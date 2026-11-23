@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/formatters/currency_formatter.dart';
+import '../../data/models/batch.dart';
 import '../../data/models/charge.dart';
 import '../../data/models/payer.dart';
 import '../../data/models/payment.dart';
@@ -23,17 +24,20 @@ class DashboardScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final s = controller.summary;
-    final hasStudents = controller.payers.isNotEmpty;
-    final overdueCount = controller.overdueCharges.length;
+    return ListenableBuilder(
+      listenable: controller,
+      builder: (context, _) {
+        final s = controller.summary;
+        final hasStudents = controller.payers.isNotEmpty;
+        final overdueCount = controller.overdueCharges.length;
 
-    return Scaffold(
-      backgroundColor: AppColors.background,
-      body: RefreshIndicator(
-        onRefresh: () => controller.refreshAll(),
-        color: AppColors.brand,
-        displacement: 80,
-        child: CustomScrollView(
+        return Scaffold(
+          backgroundColor: AppColors.background,
+          body: RefreshIndicator(
+            onRefresh: () => controller.refreshAll(),
+            color: AppColors.brand,
+            displacement: 80,
+            child: CustomScrollView(
           physics: const AlwaysScrollableScrollPhysics(),
           slivers: [
             // ── Hero Header ───────────────────────────────────────────────
@@ -189,6 +193,8 @@ class DashboardScreen extends StatelessWidget {
           ],
         ),
       ),
+    );
+      },
     );
   }
 }
@@ -488,12 +494,17 @@ class _QuickActionsRow extends StatelessWidget {
               label: 'New\nClass',
               onTap: () async {
                 HapticFeedback.lightImpact();
-                await Navigator.push(
+                final created = await Navigator.push<Batch>(
                   context,
                   MaterialPageRoute(
                     builder: (_) => BatchFormScreen(controller: controller),
                   ),
                 );
+                if (created != null && context.mounted) {
+                  await controller.filterBatchesByAcademicYear(
+                    created.academicYear,
+                  );
+                }
               },
             ),
             const SizedBox(width: 10),
@@ -547,12 +558,27 @@ class _QuickActionsRow extends StatelessWidget {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please create a class or batch first.')),
       );
-      Navigator.push(
+      Navigator.push<Batch>(
         context,
         MaterialPageRoute(
           builder: (_) => BatchFormScreen(controller: controller),
         ),
-      );
+      ).then((created) async {
+        if (created != null && context.mounted) {
+          await controller.filterBatchesByAcademicYear(created.academicYear);
+          if (context.mounted) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => BatchDetailScreen(
+                  batchId: created.id,
+                  controller: controller,
+                ),
+              ),
+            );
+          }
+        }
+      });
       return;
     }
 

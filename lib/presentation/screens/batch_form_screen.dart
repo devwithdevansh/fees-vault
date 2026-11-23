@@ -55,6 +55,82 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
     super.dispose();
   }
 
+  Future<void> _showAddAcademicYearDialog() async {
+    final textCtrl = TextEditingController(text: '2027-2028');
+    bool makeCurrent = false;
+
+    await showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDialogState) => AlertDialog(
+          scrollable: true,
+          title: const Text('Add Academic Year'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: textCtrl,
+                decoration: const InputDecoration(
+                  labelText: 'Academic Year Name',
+                  hintText: 'e.g. 2027-2028',
+                ),
+              ),
+              const SizedBox(height: 12),
+              CheckboxListTile(
+                contentPadding: EdgeInsets.zero,
+                title: const Text(
+                  'Set as current active year',
+                  style: TextStyle(fontSize: 14),
+                ),
+                value: makeCurrent,
+                onChanged: (val) =>
+                    setDialogState(() => makeCurrent = val ?? false),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(ctx),
+              child: const Text('Cancel'),
+            ),
+            ElevatedButton(
+              style: ElevatedButton.styleFrom(backgroundColor: AppColors.brand),
+              onPressed: () async {
+                final name = textCtrl.text.trim();
+                if (name.isNotEmpty) {
+                  final messenger = ScaffoldMessenger.of(context);
+                  Navigator.pop(ctx);
+                  try {
+                    final ay = await widget.controller.createAcademicYear(
+                      name,
+                      isCurrent: makeCurrent,
+                    );
+                    if (mounted) {
+                      setState(() {
+                        _selectedAcademicYear = ay.name;
+                      });
+                    }
+                  } catch (e) {
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: Text(e.toString()),
+                        backgroundColor: AppColors.overdueRed,
+                      ),
+                    );
+                  }
+                }
+              },
+              child: const Text(
+                'Create',
+                style: TextStyle(color: Colors.white),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Future<void> _submit() async {
     if (_isSaving) return;
     if (!_formKey.currentState!.validate()) return;
@@ -65,8 +141,9 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
       final name = _nameController.text.trim();
       final notes = _notesController.text.trim();
 
+      Batch resultBatch;
       if (widget.batchToEdit == null) {
-        await widget.controller.createBatch(
+        resultBatch = await widget.controller.createBatch(
           name: name,
           academicYear: _selectedAcademicYear,
           notes: notes.isEmpty ? null : notes,
@@ -78,6 +155,7 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
           notes: notes.isEmpty ? null : notes,
         );
         await widget.controller.updateBatch(updated);
+        resultBatch = updated;
       }
 
       if (mounted) {
@@ -91,7 +169,7 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
             backgroundColor: AppColors.settledGreen,
           ),
         );
-        Navigator.pop(context);
+        Navigator.pop(context, resultBatch);
       }
     } catch (e) {
       if (mounted) {
@@ -156,65 +234,102 @@ class _BatchFormScreenState extends State<BatchFormScreen> {
                         ),
                       ),
                       const SizedBox(height: 6),
-                      DropdownButtonFormField<String>(
-                        isExpanded: true,
-                        value: _selectedAcademicYear,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 14,
-                            vertical: 12,
-                          ),
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(
-                              color: AppColors.divider,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: const BorderSide(
-                              color: AppColors.divider,
-                            ),
-                          ),
-                        ),
-                        items: academicYears.map((ay) {
-                          return DropdownMenuItem<String>(
-                            value: ay.name,
-                            child: Row(
-                              children: [
-                                Text(ay.name),
-                                if (ay.isCurrent) ...[
-                                  const SizedBox(width: 8),
-                                  Container(
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 6,
-                                      vertical: 2,
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Builder(
+                              builder: (context) {
+                                final items = <DropdownMenuItem<String>>[];
+                                final seen = <String>{};
+
+                                for (final ay in academicYears) {
+                                  seen.add(ay.name);
+                                  items.add(
+                                    DropdownMenuItem<String>(
+                                      value: ay.name,
+                                      child: Row(
+                                        children: [
+                                          Text(ay.name),
+                                          if (ay.isCurrent) ...[
+                                            const SizedBox(width: 8),
+                                            Container(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 6,
+                                                vertical: 2,
+                                              ),
+                                              decoration: BoxDecoration(
+                                                color: AppColors.brandLight,
+                                                borderRadius: BorderRadius.circular(4),
+                                              ),
+                                              child: const Text(
+                                                'Current',
+                                                style: TextStyle(
+                                                  fontSize: 11,
+                                                  fontWeight: FontWeight.w600,
+                                                  color: AppColors.brand,
+                                                ),
+                                              ),
+                                            ),
+                                          ],
+                                        ],
+                                      ),
                                     ),
-                                    decoration: BoxDecoration(
-                                      color: AppColors.brandLight,
-                                      borderRadius: BorderRadius.circular(4),
+                                  );
+                                }
+
+                                if (!seen.contains(_selectedAcademicYear)) {
+                                  items.insert(
+                                    0,
+                                    DropdownMenuItem<String>(
+                                      value: _selectedAcademicYear,
+                                      child: Text(_selectedAcademicYear),
                                     ),
-                                    child: const Text(
-                                      'Current',
-                                      style: TextStyle(
-                                        fontSize: 11,
-                                        fontWeight: FontWeight.w600,
-                                        color: AppColors.brand,
+                                  );
+                                }
+
+                                return DropdownButtonFormField<String>(
+                                  isExpanded: true,
+                                  value: _selectedAcademicYear,
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    contentPadding: const EdgeInsets.symmetric(
+                                      horizontal: 14,
+                                      vertical: 12,
+                                    ),
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: AppColors.divider,
+                                      ),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(10),
+                                      borderSide: const BorderSide(
+                                        color: AppColors.divider,
                                       ),
                                     ),
                                   ),
-                                ],
-                              ],
+                                  items: items,
+                                  onChanged: (val) {
+                                    if (val != null) {
+                                      setState(() => _selectedAcademicYear = val);
+                                    }
+                                  },
+                                );
+                              },
                             ),
-                          );
-                        }).toList(),
-                        onChanged: (val) {
-                          if (val != null) {
-                            setState(() => _selectedAcademicYear = val);
-                          }
-                        },
+                          ),
+                          const SizedBox(width: 8),
+                          IconButton(
+                            icon: const Icon(
+                              Icons.add_circle_outline,
+                              color: AppColors.brand,
+                            ),
+                            tooltip: 'Add Academic Year',
+                            onPressed: _showAddAcademicYearDialog,
+                          ),
+                        ],
                       ),
                       const SizedBox(height: 16),
                       // Batch name

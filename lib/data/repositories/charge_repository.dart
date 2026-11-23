@@ -29,7 +29,7 @@ class ChargeRepository {
 
     final rows = await db.rawQuery(sql, [payerId]);
     return rows
-        .map((r) => Charge.fromMap(r, paidPaise: (r['paidPaise'] as int?) ?? 0))
+        .map((r) => Charge.fromMap(r, paidPaise: (r['paidPaise'] as num?)?.round() ?? 0))
         .toList();
   }
 
@@ -53,7 +53,7 @@ class ChargeRepository {
 
     final rows = await db.rawQuery(sql, args);
     return rows
-        .map((r) => Charge.fromMap(r, paidPaise: (r['paidPaise'] as int?) ?? 0))
+        .map((r) => Charge.fromMap(r, paidPaise: (r['paidPaise'] as num?)?.round() ?? 0))
         .toList();
   }
 
@@ -73,7 +73,7 @@ class ChargeRepository {
 
     final rows = await db.rawQuery(sql, [batchId, batchId]);
     return rows
-        .map((r) => Charge.fromMap(r, paidPaise: (r['paidPaise'] as int?) ?? 0))
+        .map((r) => Charge.fromMap(r, paidPaise: (r['paidPaise'] as num?)?.round() ?? 0))
         .toList();
   }
 
@@ -94,7 +94,7 @@ class ChargeRepository {
     final rows = await db.rawQuery(sql, [id]);
     if (rows.isEmpty) return null;
     final r = rows.first;
-    return Charge.fromMap(r, paidPaise: (r['paidPaise'] as int?) ?? 0);
+    return Charge.fromMap(r, paidPaise: (r['paidPaise'] as num?)?.round() ?? 0);
   }
 
   /// Retrieves overdue charges (dueDate strictly before today with outstanding balance).
@@ -116,7 +116,7 @@ class ChargeRepository {
 
     final rows = await db.rawQuery(sql, [today, limit]);
     return rows
-        .map((r) => Charge.fromMap(r, paidPaise: (r['paidPaise'] as int?) ?? 0))
+        .map((r) => Charge.fromMap(r, paidPaise: (r['paidPaise'] as num?)?.round() ?? 0))
         .toList();
   }
 
@@ -283,9 +283,16 @@ class ChargeRepository {
     // Optional WHERE clause joining charges to batches for academic year filter
     final yearFilter = academicYear != null && academicYear.isNotEmpty;
     final chargesAyWhere = yearFilter
-        ? 'EXISTS (SELECT 1 FROM batches b WHERE b.id = charges.batchId AND b.academicYear = ?)'
+        ? '''(
+            (charges.batchId IS NOT NULL AND EXISTS (SELECT 1 FROM batches b WHERE b.id = charges.batchId AND b.academicYear = ? COLLATE NOCASE))
+            OR (charges.period = ? COLLATE NOCASE)
+            OR EXISTS (SELECT 1 FROM payers p JOIN batches b ON (p.batchId = b.id OR (p.batchId IS NULL AND TRIM(p.batch) = TRIM(b.name) COLLATE NOCASE)) WHERE p.id = charges.payerId AND b.academicYear = ? COLLATE NOCASE)
+            OR (charges.batchId IS NULL AND (charges.period IS NULL OR charges.period = '') AND NOT EXISTS (SELECT 1 FROM payers p2 WHERE p2.id = charges.payerId AND p2.batchId IS NOT NULL))
+          )'''
         : '1=1';
-    final yearArg = yearFilter ? [academicYear] : <Object?>[];
+    final yearArg = yearFilter
+        ? [academicYear, academicYear, academicYear]
+        : <Object?>[];
 
     // 1. Total net fees raised (independent)
     final totalNetFees =
@@ -302,9 +309,16 @@ class ChargeRepository {
         Sqflite.firstIntValue(
           await db.rawQuery(
             yearFilter
-                ? 'SELECT COALESCE(SUM(p.amountPaise), 0) FROM payments p JOIN charges c ON p.chargeId = c.id WHERE EXISTS (SELECT 1 FROM batches b WHERE b.id = c.batchId AND b.academicYear = ?);'
+                ? '''SELECT COALESCE(SUM(p.amountPaise), 0) FROM payments p 
+                     JOIN charges c ON p.chargeId = c.id 
+                     WHERE (
+                       (c.batchId IS NOT NULL AND EXISTS (SELECT 1 FROM batches b WHERE b.id = c.batchId AND b.academicYear = ? COLLATE NOCASE))
+                       OR (c.period = ? COLLATE NOCASE)
+                       OR EXISTS (SELECT 1 FROM payers p2 JOIN batches b ON (p2.batchId = b.id OR (p2.batchId IS NULL AND TRIM(p2.batch) = TRIM(b.name) COLLATE NOCASE)) WHERE p2.id = c.payerId AND b.academicYear = ? COLLATE NOCASE)
+                       OR (c.batchId IS NULL AND (c.period IS NULL OR c.period = '') AND NOT EXISTS (SELECT 1 FROM payers p3 WHERE p3.id = c.payerId AND p3.batchId IS NOT NULL))
+                     );'''
                 : 'SELECT COALESCE(SUM(amountPaise), 0) FROM payments;',
-            yearArg,
+            yearFilter ? [academicYear, academicYear, academicYear] : <Object?>[],
           ),
         ) ??
         0;
@@ -327,7 +341,7 @@ class ChargeRepository {
     int totalOverdue = 0;
     int overdueCount = 0;
     for (final r in overdueRows) {
-      final rem = (r['remaining'] as int?) ?? 0;
+      final rem = (r['remaining'] as num?)?.round() ?? 0;
       if (rem > 0) {
         totalOverdue += rem;
         overdueCount++;

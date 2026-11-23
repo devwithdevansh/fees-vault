@@ -328,13 +328,18 @@ class _BatchesScreenState extends State<BatchesScreen> {
                       borderRadius: BorderRadius.circular(16),
                       onTap: () async {
                         HapticFeedback.lightImpact();
-                        await Navigator.push(
+                        final created = await Navigator.push<Batch>(
                           context,
                           MaterialPageRoute(
                             builder: (_) =>
                                 BatchFormScreen(controller: widget.controller),
                           ),
                         );
+                        if (created != null && mounted) {
+                          await widget.controller.filterBatchesByAcademicYear(
+                            created.academicYear,
+                          );
+                        }
                       },
                       child: const Padding(
                         padding: EdgeInsets.symmetric(
@@ -419,7 +424,20 @@ class _BatchesScreenState extends State<BatchesScreen> {
                     onRefresh: () => widget.controller.refreshAll(),
                     color: AppColors.brand,
                     child: batches.isEmpty
-                        ? _buildEmptyState(currentYear)
+                        ? (_searchQuery.isNotEmpty
+                            ? Center(
+                                child: Padding(
+                                  padding: const EdgeInsets.all(24),
+                                  child: Text(
+                                    'No batches matching "$_searchQuery"',
+                                    style: const TextStyle(
+                                      fontSize: 15,
+                                      color: AppColors.textSecondary,
+                                    ),
+                                  ),
+                                ),
+                              )
+                            : _buildEmptyState(currentYear))
                         : ListView.builder(
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16,
@@ -516,14 +534,19 @@ class _BatchesScreenState extends State<BatchesScreen> {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton.icon(
-                onPressed: () {
-                  Navigator.push(
+                onPressed: () async {
+                  final created = await Navigator.push<Batch>(
                     context,
                     MaterialPageRoute(
                       builder: (_) =>
                           BatchFormScreen(controller: widget.controller),
                     ),
                   );
+                  if (created != null && mounted) {
+                    await widget.controller.filterBatchesByAcademicYear(
+                      created.academicYear,
+                    );
+                  }
                 },
                 icon: const Icon(Icons.add_rounded, size: 20),
                 label: const Text(

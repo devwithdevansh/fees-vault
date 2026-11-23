@@ -78,12 +78,12 @@ class PaymentRepository {
     final rows = await db.rawQuery(sql, whereArgs);
 
     return rows.map((r) {
-      final updateCount = (r['updateAuditCount'] as int?) ?? 0;
+      final updateCount = (r['updateAuditCount'] as num?)?.round() ?? 0;
       return Payment.fromMap(
         r,
         payerName: r['payerName'] as String?,
         chargeTitle: r['chargeTitle'] as String?,
-        remainingBalancePaise: (r['remainingBalancePaise'] as int?) ?? 0,
+        remainingBalancePaise: (r['remainingBalancePaise'] as num?)?.round() ?? 0,
         isEdited: updateCount > 0,
       );
     }).toList();
@@ -110,12 +110,12 @@ class PaymentRepository {
 
     final rows = await db.rawQuery(sql, [chargeId]);
     return rows.map((r) {
-      final updateCount = (r['updateAuditCount'] as int?) ?? 0;
+      final updateCount = (r['updateAuditCount'] as num?)?.round() ?? 0;
       return Payment.fromMap(
         r,
         payerName: r['payerName'] as String?,
         chargeTitle: r['chargeTitle'] as String?,
-        remainingBalancePaise: (r['remainingBalancePaise'] as int?) ?? 0,
+        remainingBalancePaise: (r['remainingBalancePaise'] as num?)?.round() ?? 0,
         isEdited: updateCount > 0,
       );
     }).toList();
@@ -143,12 +143,12 @@ class PaymentRepository {
     final rows = await db.rawQuery(sql, [id]);
     if (rows.isEmpty) return null;
     final r = rows.first;
-    final updateCount = (r['updateAuditCount'] as int?) ?? 0;
+    final updateCount = (r['updateAuditCount'] as num?)?.round() ?? 0;
     return Payment.fromMap(
       r,
       payerName: r['payerName'] as String?,
       chargeTitle: r['chargeTitle'] as String?,
-      remainingBalancePaise: (r['remainingBalancePaise'] as int?) ?? 0,
+      remainingBalancePaise: (r['remainingBalancePaise'] as num?)?.round() ?? 0,
       isEdited: updateCount > 0,
     );
   }
@@ -188,8 +188,8 @@ class PaymentRepository {
       }
 
       final charge = chargeRows.first;
-      final gross = charge['grossPaise'] as int;
-      final discount = (charge['discountPaise'] as int?) ?? 0;
+      final gross = (charge['grossPaise'] as num).round();
+      final discount = (charge['discountPaise'] as num?)?.round() ?? 0;
       final netCharge = gross - discount;
 
       // 2. Compute current total paid for this charge
@@ -309,8 +309,8 @@ class PaymentRepository {
       }
       final charge = chargeRows.first;
       final netCharge =
-          (charge['grossPaise'] as int) -
-          ((charge['discountPaise'] as int?) ?? 0);
+          ((charge['grossPaise'] as num).round()) -
+          ((charge['discountPaise'] as num?)?.round() ?? 0);
 
       final otherPaid =
           Sqflite.firstIntValue(

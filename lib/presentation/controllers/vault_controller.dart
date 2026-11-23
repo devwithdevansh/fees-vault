@@ -39,6 +39,7 @@ class VaultController extends ChangeNotifier {
   List<AcademicYear> _academicYears = [];
   AcademicYear? _currentAcademicYear;
   List<Batch> _batches = [];
+  List<Batch> _allBatches = [];
   String? _selectedAcademicYearFilter;
 
   String _businessName = AppConstants.appDisplayName;
@@ -77,6 +78,7 @@ class VaultController extends ChangeNotifier {
     return '$startYear-${startYear + 1}';
   }
   List<Batch> get batches => _batches;
+  List<Batch> get allBatches => _allBatches;
   String? get selectedAcademicYearFilter => _selectedAcademicYearFilter;
   String get businessName => _businessName;
   bool get onboardingDone => _onboardingDone;
@@ -111,10 +113,16 @@ class VaultController extends ChangeNotifier {
 
       // Load Academic Years
       _academicYears = await academicYearRepo.getAcademicYears();
+      if (_academicYears.isEmpty) {
+        final defaultAy = await academicYearRepo.createAcademicYear(
+          name: _currentYearLabel(),
+          isCurrent: true,
+        );
+        _academicYears = [defaultAy];
+      }
       _currentAcademicYear = await academicYearRepo.getCurrentAcademicYear();
       _selectedAcademicYearFilter =
-          _currentAcademicYear?.name ??
-          (_academicYears.isNotEmpty ? _academicYears.first.name : _currentYearLabel());
+          _currentAcademicYear?.name ?? _academicYears.first.name;
 
       await refreshAll();
     } catch (e) {
@@ -128,15 +136,31 @@ class VaultController extends ChangeNotifier {
   /// Refreshes all summary metrics, overdue charges, recent payments, payers, and batches
   Future<void> refreshAll() async {
     try {
+      _academicYears = await academicYearRepo.getAcademicYears();
+      if (_academicYears.isEmpty) {
+        final defaultAy = await academicYearRepo.createAcademicYear(
+          name: _currentYearLabel(),
+          isCurrent: true,
+        );
+        _academicYears = [defaultAy];
+      }
+      _currentAcademicYear = await academicYearRepo.getCurrentAcademicYear();
+
+      // Ensure active filter is aligned with available academic years
+      if (_selectedAcademicYearFilter == null ||
+          !_academicYears.any((ay) => ay.name == _selectedAcademicYearFilter)) {
+        _selectedAcademicYearFilter =
+            _currentAcademicYear?.name ?? _academicYears.first.name;
+      }
+
       _summary = await chargeRepo.getVaultSummary(
         academicYear: _selectedAcademicYearFilter,
       );
       _payers = await payerRepo.getPayers(includeArchived: true);
       _recentPayments = await paymentRepo.getPayments(limit: 10);
       _overdueCharges = await chargeRepo.getOverdueCharges(limit: 10);
-      _academicYears = await academicYearRepo.getAcademicYears();
-      _currentAcademicYear = await academicYearRepo.getCurrentAcademicYear();
 
+      _allBatches = await batchRepo.getBatches();
       final yearFilter =
           _selectedAcademicYearFilter ?? _currentAcademicYear?.name;
       _batches = await batchRepo.getBatches(academicYear: yearFilter);
@@ -151,6 +175,7 @@ class VaultController extends ChangeNotifier {
   Future<void> filterBatchesByAcademicYear(String? academicYear) async {
     _selectedAcademicYearFilter = academicYear;
     _batches = await batchRepo.getBatches(academicYear: academicYear);
+    _summary = await chargeRepo.getVaultSummary(academicYear: academicYear);
     notifyListeners();
   }
 
@@ -239,11 +264,27 @@ class VaultController extends ChangeNotifier {
     _inFlightOperations.add(opKey);
 
     try {
+      final cleanYear = academicYear.trim();
+      // Ensure academic year exists in academic_years table
+      final existingYears = await academicYearRepo.getAcademicYears();
+      final hasYear = existingYears.any(
+        (y) => y.name.toLowerCase() == cleanYear.toLowerCase(),
+      );
+      if (!hasYear) {
+        await academicYearRepo.createAcademicYear(
+          name: cleanYear,
+          isCurrent: existingYears.isEmpty,
+        );
+      }
+
       final batch = await batchRepo.createBatch(
         name: name,
-        academicYear: academicYear,
+        academicYear: cleanYear,
         notes: notes,
       );
+
+      // Automatically switch active filter to new batch's academic year so it's immediately visible
+      _selectedAcademicYearFilter = cleanYear;
       await refreshAll();
       return batch;
     } finally {
@@ -257,7 +298,20 @@ class VaultController extends ChangeNotifier {
     _inFlightOperations.add(opKey);
 
     try {
+      final cleanYear = batch.academicYear.trim();
+      final existingYears = await academicYearRepo.getAcademicYears();
+      final hasYear = existingYears.any(
+        (y) => y.name.toLowerCase() == cleanYear.toLowerCase(),
+      );
+      if (!hasYear) {
+        await academicYearRepo.createAcademicYear(
+          name: cleanYear,
+          isCurrent: existingYears.isEmpty,
+        );
+      }
+
       await batchRepo.updateBatch(batch);
+      _selectedAcademicYearFilter = cleanYear;
       await refreshAll();
     } finally {
       _inFlightOperations.remove(opKey);
@@ -566,7 +620,18 @@ class VaultController extends ChangeNotifier {
         'key': AppConstants.settingReceiptCounter,
         'value': '1000',
       }, conflictAlgorithm: ConflictAlgorithm.replace);
+
+      // Re-seed default current academic year so app state remains valid
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final defaultAy = _currentYearLabel();
+      await txn.insert('academic_years', {
+        'id': 'ay_${DateTime.now().year}',
+        'name': defaultAy,
+        'isCurrent': 1,
+        'createdAt': now,
+      });
     });
+    _selectedAcademicYearFilter = _currentYearLabel();
     await refreshAll();
   }
 }

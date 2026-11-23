@@ -21,21 +21,24 @@ class BatchRepository {
   Future<List<Batch>> getBatches({String? academicYear}) async {
     final db = _dbManager.database;
 
-    final where = academicYear != null ? 'WHERE b.academicYear = ?' : '';
-    final args = academicYear != null ? [academicYear] : null;
+    final cleanYear = academicYear?.trim();
+    final where = cleanYear != null && cleanYear.isNotEmpty
+        ? 'WHERE b.academicYear = ? COLLATE NOCASE'
+        : '';
+    final args = cleanYear != null && cleanYear.isNotEmpty ? [cleanYear] : null;
 
     final sql =
         '''
       SELECT 
         b.*,
         (SELECT COUNT(*) FROM payers p 
-         WHERE p.archived = 0 AND (p.batchId = b.id OR (p.batchId IS NULL AND p.batch = b.name))) AS studentCount,
+         WHERE p.archived = 0 AND (p.batchId = b.id OR (p.batchId IS NULL AND TRIM(p.batch) = TRIM(b.name) COLLATE NOCASE))) AS studentCount,
         COALESCE(
           (SELECT SUM(c.grossPaise - c.discountPaise) 
            FROM charges c 
            WHERE c.batchId = b.id OR c.payerId IN (
              SELECT p.id FROM payers p 
-             WHERE p.archived = 0 AND (p.batchId = b.id OR (p.batchId IS NULL AND p.batch = b.name))
+             WHERE p.archived = 0 AND (p.batchId = b.id OR (p.batchId IS NULL AND TRIM(p.batch) = TRIM(b.name) COLLATE NOCASE))
            )), 0) AS totalFeePaise,
         COALESCE(
           (SELECT SUM(pm.amountPaise) 
@@ -43,7 +46,7 @@ class BatchRepository {
            JOIN charges c ON pm.chargeId = c.id 
            WHERE c.batchId = b.id OR c.payerId IN (
              SELECT p.id FROM payers p 
-             WHERE p.archived = 0 AND (p.batchId = b.id OR (p.batchId IS NULL AND p.batch = b.name))
+             WHERE p.archived = 0 AND (p.batchId = b.id OR (p.batchId IS NULL AND TRIM(p.batch) = TRIM(b.name) COLLATE NOCASE))
            )), 0) AS totalCollectedPaise
       FROM batches b
       $where
@@ -56,9 +59,9 @@ class BatchRepository {
     for (final row in rows) {
       final batchId = row['id'] as String;
       final templates = await getFeeTemplates(batchId);
-      final studentCount = (row['studentCount'] as int?) ?? 0;
-      final feePaise = (row['totalFeePaise'] as int?) ?? 0;
-      final collectedPaise = (row['totalCollectedPaise'] as int?) ?? 0;
+      final studentCount = (row['studentCount'] as num?)?.toInt() ?? 0;
+      final feePaise = (row['totalFeePaise'] as num?)?.toInt() ?? 0;
+      final collectedPaise = (row['totalCollectedPaise'] as num?)?.toInt() ?? 0;
 
       batches.add(
         Batch.fromMap(
@@ -82,13 +85,13 @@ class BatchRepository {
       SELECT 
         b.*,
         (SELECT COUNT(*) FROM payers p 
-         WHERE p.archived = 0 AND (p.batchId = b.id OR (p.batchId IS NULL AND p.batch = b.name))) AS studentCount,
+         WHERE p.archived = 0 AND (p.batchId = b.id OR (p.batchId IS NULL AND TRIM(p.batch) = TRIM(b.name) COLLATE NOCASE))) AS studentCount,
         COALESCE(
           (SELECT SUM(c.grossPaise - c.discountPaise) 
            FROM charges c 
            WHERE c.batchId = b.id OR c.payerId IN (
              SELECT p.id FROM payers p 
-             WHERE p.archived = 0 AND (p.batchId = b.id OR (p.batchId IS NULL AND p.batch = b.name))
+             WHERE p.archived = 0 AND (p.batchId = b.id OR (p.batchId IS NULL AND TRIM(p.batch) = TRIM(b.name) COLLATE NOCASE))
            )), 0) AS totalFeePaise,
         COALESCE(
           (SELECT SUM(pm.amountPaise) 
@@ -96,7 +99,7 @@ class BatchRepository {
            JOIN charges c ON pm.chargeId = c.id 
            WHERE c.batchId = b.id OR c.payerId IN (
              SELECT p.id FROM payers p 
-             WHERE p.archived = 0 AND (p.batchId = b.id OR (p.batchId IS NULL AND p.batch = b.name))
+             WHERE p.archived = 0 AND (p.batchId = b.id OR (p.batchId IS NULL AND TRIM(p.batch) = TRIM(b.name) COLLATE NOCASE))
            )), 0) AS totalCollectedPaise
       FROM batches b
       WHERE b.id = ?
@@ -108,9 +111,9 @@ class BatchRepository {
 
     final row = rows.first;
     final templates = await getFeeTemplates(id);
-    final studentCount = (row['studentCount'] as int?) ?? 0;
-    final feePaise = (row['totalFeePaise'] as int?) ?? 0;
-    final collectedPaise = (row['totalCollectedPaise'] as int?) ?? 0;
+    final studentCount = (row['studentCount'] as num?)?.toInt() ?? 0;
+    final feePaise = (row['totalFeePaise'] as num?)?.toInt() ?? 0;
+    final collectedPaise = (row['totalCollectedPaise'] as num?)?.toInt() ?? 0;
 
     return Batch.fromMap(
       row,
@@ -494,15 +497,15 @@ class BatchRepository {
         COALESCE((SELECT SUM(pm.amountPaise) FROM payments pm JOIN charges c ON pm.chargeId = c.id WHERE c.payerId = p.id), 0) AS totalPaidPaise,
         COALESCE((SELECT COUNT(*) FROM charges c WHERE c.payerId = p.id), 0) AS chargeCount
       FROM payers p
-      WHERE p.archived = 0 AND (p.batchId = ? OR (p.batchId IS NULL AND p.batch = ?))
+      WHERE p.archived = 0 AND (p.batchId = ? OR (p.batchId IS NULL AND TRIM(p.batch) = TRIM(?) COLLATE NOCASE))
       ORDER BY p.name COLLATE NOCASE ASC;
     ''';
 
     final rows = await db.rawQuery(sql, [batchId, batchName]);
     return rows.map((row) {
-      final net = (row['totalNetPaise'] as int?) ?? 0;
-      final paid = (row['totalPaidPaise'] as int?) ?? 0;
-      final count = (row['chargeCount'] as int?) ?? 0;
+      final net = (row['totalNetPaise'] as num?)?.round() ?? 0;
+      final paid = (row['totalPaidPaise'] as num?)?.round() ?? 0;
+      final count = (row['chargeCount'] as num?)?.toInt() ?? 0;
       return Payer.fromMap(
         row,
         totalNetPaise: net,

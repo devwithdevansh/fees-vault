@@ -52,8 +52,13 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
       _customBatchName = p.batch;
     } else if (widget.initialBatch != null) {
       _selectedBatchId = widget.initialBatch!.id;
-    } else if (widget.controller.batches.isNotEmpty) {
-      _selectedBatchId = widget.controller.batches.first.id;
+    } else {
+      final available = widget.controller.allBatches.isNotEmpty
+          ? widget.controller.allBatches
+          : widget.controller.batches;
+      if (available.isNotEmpty) {
+        _selectedBatchId = available.first.id;
+      }
     }
   }
 
@@ -68,8 +73,11 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
 
   Batch? get _selectedBatch {
     if (_selectedBatchId == null) return null;
+    final all = widget.controller.allBatches.isNotEmpty
+        ? widget.controller.allBatches
+        : widget.controller.batches;
     try {
-      return widget.controller.batches.firstWhere(
+      return all.firstWhere(
         (b) => b.id == _selectedBatchId,
       );
     } catch (_) {
@@ -158,7 +166,9 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
   @override
   Widget build(BuildContext context) {
     final isEdit = widget.payerToEdit != null;
-    final batches = widget.controller.batches;
+    final batches = widget.controller.allBatches.isNotEmpty
+        ? widget.controller.allBatches
+        : widget.controller.batches;
     final selectedBatch = _selectedBatch;
 
     return Scaffold(
@@ -275,14 +285,18 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
                     ),
                     tooltip: 'Create New Batch',
                     onPressed: () async {
-                      await Navigator.push(
+                      final newBatch = await Navigator.push<Batch>(
                         context,
                         MaterialPageRoute(
                           builder: (_) =>
                               BatchFormScreen(controller: widget.controller),
                         ),
                       );
-                      setState(() {});
+                      if (newBatch != null && mounted) {
+                        setState(() {
+                          _selectedBatchId = newBatch.id;
+                        });
+                      }
                     },
                   ),
                 ],
@@ -305,14 +319,18 @@ class _PayerFormScreenState extends State<PayerFormScreen> {
                     ),
                     TextButton(
                       onPressed: () async {
-                        await Navigator.push(
+                        final newBatch = await Navigator.push<Batch>(
                           context,
                           MaterialPageRoute(
                             builder: (_) =>
                                 BatchFormScreen(controller: widget.controller),
                           ),
                         );
-                        setState(() {});
+                        if (newBatch != null && mounted) {
+                          setState(() {
+                            _selectedBatchId = newBatch.id;
+                          });
+                        }
                       },
                       child: const Text('Create Batch'),
                     ),

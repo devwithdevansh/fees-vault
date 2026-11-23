@@ -220,5 +220,27 @@ void main() {
         expect(unchargedTemplates.first.title, equals('Term 2 Tuition'));
       },
     );
+
+    test('6. Batch creation preserves academic year and notes accurately', () {
+      final now = DateTime.now().millisecondsSinceEpoch;
+      final batch = Batch(
+        id: 'batch_new_1',
+        name: 'Class 11 Science',
+        academicYear: '2027-2028',
+        notes: 'Morning shift, Room 4',
+        createdAt: now,
+        updatedAt: now,
+      );
+
+      final map = batch.toMap();
+      expect(map['name'], equals('Class 11 Science'));
+      expect(map['academicYear'], equals('2027-2028'));
+      expect(map['notes'], equals('Morning shift, Room 4'));
+
+      final fromDb = Batch.fromMap(map);
+      expect(fromDb.name, equals('Class 11 Science'));
+      expect(fromDb.academicYear, equals('2027-2028'));
+      expect(fromDb.notes, equals('Morning shift, Room 4'));
+    });
   });
 }
